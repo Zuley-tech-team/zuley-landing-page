@@ -1,0 +1,644 @@
+═══════════════════════════════════════════════════════════════════
+🛠️ CRAFTSMANSHIP / QUALITY PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+PAGE GOAL:
+Build trust and justify premium pricing by:
+✓ Demonstrating superior quality and craftsmanship
+✓ Educating customers about silver standards
+✓ Showcasing the making process
+✓ Differentiating from lower-quality alternatives
+
+═══════════════════════════════════════════════════════════════════
+1️⃣ HERO SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+MAIN HEADLINE:
+"Crafted to Perfection. Built to Last."
+
+SUBHEADLINE:
+"Where traditional silversmithing meets modern precision"
+
+OPENING STATEMENT:
+"Every piece begins with a commitment to excellence. From sourcing the finest 
+925 sterling silver to the final quality check, we never compromise. This is 
+how we create accessories worthy of your everyday life and special moments."
+
+VISUAL ELEMENTS:
+----------------
+• Hero video: Craftsman working with silver (loop)
+• Close-up: Hands crafting product
+• Macro photography: Silver texture detail
+• Workshop atmosphere
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Hero Design:
+   - Background: Dark (charcoal to black gradient)
+   - Text: White with subtle glow
+   - Video: Full-width background, dark overlay
+   - Height: 70vh
+
+✨ Typography:
+   - Main headline: 64px, Playfair Display, bold, centered
+   - Subheadline: 24px, italic, centered
+   - Opening: 18px, line-height: 1.9, max-width: 800px
+
+🎬 Animations:
+   - Video: Slow zoom
+   - Text: Fade in from bottom
+   - Scroll indicator: Bounce animation
+
+
+═══════════════════════════════════════════════════════════════════
+2️⃣ SILVER SOURCING & STANDARDS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"The Silver Standard: 925 Sterling"
+
+SUBHEADLINE:
+"Why we only use authentic 925 sterling silver"
+
+MAIN CONTENT:
+-------------
+WHAT IS 925 STERLING SILVER?
+
+"925 sterling silver is the international benchmark for quality silver products. 
+The number '925' means the metal is 92.5% pure silver, alloyed with 7.5% 
+copper for strength and durability.
+
+This precise composition creates the perfect balance:
+• Pure enough to maintain silver's natural beauty and antimicrobial properties
+• Strong enough for daily use without bending or breaking
+• Durable enough to last generations with proper care
+• Valuable enough to appreciate over time
+
+We source our silver from certified suppliers who meet international standards. 
+Every batch is tested for purity, and every finished piece carries the official 
+925 hallmark—your guarantee of authenticity."
+
+WHY NOT PURE SILVER (99.9%)?
+"Pure silver is too soft for functional products. It bends easily and wears 
+quickly. The 7.5% copper alloy in 925 sterling silver provides the strength 
+needed for everyday items while maintaining silver's premium qualities."
+
+WHY NOT SILVER-PLATED?
+"Silver-plated items have only a thin layer of silver over base metal. This 
+plating wears off over time, exposing the cheaper metal underneath. Our solid 
+925 sterling silver goes all the way through—it will never wear off or tarnish 
+to reveal a different metal."
+
+HALLMARK CERTIFICATION:
+"Every piece is stamped with the official '925' hallmark, certifying its 
+purity. This mark is your guarantee that you're receiving authentic sterling 
+silver, not an imitation."
+
+VISUAL ELEMENTS:
+----------------
+• Infographic: 925 composition breakdown
+• Comparison chart: 925 vs. plated vs. pure
+• Hallmark close-up photography
+• Silver ingot/raw material images
+• Certification documents
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 120px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Layout:
+   - Two-column: Text (left 60%), Visuals (right 40%)
+   - Infographic: Circular composition chart
+   - Comparison table: Clean, easy to read
+
+🎭 Infographic Design:
+   - Circle: 92.5% silver (large), 7.5% copper (small)
+   - Colors: Silver and copper tones
+   - Animated: Fills on scroll into view
+
+📐 Comparison Table:
+   - Three columns: 925 Sterling, Plated, Pure
+   - Rows: Durability, Value, Longevity, etc.
+   - Checkmarks and X marks
+   - 925 column highlighted (rose gold background)
+
+🎬 Animations:
+   - Composition chart: Animated fill
+   - Hallmark: Zoom in effect
+   - Table: Rows fade in sequentially
+
+
+═══════════════════════════════════════════════════════════════════
+3️⃣ MAKING PROCESS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"From Silver to Masterpiece"
+
+SUBHEADLINE:
+"The journey of creating your silver accessory"
+
+6-STEP PROCESS:
+---------------
+STEP 1: DESIGN & PROTOTYPING
+"Every product begins with careful design. We create detailed technical 
+drawings and prototypes, refining every dimension until perfect."
+
+Visual: Design sketches, CAD models, prototype photos
+
+---
+
+STEP 2: SILVER PREPARATION
+"We start with certified 925 sterling silver ingots. The silver is melted, 
+purified, and formed into workable sheets or rods at precise temperatures."
+
+Visual: Melting process, silver ingots, temperature control
+
+---
+
+STEP 3: SHAPING & FORMING
+"Our skilled artisans shape the silver using traditional silversmithing 
+techniques combined with modern precision tools. Each piece is carefully 
+formed to exact specifications."
+
+Visual: Artisan working, shaping tools, work-in-progress pieces
+
+---
+
+STEP 4: ASSEMBLY & FINISHING
+"Components are assembled with precision. The piece is then polished to 
+achieve the desired finish—mirror-like polish, brushed matte, or oxidized 
+vintage look."
+
+Visual: Assembly process, polishing, different finishes
+
+---
+
+STEP 5: ENGRAVING (If Personalized)
+"For personalized pieces, we use precision laser engraving technology. Your 
+text or logo is engraved with micrometer accuracy, creating permanent, 
+detailed impressions."
+
+Visual: Laser engraving in action, close-up of engraving detail
+
+---
+
+STEP 6: QUALITY CHECK & HALLMARKING
+"Every piece undergoes rigorous quality inspection. We check dimensions, 
+finish quality, mechanism function, and engraving accuracy. Only then is it 
+stamped with the 925 hallmark and approved for packaging."
+
+Visual: Quality inspector, hallmark stamping, approved pieces
+
+TIMELINE:
+---------
+• Standard product: 3-5 days production
+• Personalized product: 5-7 days (includes engraving)
+• Bulk orders: Custom timeline based on quantity
+
+VISUAL ELEMENTS:
+----------------
+• Process photography (authentic workshop shots)
+• Step-by-step visual timeline
+• Before/after comparisons
+• Artisan portraits
+• Close-up detail shots
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light grey (#F8F8F8)
+   - Padding: 120px top/bottom
+   - Full-width section
+
+✨ Process Layout:
+   - Vertical timeline (desktop)
+   - Alternating: Image left, text right / Text left, image right
+   - Connecting line: Rose gold, 2px
+   - Step numbers: Large circles on timeline
+
+🎭 Step Design:
+   - Number circle: 80px diameter, rose gold border
+   - Number: 32px, bold, white on rose gold
+   - Title: 24px, bold, dark grey
+   - Description: 16px, line-height: 1.7
+   - Image: 500px x 400px, rounded corners
+
+📐 Timeline:
+   - Vertical line: Left side (desktop)
+   - Circles: On the line
+   - Content: Alternates left/right of line
+   - Mobile: Straight vertical, all content right
+
+🎬 Animations:
+   - Timeline draws from top to bottom
+   - Steps fade in as timeline reaches them
+   - Images: Parallax effect
+   - Numbers: Count up animation
+
+
+═══════════════════════════════════════════════════════════════════
+4️⃣ ENGRAVING TECHNOLOGY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Precision Laser Engraving"
+
+SUBHEADLINE:
+"Your words, permanently etched in silver"
+
+MAIN CONTENT:
+-------------
+TECHNOLOGY:
+"We use state-of-the-art fiber laser engraving technology, capable of 
+reproducing text and logos with exceptional detail and precision.
+
+Unlike traditional mechanical engraving, laser engraving:
+• Creates perfectly consistent depth and clarity
+• Reproduces complex logos and fine details
+• Ensures permanent results that won't fade
+• Allows for various font styles and sizes
+• Completes quickly without compromising quality"
+
+PROCESS:
+"Your design is converted to a digital file and loaded into our laser system. 
+The laser beam removes a microscopic layer of silver, creating a permanent 
+impression. The depth is precisely controlled to ensure visibility without 
+compromising the product's integrity."
+
+CAPABILITIES:
+• Text: Any font, up to 50 characters
+• Logos: Vector files (AI, EPS, SVG) for best results
+• Depth: 0.05mm to 0.15mm (adjustable)
+• Precision: ±0.01mm accuracy
+• Speed: Most engravings complete in 2-5 minutes
+
+QUALITY ASSURANCE:
+"Every engraving is inspected under magnification to ensure perfect clarity, 
+alignment, and depth. If it doesn't meet our standards, we redo it."
+
+VISUAL ELEMENTS:
+----------------
+• Laser engraving machine in action
+• Before/after engraving close-ups
+• Macro photography of engraved text
+• Font samples on silver
+• Logo engraving examples
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Dark charcoal (#1C1C1C)
+   - Text: White and light grey
+   - Accent: Laser blue (#00D9FF) or rose gold
+   - Padding: 100px top/bottom
+
+✨ Layout:
+   - Two-column: Content (left), Visuals (right)
+   - Video: Laser engraving process (loop)
+   - Gallery: Engraving examples below
+
+🎭 Visual Style:
+   - Tech-focused aesthetic
+   - Clean, modern design
+   - Macro photography highlighting detail
+   - Animated laser effect
+
+📐 Capabilities List:
+   - Icon + text format
+   - Checkmarks in laser blue
+   - Technical specifications in table
+
+🎬 Animations:
+   - Laser beam animation (drawing text)
+   - Before/after slider
+   - Zoom in on engraving detail
+
+
+═══════════════════════════════════════════════════════════════════
+5️⃣ QUALITY CONTROL
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Zero Compromise on Quality"
+
+SUBHEADLINE:
+"Multiple checkpoints ensure perfection"
+
+QUALITY CHECKPOINTS:
+--------------------
+1. RAW MATERIAL INSPECTION
+   "Silver purity tested upon receipt. Only certified 925 sterling silver 
+   enters our workshop."
+   
+   Tests:
+   • Acid test for purity
+   • Hallmark verification
+   • Supplier certification review
+
+2. IN-PROCESS CHECKS
+   "Artisans inspect work at every stage. Dimensions, finish, and assembly 
+   are verified against specifications."
+   
+   Checks:
+   • Dimensional accuracy (±0.1mm tolerance)
+   • Surface finish quality
+   • Component fit and alignment
+
+3. ENGRAVING VERIFICATION
+   "Every engraving is inspected under magnification for clarity, spelling, 
+   and alignment before proceeding."
+   
+   Checks:
+   • Text accuracy (spelling, spacing)
+   • Logo clarity and detail
+   • Depth consistency
+   • Alignment and positioning
+
+4. FUNCTIONAL TESTING
+   "Mechanisms are tested for smooth operation. Pens must write perfectly, 
+   keychains must open/close smoothly."
+   
+   Tests:
+   • Pen: Ink flow, cap fit, writing smoothness
+   • Keychain: Ring mechanism, clasp function
+   • Phone cover: Fit, button access
+
+5. FINAL INSPECTION
+   "A dedicated quality inspector examines every piece before packaging. 
+   Only flawless products are approved."
+   
+   Final checks:
+   • Overall appearance
+   • Hallmark presence
+   • Packaging quality
+   • Accessories included
+
+REJECTION RATE:
+"We reject approximately 2-3% of products that don't meet our standards. 
+These pieces are melted down and reused—we never sell seconds or defects."
+
+GUARANTEE:
+"If you ever receive a product with a craftsmanship defect, we'll replace 
+it immediately—no questions asked. We stand behind every piece we create."
+
+VISUAL ELEMENTS:
+----------------
+• Quality inspector at work
+• Magnification inspection photos
+• Testing equipment
+• Approved vs. rejected comparison
+• Quality certification documents
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 100px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Checkpoint Layout:
+   - Vertical flow: 5 checkpoints
+   - Number badges: 1-5
+   - Icon for each checkpoint
+   - Expandable: Click to see details
+
+🎭 Checkpoint Design:
+   - Number: Large circle, rose gold
+   - Title: Bold, dark grey
+   - Description: Regular weight
+   - Tests/checks: Bulleted list, indented
+
+📐 Statistics:
+   - Rejection rate: Large number (2-3%)
+   - Visual: Pie chart or bar
+   - Guarantee badge: Prominent
+
+🎬 Animations:
+   - Checkpoints: Sequential fade in
+   - Numbers: Count up
+   - Expandable sections: Smooth accordion
+
+
+═══════════════════════════════════════════════════════════════════
+6️⃣ CARE & MAINTENANCE
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Caring for Your Silver"
+
+SUBHEADLINE:
+"Simple steps to keep your silver looking beautiful for years"
+
+CARE INSTRUCTIONS:
+------------------
+DAILY CARE:
+• Wipe with soft, dry cloth after use
+• Avoid contact with harsh chemicals (bleach, chlorine)
+• Remove before swimming or bathing
+• Store in provided anti-tarnish pouch when not in use
+
+CLEANING:
+• For light tarnish: Use included silver polishing cloth
+• For heavier tarnish: Use silver cleaning solution (available at jewelry stores)
+• Gently rub in circular motions
+• Rinse with water and dry thoroughly
+• Never use abrasive materials or harsh chemicals
+
+STORAGE:
+• Keep in anti-tarnish pouch or airtight container
+• Store away from humidity and direct sunlight
+• Separate pieces to prevent scratching
+• Use silica gel packets to absorb moisture
+
+WHAT TO AVOID:
+• Perfumes, lotions, and cosmetics (apply before wearing silver)
+• Household cleaners and chemicals
+• Rubber bands (can cause tarnish)
+• Prolonged exposure to air and moisture
+
+PROFESSIONAL SERVICING:
+"For deep cleaning or repairs, contact us. We offer professional cleaning 
+and restoration services for our products."
+
+WHY SILVER TARNISHES:
+"Tarnish is a natural reaction between silver and sulfur in the air. It's 
+not a defect—it's chemistry. The good news: tarnish is only surface-level 
+and easily removed. Your silver underneath remains perfect."
+
+VISUAL ELEMENTS:
+----------------
+• Care instruction infographic
+• Before/after cleaning photos
+• Storage solutions
+• Do's and Don'ts visual guide
+• Video: How to clean silver (30 seconds)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light cream (#FAF9F6)
+   - Padding: 80px top/bottom
+   - Max-width: 1000px, centered
+
+✨ Layout:
+   - Two-column: Instructions (left), Visuals (right)
+   - Infographic: Do's and Don'ts
+   - Video: Embedded cleaning tutorial
+
+🎭 Visual Guide:
+   - Icons: Checkmarks (do) and X marks (don't)
+   - Color coding: Green (do), Red (don't)
+   - Simple, clear illustrations
+
+📐 Typography:
+   - Section titles: 18px, bold, uppercase
+   - Instructions: 16px, bulleted lists
+   - Tips: Italic, highlighted background
+
+🎬 Interactions:
+   - Expandable sections: Click for details
+   - Video: Play on click
+   - Hover: Tips highlight
+
+
+═══════════════════════════════════════════════════════════════════
+7️⃣ CERTIFICATIONS & STANDARDS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Certified Excellence"
+
+CERTIFICATIONS:
+---------------
+• 925 Hallmark Certification (BIS, if applicable)
+• ISO Quality Standards (if applicable)
+• Ethical Sourcing Commitment
+• Eco-Friendly Practices
+
+WHAT HALLMARK MEANS:
+"The hallmark is an official mark stamped on precious metals to certify 
+their purity. Our 925 hallmark guarantees that your product is authentic 
+sterling silver, tested and certified by authorized agencies."
+
+VISUAL ELEMENTS:
+----------------
+• Certification badges
+• Hallmark close-up
+• Official documents
+• Trust seals
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 60px top/bottom
+   - Centered content
+
+✨ Badge Layout:
+   - Horizontal row: 4-6 badges
+   - Circular badges: 100px diameter
+   - Hover: Scale up, show details
+
+🎬 Animations:
+   - Badges: Fade in sequentially
+   - Hover: Rotate slightly
+
+
+═══════════════════════════════════════════════════════════════════
+8️⃣ CALL TO ACTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+HEADLINE:
+"Experience the Difference"
+
+MESSAGE:
+"Now that you know what goes into every piece, explore our collection and 
+feel the quality for yourself."
+
+CTAs:
+• "Shop Now" (Primary)
+• "Learn About Personalization" (Secondary)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Rose gold gradient
+   - Text: White
+   - Height: 350px
+   - Centered content
+
+✨ CTAs:
+   - Large buttons
+   - White background (primary)
+   - Outlined white (secondary)
+
+
+═══════════════════════════════════════════════════════════════════
+OVERALL CRAFTSMANSHIP PAGE DESIGN PRINCIPLES
+═══════════════════════════════════════════════════════════════════
+
+🎨 COLOR PALETTE:
+Primary: Deep Charcoal (#2C2C2C)
+Accent: Rose Gold (#B76E79) and Metallic Silver
+Background: White, Light Grey, Dark Charcoal (alternating)
+Technical, premium aesthetic
+
+✨ TONE & VOICE:
+- Educational and informative
+- Technical but accessible
+- Confident in quality
+- Transparent about process
+- Trust-building
+
+🎭 VISUAL STYLE:
+- High-quality process photography
+- Macro detail shots
+- Technical diagrams
+- Before/after comparisons
+- Workshop authenticity
+
+📐 LAYOUT:
+- Alternating section backgrounds
+- Mix of text and visuals
+- Technical information presented clearly
+- Easy to scan and understand
+- Mobile-optimized
+
+🎬 STORYTELLING:
+- Process-driven narrative
+- Quality-focused messaging
+- Transparency builds trust
+- Education justifies premium pricing
+- Differentiation from competitors
+
+🏆 PREMIUM TOUCHES:
+- Authentic workshop photography
+- Detailed process documentation
+- Technical specifications
+- Quality guarantees
+- Certification proof
+- Professional presentation
+
+═══════════════════════════════════════════════════════════════════
+END OF CRAFTSMANSHIP / QUALITY PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════

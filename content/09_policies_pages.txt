@@ -1,0 +1,582 @@
+═══════════════════════════════════════════════════════════════════
+🔒 POLICIES PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+This file covers all policy pages:
+• Shipping Policy
+• Return & Refund Policy
+• Privacy Policy
+• Terms & Conditions
+
+═══════════════════════════════════════════════════════════════════
+📦 SHIPPING POLICY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+PAGE TITLE: "Shipping Policy"
+Last Updated: [Date]
+
+INTRODUCTION:
+"We want your silver to reach you safely and on time. Here's everything you 
+need to know about our shipping process."
+
+---
+
+1. SHIPPING AREAS
+We currently ship to all serviceable locations across India through our 
+trusted courier partners.
+
+International Shipping: Not available at this time. Coming soon!
+
+---
+
+2. SHIPPING CHARGES
+• Orders above ₹3,000: FREE standard shipping
+• Orders below ₹3,000: ₹150 shipping charge
+• Express delivery: ₹200 additional (available for select PIN codes)
+
+---
+
+3. DELIVERY TIMELINE
+Standard Products (Non-Personalized):
+• Processing: 1-2 business days
+• Shipping: 4-5 business days
+• Total: 5-7 business days from order confirmation
+
+Personalized Products:
+• Processing + Engraving: 3-4 business days
+• Shipping: 4-5 business days
+• Total: 7-9 business days from order confirmation
+
+Bulk/Corporate Orders:
+• Timeline varies based on quantity
+• Discussed and confirmed at time of order
+• Typically 2-4 weeks for orders of 50+ pieces
+
+Note: Business days exclude Sundays and public holidays.
+
+---
+
+4. EXPRESS DELIVERY
+Available for select PIN codes in major cities.
+• Additional charge: ₹200
+• Delivery: 2-3 business days (non-personalized)
+• Delivery: 4-5 business days (personalized)
+• Check availability at checkout
+
+---
+
+5. ORDER TRACKING
+• Tracking number sent via email and SMS once order ships
+• Track your order in real-time through courier partner's website
+• Order status updates available in your account dashboard
+• For tracking issues, contact us with your order number
+
+---
+
+6. DELIVERY PROCESS
+• Signature required upon delivery
+• Ensure someone is available to receive the package
+• If delivery attempt fails, courier will make 2 more attempts
+• After 3 failed attempts, package returns to us
+• Re-delivery charges may apply
+
+---
+
+7. PACKAGING
+All products are carefully packaged to ensure safe delivery:
+• Products in luxury gift boxes
+• Boxes wrapped in protective bubble wrap
+• Shipped in sturdy corrugated cartons
+• Fragile stickers applied
+• Tamper-proof sealing
+
+---
+
+8. SHIPPING DELAYS
+While we strive for on-time delivery, delays may occur due to:
+• Weather conditions
+• Natural disasters
+• Political unrest or strikes
+• Courier partner issues
+• Incorrect address provided
+• Public holidays
+
+We'll keep you informed of any delays and work to resolve them quickly.
+
+---
+
+9. UNDELIVERED PACKAGES
+If your package is returned to us as undelivered:
+• We'll contact you to confirm address
+• Re-shipping charges may apply
+• Refund available if you don't want re-delivery
+• Refund processed within 5-7 business days
+
+---
+
+10. DAMAGED IN TRANSIT
+If your package arrives damaged:
+• Don't accept delivery if outer packaging is severely damaged
+• If accepted, open immediately and check product
+• Report damage within 24 hours with photos
+• We'll arrange replacement or refund
+• No questions asked for genuine damage claims
+
+---
+
+11. INCORRECT ADDRESS
+• Verify your shipping address carefully before checkout
+• We're not responsible for delays/non-delivery due to incorrect address
+• Address changes possible within 2 hours of order placement
+• After dispatch, address changes not possible
+• Contact courier partner directly for delivery location changes
+
+---
+
+12. CONTACT FOR SHIPPING QUERIES
+Email: support@yourbrand.com
+WhatsApp: +91-XXXXX-XXXXX
+Phone: +91-XXXXX-XXXXX
+
+═══════════════════════════════════════════════════════════════════
+🔄 RETURN & REFUND POLICY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+PAGE TITLE: "Return & Refund Policy"
+Last Updated: [Date]
+
+INTRODUCTION:
+"Your satisfaction is our priority. If you're not completely happy with your 
+purchase, we're here to help."
+
+---
+
+1. RETURN ELIGIBILITY
+
+NON-PERSONALIZED PRODUCTS:
+✓ Can be returned within 30 days of delivery
+✓ Must be unused and in original condition
+✓ Original packaging and all accessories must be included
+✓ Hallmark and tags must be intact
+✓ No signs of wear or damage
+
+PERSONALIZED PRODUCTS:
+✗ Cannot be returned (custom-made for you)
+✓ Exception: Manufacturing defect or error on our part
+✓ Exception: Incorrect engraving due to our error
+
+---
+
+2. NON-RETURNABLE ITEMS
+• Personalized/engraved products (unless defective)
+• Products with removed hallmark or tags
+• Products showing signs of use or wear
+• Products damaged due to misuse
+• Gift cards or vouchers
+
+---
+
+3. HOW TO INITIATE A RETURN
+
+Step 1: Contact us within 30 days of delivery
+• Email: support@yourbrand.com
+• WhatsApp: +91-XXXXX-XXXXX
+• Provide: Order number, reason for return, photos (if defective)
+
+Step 2: Await return approval
+• We'll review your request within 24 hours
+• If approved, we'll send return instructions and shipping label
+
+Step 3: Pack and ship
+• Pack product securely in original packaging
+• Include all accessories and documentation
+• Ship via provided courier partner
+• Keep tracking number for reference
+
+Step 4: Inspection and refund
+• We inspect returned product within 2-3 business days
+• If approved, refund processed within 5-7 business days
+• Refund to original payment method
+
+---
+
+4. RETURN SHIPPING COSTS
+
+Defective/Incorrect Products:
+• We cover return shipping costs
+• Prepaid return label provided
+
+Change of Mind/Non-Defective Returns:
+• Customer bears return shipping costs
+• Estimated cost: ₹150-₹200
+• Deducted from refund amount
+
+---
+
+5. REFUND PROCESS
+• Refund initiated within 5-7 business days of receiving returned product
+• Refund to original payment method
+• Credit/Debit card: 5-7 business days
+• UPI/Wallet: 2-3 business days
+• Net banking: 5-7 business days
+• Refund confirmation sent via email
+
+---
+
+6. EXCHANGE POLICY
+We don't offer direct exchanges. For a different product:
+• Return the original product (if eligible)
+• Place a new order for desired product
+• Or contact us for assistance with exchange process
+
+---
+
+7. DAMAGED OR DEFECTIVE PRODUCTS
+If you receive a damaged or defective product:
+• Contact us within 48 hours of delivery
+• Provide photos of damage/defect
+• We'll arrange free replacement or full refund
+• No return shipping costs for you
+• Replacement shipped within 3-5 business days
+
+---
+
+8. WRONG ITEM RECEIVED
+If you receive the wrong product:
+• Contact us immediately
+• We'll arrange pickup of wrong item (free)
+• Correct item shipped immediately
+• No cost to you
+
+---
+
+9. PERSONALIZATION ERRORS
+If we made an error in your engraving:
+• Contact us with photos
+• We'll remake the product at no cost
+• Free pickup of incorrect item
+• Priority production for replacement
+• Apology and possible discount on future order
+
+If you made an error in engraving text:
+• We engrave exactly what you enter
+• Not eligible for return/refund
+• Please review carefully before ordering
+
+---
+
+10. REFUND EXCEPTIONS
+Refunds may be denied if:
+• Product returned after 30-day window
+• Product shows signs of use or damage
+• Original packaging not included
+• Hallmark or tags removed
+• Return not pre-approved by us
+
+---
+
+11. CANCELLATION POLICY
+
+Before Dispatch:
+• Full refund available
+• Contact us immediately
+• Refund processed within 5-7 business days
+
+After Dispatch:
+• Cannot cancel
+• Can refuse delivery and return for refund
+• Return shipping costs may apply
+
+Personalized Orders:
+• Cannot cancel once engraving begins (typically 2 hours after order)
+• Contact us immediately if you need to cancel
+
+---
+
+12. CONTACT FOR RETURNS
+Email: support@yourbrand.com
+WhatsApp: +91-XXXXX-XXXXX
+Phone: +91-XXXXX-XXXXX
+
+═══════════════════════════════════════════════════════════════════
+🔐 PRIVACY POLICY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+PAGE TITLE: "Privacy Policy"
+Last Updated: [Date]
+
+INTRODUCTION:
+"Your privacy is important to us. This policy explains how we collect, use, 
+and protect your personal information."
+
+---
+
+1. INFORMATION WE COLLECT
+
+Personal Information:
+• Name, email address, phone number
+• Shipping and billing address
+• Payment information (processed securely, not stored by us)
+• Order history and preferences
+
+Automatically Collected:
+• IP address and browser type
+• Device information
+• Pages visited and time spent
+• Cookies and similar technologies
+
+---
+
+2. HOW WE USE YOUR INFORMATION
+• Process and fulfill your orders
+• Communicate about orders, shipping, and delivery
+• Respond to inquiries and provide customer support
+• Send promotional emails (with your consent)
+• Improve our website and services
+• Prevent fraud and enhance security
+• Comply with legal obligations
+
+---
+
+3. INFORMATION SHARING
+We DO NOT sell your personal information to third parties.
+
+We may share information with:
+• Payment processors (for transaction processing)
+• Shipping partners (for order delivery)
+• Service providers (for website hosting, email services)
+• Legal authorities (if required by law)
+
+All third parties are bound by confidentiality agreements.
+
+---
+
+4. COOKIES
+We use cookies to:
+• Remember your preferences
+• Analyze website traffic
+• Personalize your experience
+• Enable shopping cart functionality
+
+You can disable cookies in your browser, but some features may not work.
+
+---
+
+5. DATA SECURITY
+We implement industry-standard security measures:
+• SSL encryption for data transmission
+• Secure servers and databases
+• Regular security audits
+• Limited employee access to personal data
+• PCI-DSS compliance for payment processing
+
+However, no method is 100% secure. We cannot guarantee absolute security.
+
+---
+
+6. YOUR RIGHTS
+You have the right to:
+• Access your personal data
+• Correct inaccurate information
+• Request deletion of your data
+• Opt-out of marketing communications
+• Withdraw consent at any time
+
+Contact us to exercise these rights: privacy@yourbrand.com
+
+---
+
+7. MARKETING COMMUNICATIONS
+• We send promotional emails only with your consent
+• Unsubscribe link in every email
+• Opt-out doesn't affect transactional emails (order confirmations, etc.)
+
+---
+
+8. CHILDREN'S PRIVACY
+Our website is not intended for children under 13. We don't knowingly collect 
+data from children. If we discover we have, we'll delete it immediately.
+
+---
+
+9. THIRD-PARTY LINKS
+Our website may contain links to third-party sites. We're not responsible for 
+their privacy practices. Review their policies before sharing information.
+
+---
+
+10. CHANGES TO THIS POLICY
+We may update this policy periodically. Changes will be posted on this page 
+with updated date. Continued use of our website constitutes acceptance.
+
+---
+
+11. CONTACT US
+For privacy questions or concerns:
+Email: privacy@yourbrand.com
+Address: [Your Business Address]
+
+═══════════════════════════════════════════════════════════════════
+📜 TERMS & CONDITIONS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+PAGE TITLE: "Terms & Conditions"
+Last Updated: [Date]
+
+INTRODUCTION:
+"By using our website and services, you agree to these terms and conditions. 
+Please read carefully."
+
+---
+
+1. GENERAL TERMS
+• These terms govern your use of [Your Brand Name] website and services
+• By placing an order, you accept these terms
+• We reserve the right to modify terms at any time
+• Continued use after changes constitutes acceptance
+
+---
+
+2. PRODUCT INFORMATION
+• We strive for accurate product descriptions and images
+• Actual products may vary slightly from images
+• All silver products are 925 sterling silver unless stated otherwise
+• Hallmark certification included with all products
+• We reserve the right to discontinue products without notice
+
+---
+
+3. PRICING
+• All prices in Indian Rupees (₹)
+• Prices include applicable taxes
+• Prices subject to change without notice
+• Price at time of order confirmation applies
+• We reserve the right to correct pricing errors
+
+---
+
+4. ORDERS
+• Order confirmation sent via email
+• We reserve the right to refuse or cancel orders
+• Reasons for cancellation: Pricing errors, product unavailability, fraud
+• Full refund if we cancel your order
+
+---
+
+5. PAYMENT
+• Payment required at time of order
+• We accept credit/debit cards, UPI, net banking, wallets
+• All payments processed through secure gateways
+• We don't store your payment information
+• Failed payments result in order cancellation
+
+---
+
+6. PERSONALIZATION
+• You're responsible for accuracy of engraving text
+• We engrave exactly as entered
+• Preview carefully before ordering
+• Personalized items non-returnable (unless our error)
+• Engraving changes possible within 2 hours of order
+
+---
+
+7. INTELLECTUAL PROPERTY
+• All website content (text, images, logos) is our property
+• You may not reproduce, distribute, or use without permission
+• Product designs and engravings are protected
+• Customer logos used only for ordered products
+
+---
+
+8. USER ACCOUNTS
+• You're responsible for account security
+• Don't share login credentials
+• Notify us immediately of unauthorized access
+• We're not liable for losses due to compromised accounts
+
+---
+
+9. LIMITATION OF LIABILITY
+• Our liability limited to order value
+• Not liable for indirect, incidental, or consequential damages
+• Not liable for delays beyond our control
+• Not liable for third-party service failures
+
+---
+
+10. GOVERNING LAW
+• These terms governed by laws of India
+• Disputes subject to jurisdiction of [Your City] courts
+• Arbitration preferred for dispute resolution
+
+---
+
+11. CONTACT
+For questions about these terms:
+Email: legal@yourbrand.com
+Address: [Your Business Address]
+
+═══════════════════════════════════════════════════════════════════
+DESIGN SUGGESTIONS FOR ALL POLICY PAGES
+═══════════════════════════════════════════════════════════════════
+
+🎨 UNIFIED DESIGN:
+All policy pages should have consistent design:
+
+LAYOUT:
+• Max-width: 900px, centered
+• Padding: 80px top/bottom
+• Background: White
+• Sidebar: Table of contents (sticky)
+
+TYPOGRAPHY:
+• Page title: 42px, Playfair Display, bold
+• Section headings: 24px, bold, dark grey
+• Subsection headings: 18px, bold
+• Body text: 16px, line-height: 1.8
+• Lists: Bulleted or numbered, 16px
+
+VISUAL ELEMENTS:
+• Last updated date: Top, grey, italic
+• Section numbers: Rose gold
+• Dividers: Thin grey lines between sections
+• Icons: For key points (checkmarks, X marks)
+• Highlight boxes: For important notes (light yellow background)
+
+NAVIGATION:
+• Breadcrumb: Top (Home > Policies > Shipping Policy)
+• Table of contents: Left sidebar (desktop) or top (mobile)
+• Jump links: Click to scroll to section
+• Back to top: Floating button
+
+INTERACTIONS:
+• Smooth scroll to sections
+• Expandable sections (optional, for very long policies)
+• Print-friendly version
+• Download as PDF (optional)
+
+ACCESSIBILITY:
+• Clear hierarchy
+• Easy to scan
+• Mobile-optimized
+• Readable font sizes
+• High contrast
+
+TRUST SIGNALS:
+• Last updated date (shows you maintain policies)
+• Contact information for questions
+• Professional language
+• Comprehensive coverage
+
+═══════════════════════════════════════════════════════════════════
+END OF POLICIES PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════

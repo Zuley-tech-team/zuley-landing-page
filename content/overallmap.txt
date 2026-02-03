@@ -1,0 +1,465 @@
+🔹 OVERALL SITE MAP (Main Pages)
+
+Your core pages should be:
+
+Home
+
+Shop
+
+Silver Pens (Hero)
+
+Keychains
+
+Phone Covers
+
+Customize / Personalize
+
+Corporate & Bulk Gifting
+
+About Us
+
+Craftsmanship / Quality
+
+Reviews / Stories
+
+Contact / Support
+
+Account / Orders
+
+Policies (Privacy, Shipping, Returns)
+
+Optional later:
+
+Blog / Gift Guide
+
+Track Order
+
+Now let’s go page by page with sections.
+
+🏠 1. HOME PAGE (Most Important Page)
+
+Goal:
+In 10 seconds, user should understand:
+
+What you sell
+
+That it’s premium
+
+That it’s customizable
+
+That pen is your hero
+
+Sections:
+1️⃣ Hero Section (Top Banner – VERY IMPORTANT)
+
+What to show:
+
+A stunning image/video of your silver pen in use
+
+One strong headline
+
+What to communicate:
+
+Brand positioning
+
+Hero product focus
+
+Example content idea:
+
+Headline: “Everyday Silver. Made Personal.”
+
+Subtext: “Premium personalized silver pens and accessories for meaningful gifting.”
+
+Buttons:
+
+“Shop Silver Pens” (primary)
+
+“Customize Your Gift” (secondary)
+
+2️⃣ Hero Product Spotlight – Silver Pen
+
+This section is only about the pen.
+
+Purpose:
+
+Establish pen as your signature product
+
+Content:
+
+Short story of why silver pen is special
+
+3–4 benefits:
+
+Pure silver craftsmanship
+
+Personalized engraving
+
+Perfect for gifting & professionals
+
+Comes in luxury packaging
+
+CTA:
+
+“Explore Silver Pens”
+
+3️⃣ Product Categories Section
+
+Show 3 cards:
+
+Silver Pens (highlighted / bigger)
+
+Silver Keychains
+
+Silver Phone Covers
+
+Purpose:
+
+Clear navigation
+
+Show range
+
+Each card:
+
+Product image
+
+One-line description
+
+“Shop Now” button
+
+4️⃣ Personalization / Customization Section (BIG DIFFERENTIATOR)
+
+Very important.
+
+Explain:
+
+You engrave names, initials, dates, logos
+
+Perfect for gifting
+
+Show:
+
+Example engravings
+
+Before / after visuals
+
+Content angle:
+“Not just silver. Your identity in silver.”
+
+CTA:
+
+“Personalize Your Product”
+
+5️⃣ Gifting & Occasions Section
+
+Purpose:
+Position as gifting brand, not just product seller.
+
+Show:
+
+Occasions:
+
+Birthdays
+
+Anniversaries
+
+Corporate gifts
+
+Weddings / events
+
+Content:
+“Gifts that last longer than moments.”
+
+CTA:
+
+“Explore Gift Collection”
+
+6️⃣ Craftsmanship & Quality Section
+
+Build trust.
+
+Explain:
+
+Type of silver (Sterling / 925)
+
+Handcrafted / precision made
+
+Quality checks
+
+Hallmarking
+
+Purpose:
+Premium credibility.
+
+7️⃣ Corporate / Bulk Gifting Teaser
+
+Small section:
+
+“Looking for corporate or bulk gifting?”
+Logos / examples.
+
+CTA:
+
+“Corporate Gifting”
+
+8️⃣ Testimonials / Reviews
+
+Show:
+
+Customer quotes
+
+Gifting stories
+
+Build trust.
+
+9️⃣ Footer Brand Story + Newsletter
+
+Short brand philosophy:
+“Redefining silver beyond jewellery…”
+
+🛍️ 2. SHOP PAGE (Category Overview)
+
+Purpose:
+Let users browse easily.
+
+Sections:
+
+1️⃣ Category Selector
+
+Tabs or cards:
+
+All Products
+
+Silver Pens (default highlighted)
+
+Keychains
+
+Phone Covers
+
+2️⃣ Filters & Sorting
+
+Price
+
+Personalizable / Non-personalizable
+
+Best sellers
+
+New arrivals
+
+3️⃣ Product Grid
+
+Each product card should show:
+
+Clean image
+
+Product name
+
+Price
+
+“Personalizable” tag
+
+Quick “Customize” or “Add to Cart”
+
+✒️ 3. PRODUCT DETAIL PAGE (Very Important for Conversion)
+
+For each product, especially the Silver Pen.
+
+Sections:
+
+1️⃣ Product Gallery
+
+Multiple angles
+
+Close-up of engraving
+
+Packaging image
+
+2️⃣ Product Info Panel
+
+Include:
+
+Product name
+
+Short premium description
+
+Price
+
+Silver purity
+
+Delivery time
+
+Buttons:
+
+“Customize Now”
+
+“Add to Cart”
+
+3️⃣ Personalization Section (Key Section)
+
+Fields:
+
+Enter name / initials
+
+Choose font
+
+Preview engraving (later advanced)
+
+Explain:
+“Each piece is engraved specially for you.”
+
+4️⃣ Product Story / Usage
+
+Explain:
+
+Who this is for
+
+When to gift
+
+Why silver pen is special
+
+5️⃣ Craftsmanship & Materials
+
+Details:
+
+Silver type
+
+Finish
+
+Durability
+
+Care instructions
+
+6️⃣ Packaging & Delivery
+
+Show:
+
+Luxury gift box
+
+Ready-to-gift experience
+
+7️⃣ Reviews & Ratings
+✍️ 4. CUSTOMIZE / PERSONALIZE PAGE
+
+Dedicated branding page.
+
+Purpose:
+Make personalization your identity.
+
+Sections:
+
+1️⃣ Intro Section
+
+Explain:
+“Turn silver into something personal.”
+
+2️⃣ How It Works (3 Steps)
+
+Example:
+
+Choose product
+
+Enter your text / logo
+
+We engrave & deliver
+
+3️⃣ Examples Gallery
+
+Show:
+
+Names
+
+Initials
+
+Corporate logos
+
+4️⃣ Occasions & Use Cases
+
+Gifting, awards, anniversaries.
+
+🏢 5. CORPORATE & BULK GIFTING PAGE (Future Goldmine)
+
+Very important for scaling.
+
+Sections:
+
+1️⃣ Corporate Hero Section
+
+“Premium personalized silver gifts for your brand & people.”
+
+2️⃣ Why Choose You
+
+Custom branding
+
+Bulk pricing
+
+Premium packaging
+
+On-time delivery
+
+3️⃣ Product Options
+
+Pens, keychains, desk items.
+
+4️⃣ Past Clients / Examples (later)
+5️⃣ Enquiry Form
+
+Name, company, quantity, message.
+
+🧭 6. ABOUT US PAGE
+
+Purpose:
+Build emotional connection.
+
+Sections:
+
+1️⃣ Brand Story
+
+Why you started
+Why silver accessories
+Your vision
+
+2️⃣ Philosophy
+
+Everyday luxury
+Meaningful gifting
+Personalization
+
+3️⃣ Craft & Quality Promise
+🛠️ 7. CRAFTSMANSHIP / QUALITY PAGE
+
+Dedicated trust page.
+
+Explain:
+
+Silver sourcing
+
+Making process
+
+Engraving process
+
+Hallmark / certification
+
+This is very powerful for premium positioning.
+
+📞 8. CONTACT / SUPPORT
+
+Sections:
+
+Contact form
+
+WhatsApp
+
+Email
+
+FAQs
+
+🔒 9. POLICIES & SUPPORT PAGES
+
+Required:
+
+Shipping policy
+
+Return & refund
+
+Privacy
+
+Terms

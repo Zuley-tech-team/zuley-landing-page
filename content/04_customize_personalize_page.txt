@@ -1,0 +1,776 @@
+═══════════════════════════════════════════════════════════════════
+✍️ CUSTOMIZE / PERSONALIZE PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+PAGE GOAL:
+Position personalization as your brand's core identity by:
+✓ Showcasing the power of customization
+✓ Making the process simple and exciting
+✓ Inspiring gift ideas through examples
+✓ Converting visitors into customers
+
+═══════════════════════════════════════════════════════════════════
+1️⃣ INTRO / HERO SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+MAIN HEADLINE:
+"Turn Silver Into Something Personal"
+
+SUBHEADLINE:
+"Every piece tells a story. Make it yours with custom engraving."
+
+HERO MESSAGE:
+"Transform premium silver accessories into meaningful keepsakes. Whether it's 
+a name, a date, a message, or a logo—we engrave your identity into pure 925 
+sterling silver with precision laser technology."
+
+KEY VALUE PROPOSITIONS (3 Points):
+----------------------------------
+1. 🎨 UNLIMITED CREATIVITY
+   "Names, initials, dates, quotes, or corporate logos—your imagination is 
+   the only limit"
+
+2. ⚡ PRECISION ENGRAVING
+   "Laser technology ensures perfect detail and lasting quality"
+
+3. 🎁 TRULY UNIQUE GIFTS
+   "Create one-of-a-kind pieces that can't be found anywhere else"
+
+PRIMARY CTA:
+"Start Personalizing" (Scrolls to product selector)
+
+SECONDARY CTA:
+"See Examples" (Scrolls to gallery)
+
+VISUAL ELEMENTS:
+----------------
+• Hero image: Close-up of laser engraving in action (video loop)
+• Before/after slider: Plain silver vs. engraved
+• Floating text animation: Names appearing on products
+• Background: Subtle silver texture with particles
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Hero Design:
+   - Background: Dark gradient (charcoal to black)
+   - Text: White with subtle glow effect
+   - Accent: Rose gold highlights
+   - Height: 80vh (viewport height)
+   - Overlay: Semi-transparent dark layer over video
+
+✨ Typography:
+   - Main headline: 64px, Playfair Display, bold, centered
+   - Subheadline: 24px, Montserrat, light, centered
+   - Hero message: 18px, line-height: 1.8, max-width: 800px
+   - Value props: 16px, with icons
+
+🎭 Layout:
+   - Centered content, max-width: 1000px
+   - Vertical alignment: Center
+   - Value props: Three-column grid below message
+   - CTAs: Side-by-side, centered
+
+📐 CTA Buttons:
+   - Primary: Rose gold gradient, 56px height, 240px width
+   - Secondary: Outlined white, 56px height, 200px width
+   - Gap: 24px between buttons
+   - Border-radius: 28px (pill shape)
+   - Hover: Glow effect, slight scale up
+
+🎬 Animations:
+   - Video background: Slow zoom on engraving process
+   - Text: Fade in from bottom (stagger effect)
+   - Value props: Slide in from sides
+   - CTAs: Pulse gently (2s interval)
+   - Particles: Floating silver dust effect
+
+
+═══════════════════════════════════════════════════════════════════
+2️⃣ HOW IT WORKS (3-Step Process)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Personalization Made Simple"
+
+SUBHEADLINE:
+"From selection to delivery, we make custom engraving effortless"
+
+3 STEPS:
+--------
+STEP 1: CHOOSE YOUR PRODUCT
+Icon: 🛍️ (Shopping bag or product icon)
+Title: "Select Your Silver"
+Description:
+"Browse our collection of premium silver pens, keychains, and phone covers. 
+Each product is crafted from 925 sterling silver and ready for personalization."
+
+Visual: Grid of product thumbnails
+CTA: "Browse Products"
+
+---
+
+STEP 2: ADD YOUR PERSONAL TOUCH
+Icon: ✍️ (Pen or text icon)
+Title: "Design Your Engraving"
+Description:
+"Enter your text, choose from elegant font styles, and preview your engraving 
+in real-time. Our intuitive tool shows exactly how your piece will look."
+
+Visual: Interactive engraving preview tool
+Features:
+• Text input with character limit
+• Font selector (4-5 options)
+• Placement selector (if applicable)
+• Live preview rendering
+
+CTA: "Try Preview Tool"
+
+---
+
+STEP 3: WE CRAFT & DELIVER
+Icon: 📦 (Box or delivery icon)
+Title: "Precision Engraving"
+Description:
+"Our skilled artisans use precision laser technology to engrave your design. 
+Each piece is quality-checked, packaged in luxury gift box, and delivered 
+to your door."
+
+Visual: Timeline graphic or process photos
+Timeline:
+• Order placed: Day 0
+• Engraving: Days 1-2
+• Quality check: Day 2
+• Packaging & shipping: Day 3
+• Delivery: Days 5-7
+
+CTA: "Start Customizing"
+
+VISUAL ELEMENTS:
+----------------
+• Step numbers: Large, prominent (1, 2, 3)
+• Icons: Elegant line style, 64px
+• Process flow: Arrows connecting steps
+• Photos: Real engraving process
+• Timeline: Visual progress bar
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 120px top/bottom
+   - Max-width: 1200px, centered
+   - Step dividers: Thin rose gold lines
+
+✨ Step Layout:
+   - Three-column grid (equal width)
+   - Vertical alignment: Top
+   - Each step: Icon → Number → Title → Description → Visual → CTA
+   - Connecting arrows: Between steps, rose gold
+
+🎭 Step Card Design:
+   - Background: Very light grey (#FAFAFA)
+   - Border-radius: 16px
+   - Padding: 48px
+   - Hover: Slight lift, shadow intensifies
+   - Border: 1px solid light grey
+
+📐 Typography:
+   - Step number: 72px, bold, rose gold, opacity 0.3 (background)
+   - Title: 24px, bold, dark grey
+   - Description: 16px, line-height: 1.7, grey
+   - Icon: 64px, rose gold color
+
+🎬 Animations:
+   - Steps fade in sequentially (0.3s stagger)
+   - Numbers count up on scroll into view
+   - Arrows draw from left to right
+   - Hover: Card lifts up (translateY: -8px)
+   - CTA: Hover changes color with smooth transition
+
+🏷️ Interactive Preview Tool (Step 2):
+   - Embedded mini-tool in step card
+   - Product image: 200px x 200px
+   - Text input: Below image
+   - Font selector: Radio buttons with samples
+   - Preview updates: Real-time (debounced)
+   - "Try Full Tool" link: Opens full-page customizer
+
+
+═══════════════════════════════════════════════════════════════════
+3️⃣ EXAMPLES GALLERY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Inspiration from Real Engravings"
+
+SUBHEADLINE:
+"See what others have created—from personal gifts to corporate branding"
+
+GALLERY CATEGORIES (Tabs):
+---------------------------
+1. NAMES & INITIALS
+2. DATES & MESSAGES
+3. CORPORATE LOGOS
+4. QUOTES & SAYINGS
+
+EXAMPLE ITEMS (12-16 Total):
+----------------------------
+NAMES & INITIALS:
+• "Rajesh Kumar" (full name, classic serif)
+• "RK" (monogram initials, decorative)
+• "Sarah" (first name, script font)
+• "Dr. Amit Sharma" (title + name, professional)
+
+DATES & MESSAGES:
+• "25.12.2024" (anniversary date)
+• "Est. 1995" (establishment year)
+• "Always & Forever" (romantic message)
+• "Class of 2024" (graduation)
+
+CORPORATE LOGOS:
+• Tech company logo (minimalist)
+• Law firm name + scales icon
+• Startup logo (modern)
+• Hospital emblem (professional)
+
+QUOTES & SAYINGS:
+• "Carpe Diem" (Latin phrase)
+• "Dream Big" (motivational)
+• "With Love, Dad" (personal message)
+• "Excellence in Service" (corporate motto)
+
+EACH GALLERY ITEM SHOWS:
+------------------------
+• High-quality photo of engraved product
+• Engraving text/design
+• Font used
+• Product type (pen, keychain, etc.)
+• Occasion (if applicable)
+
+VISUAL ELEMENTS:
+----------------
+• Masonry grid layout (Pinterest-style)
+• Hover: Overlay with engraving details
+• Click: Lightbox with larger view
+• Filter: By product type or occasion
+• "Get This Style" CTA on each item
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light cream (#FAF9F6)
+   - Padding: 100px top/bottom
+   - Full-width section
+   - Tab bar: Centered, sticky on scroll
+
+✨ Tab Design:
+   - Horizontal tabs: 4 categories
+   - Active tab: Rose gold underline (3px)
+   - Inactive: Grey text
+   - Font: 16px, uppercase, tracking: 1px
+   - Hover: Text darkens, underline fades in
+
+🎭 Gallery Grid:
+   - Layout: Masonry (varying heights)
+   - Columns: 4 on desktop, 2 on tablet, 1 on mobile
+   - Gap: 24px
+   - Max-width: 1400px, centered
+   - Items: 12-16 visible, "Load More" button
+
+📐 Gallery Item Card:
+   - Image: High-quality product photo
+   - Aspect ratio: Varies (masonry)
+   - Border-radius: 12px
+   - Hover overlay: Dark gradient (bottom to top)
+   - Overlay content: Engraving details + CTA
+
+🎬 Hover Effect:
+   - Image: Slight zoom (scale: 1.05)
+   - Overlay: Fades in from bottom
+   - Text: Slides up
+   - CTA button: Appears with delay
+   - Transition: Smooth (0.4s)
+
+🏷️ Overlay Content:
+   - Engraving text: 18px, white, bold
+   - Font name: 14px, white, light
+   - Product type: 12px, white, uppercase
+   - CTA: "Get This Style" button (outlined white)
+   - Position: Bottom of card, padding: 24px
+
+🎨 Lightbox (Click):
+   - Full-screen overlay
+   - Large image: 800px max-width
+   - Details panel: Right side
+   - Navigation: Arrows to next/previous
+   - Close: X button, top-right
+   - Background: Dark (rgba(0,0,0,0.9))
+
+
+═══════════════════════════════════════════════════════════════════
+4️⃣ OCCASIONS & USE CASES
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Perfect for Every Occasion"
+
+SUBHEADLINE:
+"Personalized silver gifts that mark life's important moments"
+
+OCCASION CATEGORIES (6 Cards):
+------------------------------
+1. 🎂 BIRTHDAYS & CELEBRATIONS
+   Headline: "Make Their Day Unforgettable"
+   Description: "Engrave their name, age, or a special message to create a 
+   birthday gift they'll treasure forever."
+   
+   Engraving Ideas:
+   • "Happy 30th, Sarah!"
+   • Birth date: "12.05.1994"
+   • "Cheers to Another Year"
+   
+   Recommended Products: Pen, Keychain
+   CTA: "Shop Birthday Gifts"
+
+2. 💍 ANNIVERSARIES & WEDDINGS
+   Headline: "Celebrate Your Love Story"
+   Description: "Mark your special day with silver engraved with your names, 
+   wedding date, or a romantic message."
+   
+   Engraving Ideas:
+   • "John & Emma"
+   • "25.12.2020"
+   • "Always & Forever"
+   • "Mr. & Mrs. Sharma"
+   
+   Recommended Products: Pen Set, Phone Cover
+   CTA: "Shop Anniversary Gifts"
+
+3. 🎓 GRADUATIONS & ACHIEVEMENTS
+   Headline: "Honor Their Success"
+   Description: "Commemorate academic or professional achievements with a 
+   personalized silver gift they'll use with pride."
+   
+   Engraving Ideas:
+   • "Class of 2024"
+   • "Dr. Amit Kumar"
+   • "MBA Graduate"
+   • "Congratulations!"
+   
+   Recommended Products: Pen, Keychain
+   CTA: "Shop Graduation Gifts"
+
+4. 🏢 CORPORATE RECOGNITION
+   Headline: "Reward Excellence"
+   Description: "Recognize top performers, celebrate milestones, or thank 
+   clients with branded silver gifts."
+   
+   Engraving Ideas:
+   • Company logo
+   • "Employee of the Year"
+   • "5 Years of Service"
+   • "Thank You for Your Partnership"
+   
+   Recommended Products: Pen, Bulk Sets
+   CTA: "Explore Corporate Gifting"
+
+5. 👨‍👩‍👧‍👦 FAMILY & RELATIONSHIPS
+   Headline: "Show You Care"
+   Description: "Express love and appreciation for parents, siblings, or 
+   friends with a thoughtful personalized gift."
+   
+   Engraving Ideas:
+   • "Best Dad Ever"
+   • "Love, Mom"
+   • "My Brother, My Friend"
+   • "Sisters Forever"
+   
+   Recommended Products: Keychain, Pen
+   CTA: "Shop Family Gifts"
+
+6. 🎁 JUST BECAUSE
+   Headline: "No Reason Needed"
+   Description: "Sometimes the best gifts are unexpected. Surprise someone 
+   special with personalized silver."
+   
+   Engraving Ideas:
+   • Their nickname
+   • Inside joke
+   • Favorite quote
+   • Simple initials
+   
+   Recommended Products: Any product
+   CTA: "Start Personalizing"
+
+VISUAL ELEMENTS:
+----------------
+• Occasion icons (emoji or line icons)
+• Lifestyle photography for each occasion
+• Engraving examples (text samples)
+• Product recommendations (thumbnails)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 100px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Card Layout:
+   - Grid: 2x3 (2 columns, 3 rows)
+   - Card size: Equal height
+   - Gap: 32px
+   - Responsive: 1 column on mobile
+
+🎭 Card Design:
+   - Background: Light grey (#F9F9F9)
+   - Border: 1px solid light grey
+   - Border-radius: 16px
+   - Padding: 40px
+   - Hover: Lift up, shadow intensifies
+   - Accent: Colored left border (4px, different color per occasion)
+
+📐 Card Content:
+   - Icon: Top, 48px, colored
+   - Headline: 22px, bold, dark grey
+   - Description: 15px, line-height: 1.6, grey
+   - Engraving ideas: Bulleted list, 14px, italic
+   - Products: Small thumbnails (60px x 60px)
+   - CTA: Full-width button at bottom
+
+🎬 Interactions:
+   - Hover: Card lifts (translateY: -8px)
+   - Icon: Bounces on hover
+   - CTA: Color change on hover
+   - Engraving ideas: Fade in on scroll
+
+🏷️ Accent Colors (Left Border):
+   - Birthdays: Coral (#FF6B6B)
+   - Anniversaries: Deep rose (#C73E1D)
+   - Graduations: Royal blue (#4A90E2)
+   - Corporate: Charcoal (#2C3E50)
+   - Family: Warm orange (#FF9F43)
+   - Just Because: Rose gold (#B76E79)
+
+
+═══════════════════════════════════════════════════════════════════
+5️⃣ FONT & STYLE OPTIONS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Choose Your Perfect Font"
+
+SUBHEADLINE:
+"Every font tells a different story. Find the one that matches your style."
+
+FONT OPTIONS (4-6 Fonts):
+-------------------------
+1. CLASSIC SERIF
+   Name: "Timeless Elegance"
+   Style: Traditional serif font (like Times New Roman)
+   Best For: Professional gifts, formal occasions, traditional style
+   Sample: "ABCDEFG abcdefg 12345"
+   Example: "Rajesh Kumar"
+
+2. MODERN SANS
+   Name: "Contemporary Clean"
+   Style: Clean sans-serif (like Helvetica)
+   Best For: Modern aesthetic, corporate branding, minimalist style
+   Sample: "ABCDEFG abcdefg 12345"
+   Example: "INNOVATION 2024"
+
+3. ELEGANT SCRIPT
+   Name: "Romantic Cursive"
+   Style: Flowing script/cursive
+   Best For: Weddings, romantic gifts, personal messages
+   Sample: "ABCDEFG abcdefg 12345"
+   Example: "Always & Forever"
+
+4. BOLD MONOGRAM
+   Name: "Statement Initials"
+   Style: Decorative capitals for initials
+   Best For: Monograms, initials, luxury feel
+   Sample: "A B C D E F G"
+   Example: "RK"
+
+5. TECHNICAL MODERN (Optional)
+   Name: "Tech Precision"
+   Style: Geometric, technical font
+   Best For: Tech companies, modern brands, startups
+   Sample: "ABCDEFG abcdefg 12345"
+   Example: "TECHVISION"
+
+6. HANDWRITTEN (Optional)
+   Name: "Personal Touch"
+   Style: Handwritten appearance
+   Best For: Personal gifts, casual messages, friendly tone
+   Sample: "ABCDEFG abcdefg 12345"
+   Example: "Love, Mom"
+
+EACH FONT CARD SHOWS:
+---------------------
+• Font name and style description
+• Full alphabet sample (A-Z, a-z, 0-9)
+• Example engraving in that font
+• "Best for" use cases
+• "Select Font" button
+
+VISUAL ELEMENTS:
+----------------
+• Large font samples on product mockups
+• Interactive selector (click to preview)
+• Comparison tool (see fonts side-by-side)
+• Download font guide (PDF)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light grey (#F8F8F8)
+   - Padding: 100px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Font Card Layout:
+   - Grid: 3 columns x 2 rows (for 6 fonts)
+   - Card size: Equal height
+   - Gap: 24px
+   - Responsive: 2 columns on tablet, 1 on mobile
+
+🎭 Font Card Design:
+   - Background: White
+   - Border: 2px solid light grey
+   - Border-radius: 12px
+   - Padding: 32px
+   - Hover: Border changes to rose gold
+   - Active/selected: Rose gold border + checkmark
+
+📐 Card Content:
+   - Font name: 20px, bold, top
+   - Style description: 14px, grey, italic
+   - Sample: Large (32px), in actual font
+   - Example: 18px, in actual font, on product image
+   - "Best for": 12px, grey, bulleted
+   - Select button: Full-width, bottom
+
+🎬 Interactions:
+   - Hover: Border color change, slight scale
+   - Click: Selects font, shows checkmark
+   - Preview: Opens modal with larger sample
+   - Comparison: Select 2-3 fonts to compare side-by-side
+
+🏷️ Interactive Preview:
+   - Below font grid: Live preview section
+   - Text input: "Type to preview"
+   - Shows text in all selected fonts
+   - Product mockup: Updates in real-time
+   - Download: "Save Preview" button (PNG image)
+
+
+═══════════════════════════════════════════════════════════════════
+6️⃣ PRICING & DETAILS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Transparent Pricing"
+
+SUBHEADLINE:
+"No hidden costs. Personalization included in every product."
+
+PRICING INFORMATION:
+--------------------
+✅ INCLUDED FREE:
+• Laser engraving (up to 20 characters)
+• Font selection (all styles)
+• Standard placement
+• Quality check
+• Anti-tarnish pouch
+• Premium gift box
+
+💰 OPTIONAL ADD-ONS:
+• Extended text (21-50 characters): +₹200
+• Logo engraving: +₹500
+• Express engraving (24-hour): +₹500
+• Premium gift wrapping: +₹200
+• Gift message card: Free
+
+⏱️ TIMELINE:
+• Standard engraving: +2 business days
+• Express engraving: +1 business day
+• Bulk orders (10+): Contact for timeline
+
+📏 SPECIFICATIONS:
+• Character limit: 20 (standard), 50 (extended)
+• Fonts: 6 styles available
+• Placement: Pen barrel, cap, or keychain surface
+• Engraving depth: 0.1mm (permanent)
+• Technology: Precision laser engraving
+
+⚠️ IMPORTANT NOTES:
+• Personalized items are non-returnable
+• Preview carefully before checkout
+• Engraving is permanent and cannot be undone
+• Corporate logos require vector file (AI, EPS, or SVG)
+• Bulk orders (20+) eligible for discount
+
+VISUAL ELEMENTS:
+----------------
+• Pricing table (clear, easy to read)
+• Timeline infographic
+• Character limit visualizer
+• FAQ accordion
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 80px top/bottom
+   - Max-width: 1000px, centered
+   - Border-top: Thin rose gold line
+
+✨ Pricing Table:
+   - Two columns: "Included Free" vs. "Optional Add-ons"
+   - Checkmark icons: Rose gold for included items
+   - Plus icons: Grey for add-ons
+   - Font: 16px, clear, readable
+   - Spacing: 16px between items
+
+🎭 Layout:
+   - Top: Pricing table
+   - Middle: Timeline graphic
+   - Bottom: Specifications + Important notes
+   - FAQ: Accordion at very bottom
+
+📐 Typography:
+   - Section titles: 18px, bold, uppercase
+   - Items: 16px, regular
+   - Prices: 16px, bold, rose gold
+   - Notes: 14px, italic, grey
+
+🎬 Interactive Elements:
+   - FAQ accordion: Smooth expand/collapse
+   - Hover on add-ons: Shows example
+   - Character limit: Interactive counter
+   - Timeline: Animated progress bar
+
+🏷️ FAQ Section:
+   - Questions: Bold, clickable
+   - Answers: Expand below, grey text
+   - Icon: Arrow (rotates when open)
+   - Common questions:
+     * "Can I change my engraving after ordering?"
+     * "What if I make a mistake?"
+     * "Do you engrave logos?"
+     * "How long does engraving take?"
+     * "Can personalized items be returned?"
+
+
+═══════════════════════════════════════════════════════════════════
+7️⃣ CALL-TO-ACTION SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Ready to Create Something Special?"
+
+MESSAGE:
+"Start personalizing your silver today. Choose your product, design your 
+engraving, and we'll handle the rest."
+
+TWO CTAs:
+---------
+1. "Browse Products" (Primary)
+   → Goes to shop page
+
+2. "Try Preview Tool" (Secondary)
+   → Opens interactive customization tool
+
+ADDITIONAL INFO:
+----------------
+• "Free shipping on orders above ₹3,000"
+• "30-day quality guarantee"
+• "Secure checkout with multiple payment options"
+
+VISUAL ELEMENTS:
+----------------
+• Background: Gradient or product collage
+• Large, centered CTAs
+• Trust badges below CTAs
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Rose gold gradient
+   - Text: White
+   - Height: 400px
+   - Centered content
+
+✨ CTA Buttons:
+   - Primary: White background, rose gold text, large (60px height)
+   - Secondary: Outlined white, white text
+   - Width: 280px each
+   - Gap: 24px
+   - Border-radius: 30px
+
+🎬 Animations:
+   - Fade in on scroll
+   - Buttons pulse gently
+   - Hover: Scale up, glow effect
+
+
+═══════════════════════════════════════════════════════════════════
+OVERALL CUSTOMIZE PAGE DESIGN PRINCIPLES
+═══════════════════════════════════════════════════════════════════
+
+🎨 COLOR PALETTE:
+Primary: Deep Charcoal (#2C2C2C)
+Accent: Rose Gold (#B76E79)
+Background: White (#FFFFFF) and Light Cream (#FAF9F6)
+Dark sections: Charcoal (#1C1C1C)
+
+✨ LAYOUT STRUCTURE:
+- Hero: Full viewport height
+- Sections: Alternating white and light backgrounds
+- Max-width: 1200px (content), full-width (backgrounds)
+- Padding: 80-120px per section
+
+🎭 INTERACTION PATTERNS:
+- Smooth scrolling between sections
+- Sticky navigation (back to top)
+- Interactive preview tools
+- Real-time updates
+- Hover effects throughout
+
+📐 TYPOGRAPHY:
+- Headlines: Playfair Display (serif, elegant)
+- Body: Montserrat (sans-serif, clean)
+- Engraving samples: Actual fonts being showcased
+
+🎬 ANIMATIONS:
+- Scroll-triggered fade-ins
+- Stagger effects for lists
+- Smooth transitions (0.3-0.5s)
+- Micro-interactions on hover
+
+🏆 PREMIUM TOUCHES:
+- High-quality engraving photography
+- Interactive preview tools
+- Comprehensive examples gallery
+- Clear, transparent pricing
+- Professional copywriting
+- Luxury aesthetic throughout
+
+═══════════════════════════════════════════════════════════════════
+END OF CUSTOMIZE/PERSONALIZE PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════

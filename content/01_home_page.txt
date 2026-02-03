@@ -1,0 +1,713 @@
+═══════════════════════════════════════════════════════════════════
+🏠 HOME PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+PAGE GOAL:
+In 10 seconds, visitors should understand:
+✓ What you sell (premium silver accessories)
+✓ That it's premium quality
+✓ That it's customizable/personalizable
+✓ That silver pen is your hero product
+
+═══════════════════════════════════════════════════════════════════
+1️⃣ HERO SECTION (Top Banner - CRITICAL)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Primary Headline: "Everyday Silver. Made Personal."
+Secondary Headline: "Premium personalized silver pens and accessories for meaningful gifting."
+
+Alternative Headlines (Choose based on brand voice):
+• "Your Story, Engraved in Silver"
+• "Where Craftsmanship Meets Identity"
+• "Silver That Speaks Your Name"
+• "Timeless Silver. Uniquely Yours."
+
+VISUAL ELEMENTS:
+----------------
+• Hero Image/Video: Stunning close-up of silver pen being used to sign an important document
+• Background: Soft, elegant gradient (champagne to white) or subtle silver texture
+• Product Placement: Pen at 45° angle, showing engraving detail
+• Lifestyle Context: Executive desk, leather journal, soft natural lighting
+
+INTERACTIVE ELEMENTS:
+--------------------
+Primary CTA: "Shop Silver Pens" (Bold, prominent button)
+Secondary CTA: "Customize Your Gift" (Outlined/ghost button)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Color Palette:
+   - Primary: Deep Charcoal (#2C2C2C)
+   - Accent: Warm Silver (#C0C0C0)
+   - Highlight: Rose Gold (#B76E79) or Champagne Gold (#F7E7CE)
+   - Background: Ivory White (#FFFFF0)
+
+✨ Typography:
+   - Headline Font: "Playfair Display" or "Cormorant Garamond" (Serif, elegant)
+   - Body Font: "Montserrat" or "Raleway" (Sans-serif, clean)
+   - Font Sizes: H1: 72px, H2: 36px, Body: 18px
+
+🎭 Visual Effects:
+   - Parallax scrolling on hero image
+   - Subtle fade-in animation on text (0.8s delay)
+   - Floating particles effect (silver dust/sparkles)
+   - Smooth gradient overlay (dark to transparent)
+
+📐 Layout:
+   - Full viewport height (100vh)
+   - Centered content with 60/40 split (text left, product right)
+   - Breathing space: 120px padding top/bottom
+   - Max content width: 1400px
+
+🎬 Motion Design:
+   - Slow zoom on background video (10s duration)
+   - Text slides in from left with fade
+   - CTA buttons pulse gently (2s interval)
+   - Mouse scroll indicator with bounce animation
+
+
+═══════════════════════════════════════════════════════════════════
+2️⃣ HERO PRODUCT SPOTLIGHT - SILVER PEN
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "The Signature Pen. Crafted in Pure Silver."
+
+Story Narrative:
+"More than a writing instrument, our silver pen is a statement of refinement. 
+Each piece is meticulously crafted from 925 sterling silver, designed to be 
+passed down through generations. Whether sealing business deals or signing 
+life's important moments, your pen carries your legacy."
+
+4 KEY BENEFITS (Icon + Text Format):
+------------------------------------
+1. 🏆 Pure Silver Craftsmanship
+   "Handcrafted from 925 sterling silver with precision engineering"
+
+2. ✍️ Personalized Engraving
+   "Your name, initials, or message engraved with laser precision"
+
+3. 🎁 Perfect for Gifting & Professionals
+   "Ideal for executives, graduates, and milestone celebrations"
+
+4. 📦 Luxury Packaging Included
+   "Arrives in a premium gift box, ready to impress"
+
+VISUAL ELEMENTS:
+----------------
+• Large product image: Pen on marble surface with soft shadows
+• Detail shots: Close-up of engraving, nib detail, cap mechanism
+• Lifestyle image: Pen in professional setting (boardroom, desk)
+• Material swatch: Silver texture sample
+
+CTA: "Explore Silver Pens" (Prominent button)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Soft gradient (white to light grey)
+   - Two-column layout: Product image (left 55%), Content (right 45%)
+   - Asymmetric design with overlapping elements
+
+✨ Visual Hierarchy:
+   - Large product image with subtle drop shadow
+   - Benefit icons: Minimalist line icons in rose gold
+   - Hover effect: Icons scale and change color
+   - Divider: Thin gold line between benefits
+
+🎭 Interactive Elements:
+   - Image gallery with smooth transitions
+   - Benefit cards flip on hover to reveal more details
+   - Parallax effect on product image (slower scroll)
+   - Animated counter showing "925" silver purity
+
+📐 Spacing:
+   - Section padding: 150px top/bottom
+   - Grid gap: 60px between benefit cards
+   - Image border-radius: 12px for modern feel
+
+
+═══════════════════════════════════════════════════════════════════
+3️⃣ PRODUCT CATEGORIES SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Explore Our Silver Collection"
+Subheadline: "Premium accessories designed for everyday elegance"
+
+THREE CATEGORY CARDS:
+---------------------
+1. SILVER PENS (Featured/Larger Card)
+   Title: "Silver Pens"
+   Description: "The art of writing, elevated in sterling silver"
+   CTA: "Shop Pens"
+   
+2. SILVER KEYCHAINS
+   Title: "Silver Keychains"
+   Description: "Carry your identity with you, every day"
+   CTA: "Shop Keychains"
+   
+3. SILVER PHONE COVERS
+   Title: "Silver Phone Covers"
+   Description: "Protect your device in premium silver style"
+   CTA: "Shop Covers"
+
+VISUAL ELEMENTS:
+----------------
+• High-quality product photography on clean backgrounds
+• Subtle shadow effects for depth
+• Hover state: Product slightly elevates
+• Badge: "Personalizable" tag on each card
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Card Design:
+   - Hero card (Pens): 1.5x larger than others
+   - Card background: White with subtle gradient border
+   - Border: 1px solid with gradient (silver to gold)
+   - Border-radius: 16px
+   - Box-shadow: Soft, elevated (0 8px 24px rgba(0,0,0,0.08))
+
+✨ Layout Pattern:
+   - Asymmetric grid: 1 large + 2 medium cards
+   - Pen card: 60% width, Keychain & Cover: 20% each
+   - Responsive: Stack on mobile with pen card first
+
+🎭 Hover Effects:
+   - Card lifts up (translateY: -12px)
+   - Shadow intensifies
+   - Image zooms in slightly (scale: 1.05)
+   - CTA button changes color with smooth transition
+   - Gradient border animates (rotating gradient)
+
+📐 Typography:
+   - Card title: 28px, bold, letter-spacing: 0.5px
+   - Description: 16px, light weight, line-height: 1.6
+   - CTA: 14px, uppercase, tracking: 1px
+
+🎬 Animation:
+   - Cards fade in sequentially (0.2s stagger)
+   - Entrance: Slide up from bottom with fade
+   - "Personalizable" badge pulses gently
+
+
+═══════════════════════════════════════════════════════════════════
+4️⃣ PERSONALIZATION / CUSTOMIZATION SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Not Just Silver. Your Identity in Silver."
+Subheadline: "Every piece tells a story. Make it yours with custom engraving."
+
+MAIN MESSAGE:
+"Transform premium silver into something deeply personal. We engrave names, 
+initials, dates, quotes, or corporate logos with precision laser technology. 
+Each engraving is unique, making your gift truly one-of-a-kind."
+
+WHAT WE ENGRAVE:
+----------------
+• Personal Names & Initials
+• Important Dates & Anniversaries
+• Inspirational Quotes
+• Corporate Logos & Branding
+• Custom Messages (up to 50 characters)
+
+ENGRAVING PROCESS (3 Steps):
+-----------------------------
+Step 1: Choose Your Product
+"Select from our collection of silver pens, keychains, or covers"
+
+Step 2: Add Your Personal Touch
+"Enter your text, choose font style, and preview the engraving"
+
+Step 3: We Craft & Deliver
+"Expert engraving and premium packaging, delivered to your door"
+
+VISUAL ELEMENTS:
+----------------
+• Before/After slider showing plain vs. engraved product
+• Gallery of engraving examples (names, logos, dates)
+• Font preview samples (3-4 elegant font options)
+• Live engraving preview tool (interactive)
+
+CTA: "Personalize Your Product" (Bold, contrasting button)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Aesthetic:
+   - Background: Dark charcoal (#1A1A1A) for contrast
+   - Text: White/light grey for readability
+   - Accent: Rose gold highlights
+   - Split design: Dark left, light right (diagonal split)
+
+✨ Interactive Elements:
+   - Before/After slider with draggable handle
+   - Hover on examples: Zoom in to show detail
+   - Font selector: Click to see preview on product
+   - Real-time preview: Type and see engraving appear
+
+🎭 Visual Storytelling:
+   - Animated engraving process (laser effect)
+   - Particles flowing from text to product
+   - Glowing effect on engraved text
+   - Testimonial carousel: "This made my gift special"
+
+📐 Layout:
+   - Two-column: Examples (left 50%), Process (right 50%)
+   - Gallery: Masonry grid with 3 columns
+   - Step indicators: Numbered circles with connecting lines
+   - Padding: 180px top/bottom for emphasis
+
+🎬 Micro-interactions:
+   - Step numbers count up on scroll into view
+   - Example images reveal with stagger effect
+   - CTA button has shimmer effect (moving gradient)
+   - Font samples animate in with typewriter effect
+
+
+═══════════════════════════════════════════════════════════════════
+5️⃣ GIFTING & OCCASIONS SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Gifts That Last Longer Than Moments"
+Subheadline: "Perfect for life's most meaningful occasions"
+
+MAIN MESSAGE:
+"Silver isn't just precious—it's permanent. Our personalized silver gifts 
+become cherished keepsakes that mark important milestones and celebrate 
+the people who matter most."
+
+OCCASION CATEGORIES (4 Cards):
+------------------------------
+1. 🎂 BIRTHDAYS & MILESTONES
+   "Celebrate another year with a gift they'll treasure forever"
+   Suggested Products: Engraved pen with birth year, personalized keychain
+
+2. 💍 ANNIVERSARIES & WEDDINGS
+   "Mark your love story with silver that shines as bright as your bond"
+   Suggested Products: Couple's initials pen set, date-engraved accessories
+
+3. 🎓 GRADUATIONS & ACHIEVEMENTS
+   "Honor their success with a symbol of their hard work"
+   Suggested Products: Name-engraved pen, motivational quote keychain
+
+4. 🏢 CORPORATE GIFTS & AWARDS
+   "Recognize excellence with premium branded silver gifts"
+   Suggested Products: Logo-engraved pens, bulk corporate sets
+
+VISUAL ELEMENTS:
+----------------
+• Lifestyle photography for each occasion
+• Real customer gift stories (with photos)
+• Occasion-specific product recommendations
+• Gift guide download option
+
+CTA: "Explore Gift Collection" (Primary button)
+Secondary CTA: "Download Gift Guide" (PDF link)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Design Approach:
+   - Background: Soft cream (#FAF9F6) with subtle texture
+   - Card backgrounds: White with colored accent borders
+   - Each occasion has signature color:
+     * Birthdays: Warm coral (#FF6B6B)
+     * Anniversaries: Deep rose (#C73E1D)
+     * Graduations: Royal blue (#4A90E2)
+     * Corporate: Charcoal grey (#2C3E50)
+
+✨ Card Structure:
+   - Icon at top (elegant line icons, 48px)
+   - Occasion name (24px, bold)
+   - Description (16px, 2 lines max)
+   - Product suggestions (small thumbnails)
+   - CTA button (full width within card)
+
+🎭 Layout Pattern:
+   - 2x2 grid on desktop
+   - Equal height cards with hover effects
+   - Responsive: Single column on mobile
+   - Card spacing: 32px gap
+
+📐 Visual Details:
+   - Card border-radius: 20px
+   - Subtle gradient overlay on images
+   - Icon background: Circular, colored, with glow
+   - Hover: Card rotates slightly (2deg) and lifts
+
+🎬 Animations:
+   - Cards fade in with stagger (0.15s delay each)
+   - Icon bounces on hover
+   - Product thumbnails carousel on hover
+   - Background pattern shifts subtly on scroll
+
+
+═══════════════════════════════════════════════════════════════════
+6️⃣ CRAFTSMANSHIP & QUALITY SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Crafted to Perfection. Built to Last."
+Subheadline: "Premium quality you can see, feel, and trust"
+
+MAIN MESSAGE:
+"Every piece begins with 925 sterling silver—the highest standard of purity. 
+Our artisans combine traditional craftsmanship with modern precision to create 
+accessories that stand the test of time. Each product undergoes rigorous 
+quality checks and comes with hallmark certification."
+
+4 QUALITY PILLARS:
+------------------
+1. 🥈 925 STERLING SILVER
+   "Pure Silver Standard"
+   "We use only 925 sterling silver, the international benchmark for quality 
+   and durability. Each piece is hallmarked for authenticity."
+
+2. 🔨 HANDCRAFTED PRECISION
+   "Artisan Excellence"
+   "Skilled craftsmen shape each piece with meticulous attention to detail, 
+   combining traditional techniques with modern tools."
+
+3. ✅ QUALITY ASSURANCE
+   "Rigorous Testing"
+   "Every product passes through multiple quality checkpoints, ensuring 
+   flawless finish, smooth mechanics, and perfect engraving."
+
+4. 🏅 HALLMARK CERTIFIED
+   "Guaranteed Authenticity"
+   "Official hallmark certification proves the purity and quality of our 
+   silver, giving you complete peace of mind."
+
+VISUAL ELEMENTS:
+----------------
+• Close-up photography of crafting process
+• Hallmark certification badge/seal
+• Material comparison chart (925 vs. lower grades)
+• Video: Craftsman creating a pen (30-second loop)
+• Quality guarantee badge
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Aesthetic Direction:
+   - Background: Deep navy blue (#0A1929) with silver accents
+   - Text: White and light grey for contrast
+   - Accent color: Metallic silver (#E8E8E8) with shine effect
+   - Section dividers: Thin gold lines
+
+✨ Layout Design:
+   - Hero image/video at top (full width, 60vh)
+   - 4 pillars in grid: 2x2 layout
+   - Each pillar: Icon + Title + Description
+   - Bottom: Certification badges in row
+
+🎭 Visual Effects:
+   - Video background with dark overlay (60% opacity)
+   - Pillar icons: Animated on scroll (draw effect)
+   - Shimmer effect on "925" text
+   - Hallmark badge rotates slowly (3D effect)
+   - Parallax: Background moves slower than content
+
+📐 Typography:
+   - Pillar titles: 22px, bold, uppercase, tracking: 2px
+   - Numbers (925): 64px, bold, metallic gradient fill
+   - Description: 16px, line-height: 1.8, light weight
+
+🎬 Interactions:
+   - Hover on pillar: Icon animates (bounce/glow)
+   - Quality stats counter animation (0 to 925)
+   - Certification badge: Click to view full certificate
+   - Video plays on scroll into view
+
+
+═══════════════════════════════════════════════════════════════════
+7️⃣ CORPORATE / BULK GIFTING TEASER
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Elevate Your Corporate Gifting"
+Subheadline: "Premium branded silver gifts for your team and clients"
+
+TEASER MESSAGE:
+"Looking for corporate or bulk gifting solutions? We specialize in custom-branded 
+silver accessories that leave a lasting impression. Perfect for employee recognition, 
+client appreciation, and corporate events."
+
+KEY BENEFITS (3 Points):
+------------------------
+• Custom Logo Engraving
+• Bulk Pricing Available
+• Premium Gift Packaging
+
+VISUAL ELEMENTS:
+----------------
+• Example: Pen set with corporate logo
+• Company logos (if you have clients, or generic icons)
+• Bulk gift box image (multiple pens in presentation case)
+
+CTA: "Explore Corporate Gifting" (Link to dedicated page)
+Secondary: "Request Quote" (Opens contact form)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Design Style:
+   - Background: Light grey (#F5F5F5) with subtle pattern
+   - Accent: Corporate blue (#1E3A8A) or charcoal
+   - Clean, professional aesthetic
+   - Minimal, focused design
+
+✨ Layout:
+   - Horizontal banner style (not full section)
+   - Left: Text content (60%)
+   - Right: Product image (40%)
+   - Height: 400px
+   - Contained width: 1200px max
+
+🎭 Visual Elements:
+   - Subtle briefcase or building icon
+   - Logo placeholder grid (3x3 faded logos)
+   - Professional product photography
+   - Trust badge: "Trusted by 100+ companies"
+
+📐 Spacing:
+   - Padding: 80px top/bottom
+   - Internal padding: 60px
+   - Button spacing: 16px gap between CTAs
+
+🎬 Effects:
+   - Fade in on scroll
+   - CTA buttons: Professional hover (subtle color shift)
+   - Logo grid: Subtle rotation on hover
+
+
+═══════════════════════════════════════════════════════════════════
+8️⃣ TESTIMONIALS / REVIEWS SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+Section Headline: "Stories from Our Customers"
+Subheadline: "Real gifts. Real moments. Real emotions."
+
+TESTIMONIAL STRUCTURE (3-5 Reviews):
+------------------------------------
+Example 1:
+"The silver pen I ordered for my father's retirement was absolutely perfect. 
+The engraving was flawless, and the packaging made it feel so special. He 
+was moved to tears. Thank you for helping me create such a meaningful gift."
+— Priya Sharma, Mumbai
+★★★★★ (5 stars)
+Product: Personalized Silver Pen
+
+Example 2:
+"We ordered 50 silver keychains for our corporate event, each with our company 
+logo. The quality exceeded our expectations, and our clients loved them. 
+Professional service from start to finish."
+— Rajesh Kumar, CEO, TechVision
+★★★★★ (5 stars)
+Product: Corporate Keychains
+
+Example 3:
+"Bought this as an anniversary gift for my wife. The engraving of our wedding 
+date was beautifully done. It's not just a phone cover—it's a daily reminder 
+of our love story."
+— Amit Patel, Bangalore
+★★★★★ (5 stars)
+Product: Engraved Phone Cover
+
+VISUAL ELEMENTS:
+----------------
+• Customer photos (if available, with permission)
+• Product images related to each review
+• Star ratings (visual stars, not just text)
+• Review platform logos (Google, Trustpilot, etc.)
+• Overall rating: "4.9/5 from 500+ reviews"
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Design Aesthetic:
+   - Background: White with soft shadow cards
+   - Card background: Very light grey (#FAFAFA)
+   - Star color: Gold (#FFD700)
+   - Text: Dark grey (#333333)
+
+✨ Card Design:
+   - Rounded corners (16px)
+   - Subtle border (1px, light grey)
+   - Quote icon at top left (large, faded)
+   - Customer photo: Circular, 60px diameter
+   - Star rating: Below quote, above name
+
+🎭 Layout:
+   - Carousel/slider format
+   - Show 3 cards at once on desktop
+   - Auto-rotate every 5 seconds
+   - Manual navigation: Arrows + dots
+   - Card width: 360px, gap: 24px
+
+📐 Typography:
+   - Quote: 18px, italic, line-height: 1.7
+   - Name: 14px, bold
+   - Location/title: 12px, light, grey
+   - Product tag: 12px, badge style
+
+🎬 Interactions:
+   - Cards slide in from right
+   - Hover: Card lifts slightly
+   - Star animation: Fill from left to right
+   - Auto-pause on hover
+   - Smooth transitions (0.4s ease)
+
+
+═══════════════════════════════════════════════════════════════════
+9️⃣ FOOTER BRAND STORY + NEWSLETTER
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+BRAND PHILOSOPHY (Short Paragraph):
+"Redefining silver beyond jewellery. We believe silver belongs in your everyday 
+life—in the tools you use, the accessories you carry, and the gifts you give. 
+Each piece we create is a blend of timeless craftsmanship and personal meaning, 
+designed to be cherished for generations."
+
+NEWSLETTER SECTION:
+-------------------
+Headline: "Join Our Silver Circle"
+Subtext: "Get exclusive offers, gifting ideas, and new product launches"
+Form: Email input + "Subscribe" button
+Privacy note: "We respect your privacy. Unsubscribe anytime."
+
+FOOTER LINKS (4 Columns):
+-------------------------
+Column 1: SHOP
+- Silver Pens
+- Keychains
+- Phone Covers
+- All Products
+
+Column 2: CUSTOMIZE
+- Personalization Guide
+- Font Options
+- Corporate Gifting
+- Bulk Orders
+
+Column 3: ABOUT
+- Our Story
+- Craftsmanship
+- Quality Promise
+- Reviews
+
+Column 4: SUPPORT
+- Contact Us
+- Shipping Policy
+- Returns & Refunds
+- FAQs
+- Track Order
+
+BOTTOM BAR:
+-----------
+Left: © 2026 [Your Brand Name]. All rights reserved.
+Center: Payment icons (Visa, Mastercard, UPI, etc.)
+Right: Social media icons (Instagram, Facebook, WhatsApp)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Color Scheme:
+   - Background: Deep charcoal (#1C1C1C)
+   - Text: Light grey (#B0B0B0)
+   - Headings: White (#FFFFFF)
+   - Accent: Rose gold (#B76E79)
+   - Links hover: Lighter shade
+
+✨ Layout Structure:
+   - Top section: Brand story (centered, max-width: 800px)
+   - Middle: Newsletter (centered, prominent)
+   - Bottom: 4-column link grid
+   - Very bottom: Single row with copyright, payments, social
+
+🎭 Newsletter Design:
+   - Background: Slightly lighter than footer (#252525)
+   - Input field: Dark with light border, rounded
+   - Button: Rose gold gradient, bold
+   - Icon: Envelope icon in input field
+   - Padding: 60px top/bottom
+
+📐 Typography:
+   - Brand story: 16px, line-height: 1.8, centered
+   - Column headings: 14px, uppercase, bold, tracking: 1px
+   - Links: 14px, regular weight
+   - Copyright: 12px, muted
+
+🎬 Interactions:
+   - Links: Underline on hover with smooth transition
+   - Social icons: Scale up and color change on hover
+   - Newsletter button: Gradient shift on hover
+   - Smooth scroll to top button (bottom right, appears on scroll)
+
+🏆 Premium Touches:
+   - Subtle texture overlay on background
+   - Divider lines: Thin, gradient (dark to light to dark)
+   - Payment icons: Greyscale, color on hover
+   - Social icons: Outlined, fill on hover
+   - Trust badges: "Secure Checkout" "100% Authentic"
+
+
+═══════════════════════════════════════════════════════════════════
+OVERALL HOME PAGE DESIGN PRINCIPLES
+═══════════════════════════════════════════════════════════════════
+
+🎨 BRAND COLOR PALETTE:
+Primary: Deep Charcoal (#2C2C2C)
+Secondary: Warm Silver (#C0C0C0)
+Accent: Rose Gold (#B76E79) or Champagne Gold (#F7E7CE)
+Background: Ivory White (#FFFFF0)
+Dark Mode: Deep Navy (#0A1929)
+
+✨ TYPOGRAPHY SYSTEM:
+Headings: Playfair Display / Cormorant Garamond (Serif)
+Body: Montserrat / Raleway (Sans-serif)
+Accent: Cinzel (for premium touches)
+
+🎭 DESIGN STYLE:
+- Luxury minimalism
+- Generous white space
+- High-quality photography
+- Subtle animations
+- Premium materials (marble, leather textures)
+- Metallic accents and gradients
+
+📐 SPACING SYSTEM:
+- Section padding: 120-180px top/bottom
+- Element spacing: 8px, 16px, 24px, 32px, 48px, 64px
+- Max content width: 1400px
+- Mobile breakpoint: 768px
+
+🎬 ANIMATION PRINCIPLES:
+- Smooth, elegant transitions (0.3-0.6s)
+- Scroll-triggered animations (fade, slide, scale)
+- Micro-interactions on hover
+- Loading states with shimmer effects
+- Parallax for depth
+
+🏆 PREMIUM ELEMENTS TO INCLUDE:
+- Metallic gradients and shine effects
+- Subtle particle animations
+- Smooth parallax scrolling
+- High-quality product photography
+- Video backgrounds (subtle, elegant)
+- Custom cursor (optional)
+- Smooth page transitions
+- Loading animation (silver theme)
+
+═══════════════════════════════════════════════════════════════════
+END OF HOME PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════

@@ -1,0 +1,869 @@
+═══════════════════════════════════════════════════════════════════
+✒️ PRODUCT DETAIL PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+PAGE GOAL:
+Convert browsers into buyers by:
+✓ Showcasing product quality and details
+✓ Making personalization easy and exciting
+✓ Building trust through craftsmanship info
+✓ Creating urgency and desire to purchase
+
+FOCUS PRODUCT: Silver Pen (Hero Product)
+Note: This structure applies to all products with minor variations
+
+═══════════════════════════════════════════════════════════════════
+1️⃣ PRODUCT GALLERY (Left Side - 50%)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+REQUIRED IMAGES (6-8 Photos):
+1. Hero shot: Pen at elegant angle on premium surface
+2. Close-up: Engraving area detail
+3. Nib detail: Close-up of writing tip
+4. In use: Hand writing with pen
+5. Packaging: Luxury gift box open with pen inside
+6. Size reference: Pen next to common object (watch, phone)
+7. Material detail: Silver texture close-up
+8. Full set: Pen with certificate and accessories
+
+IMAGE SPECIFICATIONS:
+---------------------
+• Resolution: High quality (2000px+)
+• Background: Clean white or lifestyle setting
+• Lighting: Professional, shows silver shine
+• Angles: Multiple perspectives
+• Consistency: Same style across all images
+
+VISUAL ELEMENTS:
+----------------
+• Main image: Large display (600px x 600px)
+• Thumbnail strip: Below or side of main image
+• Zoom functionality: Click or hover to magnify
+• 360° view: Optional interactive rotation
+• Video: Optional product showcase (30-60s)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Gallery Layout:
+   - Main image: 600px x 600px, centered
+   - Thumbnails: 80px x 80px, horizontal strip below
+   - Gap between thumbnails: 12px
+   - Active thumbnail: Rose gold border (2px)
+   - Background: Very light grey (#FAFAFA)
+
+✨ Image Container:
+   - Border-radius: 12px
+   - Subtle shadow: 0 4px 16px rgba(0,0,0,0.08)
+   - Padding: 24px
+   - Aspect ratio: 1:1 (square)
+
+🎭 Interactive Features:
+   - Click thumbnail: Smooth fade transition to main
+   - Hover main image: Cursor changes to zoom icon
+   - Click main: Opens lightbox/zoom view
+   - Swipe: Touch-friendly for mobile
+   - Keyboard navigation: Arrow keys to switch images
+
+📐 Zoom Functionality:
+   - Lightbox: Full-screen overlay, dark background
+   - Zoom level: 2x or 3x magnification
+   - Pan: Click and drag to explore
+   - Close: X button or click outside
+   - Navigation: Arrows to next/previous image
+
+🎬 Animations:
+   - Image transitions: Smooth fade (0.3s)
+   - Thumbnail hover: Scale up slightly (1.05)
+   - Zoom in: Smooth scale animation
+   - Loading: Skeleton placeholder or blur-up effect
+
+🏷️ Image Badges:
+   - "925 Silver" badge on main image
+   - "Personalizable" badge
+   - "Free Shipping" badge (if applicable)
+   - Position: Top-left corner of main image
+
+
+═══════════════════════════════════════════════════════════════════
+2️⃣ PRODUCT INFO PANEL (Right Side - 50%)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+PRODUCT NAME:
+"Classic Sterling Silver Pen"
+
+TAGLINE:
+"Where elegance meets everyday writing"
+
+PRICE:
+₹4,999
+(Optional: Strike-through original price if on sale: ₹6,999)
+
+RATING & REVIEWS:
+★★★★★ 4.9/5 (127 reviews) - Clickable link to reviews section
+
+SHORT DESCRIPTION (2-3 Lines):
+"Handcrafted from 925 sterling silver, this premium pen combines timeless 
+design with modern functionality. Perfect for professionals, executives, 
+and anyone who appreciates the finer things in life."
+
+KEY FEATURES (4-6 Bullet Points):
+----------------------------------
+✓ Pure 925 Sterling Silver Construction
+✓ Smooth German Ink Cartridge (replaceable)
+✓ Precision Laser Engraving Available
+✓ Hallmark Certified Authenticity
+✓ Premium Gift Box Included
+✓ Lifetime Craftsmanship Guarantee
+
+PRODUCT SPECIFICATIONS:
+-----------------------
+• Material: 925 Sterling Silver
+• Length: 14.5 cm
+• Weight: 45 grams
+• Finish: Polished / Matte (variant selector)
+• Ink Type: Blue/Black (replaceable cartridge)
+• Engraving: Up to 20 characters
+
+DELIVERY INFORMATION:
+---------------------
+• Standard Delivery: 5-7 business days
+• Express Delivery: 2-3 business days (+₹200)
+• Personalized Orders: +2 days for engraving
+• Free Shipping on orders above ₹3,000
+
+TRUST BADGES:
+-------------
+• 100% Authentic Silver
+• Hallmark Certified
+• 30-Day Returns
+• Secure Checkout
+
+ACTION BUTTONS:
+---------------
+Primary: "Customize & Add to Cart" (Large, prominent)
+Secondary: "Add to Cart" (If no customization needed)
+Tertiary: "Add to Wishlist" (Heart icon, outlined)
+
+VISUAL ELEMENTS:
+----------------
+• Price in large, bold font
+• Star rating with visual stars
+• Feature checkmarks in rose gold
+• Trust badges with icons
+• Quantity selector (+ / - buttons)
+• Variant selector (if applicable)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Panel Design:
+   - Background: White
+   - Padding: 48px
+   - Max-width: 600px
+   - Sticky scroll (stays visible when scrolling)
+
+✨ Typography Hierarchy:
+   - Product name: 36px, Playfair Display, bold
+   - Tagline: 16px, italic, grey
+   - Price: 42px, bold, rose gold
+   - Original price: 24px, strikethrough, grey
+   - Description: 16px, line-height: 1.7
+   - Features: 15px, with checkmark icons
+
+🎭 Price Display:
+   - Large, prominent, rose gold color
+   - If on sale: Show savings "Save ₹2,000 (29%)"
+   - Savings in green badge
+   - Position: Below rating, above description
+
+📐 Feature List:
+   - Checkmark icon: Rose gold, 18px
+   - Text: Dark grey, 15px
+   - Spacing: 12px between items
+   - Icon-text gap: 12px
+   - Background: Very light grey (#F9F9F9), rounded corners
+
+🎬 Interactive Elements:
+   - Quantity selector: +/- buttons with number input
+   - Variant selector: Swatches or dropdown
+   - Hover on features: Slight highlight
+   - Add to cart: Pulse animation on hover
+
+🛒 Button Design:
+   - Primary button:
+     * Background: Rose gold gradient
+     * Text: White, 16px, bold, uppercase
+     * Height: 56px, full width
+     * Border-radius: 8px
+     * Icon: Shopping cart icon (left side)
+     * Hover: Gradient shifts, slight scale up
+   
+   - Secondary button:
+     * Outlined style, rose gold border
+     * Height: 48px, full width
+     * Margin-top: 12px
+   
+   - Wishlist button:
+     * Icon only, heart outline
+     * Position: Top-right of panel
+     * Click: Heart fills with animation
+
+🏷️ Trust Badges:
+   - Display: Horizontal row, 4 badges
+   - Size: 60px x 60px each
+   - Style: Icon + text below
+   - Color: Grey icons, dark text
+   - Position: Below buttons, 32px margin-top
+
+
+═══════════════════════════════════════════════════════════════════
+3️⃣ PERSONALIZATION SECTION (Key Conversion Driver)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Make It Personal"
+
+SUBHEADLINE:
+"Add a name, initials, date, or message to create a truly unique gift"
+
+PERSONALIZATION OPTIONS:
+------------------------
+1. TEXT INPUT
+   Label: "Enter your text (max 20 characters)"
+   Placeholder: "e.g., John Smith, JS, 2024"
+   Character counter: "15/20 characters"
+
+2. FONT SELECTION
+   Label: "Choose engraving font"
+   Options:
+   • Classic Serif (elegant, traditional)
+   • Modern Sans (clean, contemporary)
+   • Script (cursive, decorative)
+   • Monogram (initials style)
+   
+   Display: Visual font samples, radio button selection
+
+3. PLACEMENT (if applicable)
+   Label: "Engraving placement"
+   Options:
+   • Pen barrel (recommended)
+   • Pen cap
+   
+   Display: Visual diagram showing placement
+
+4. PREVIEW
+   Live preview: Shows pen with engraving
+   Toggle: "Show/Hide Preview"
+   Note: "Preview is approximate. Actual engraving may vary slightly."
+
+ADDITIONAL OPTIONS:
+-------------------
+• Gift message card: "Add a gift message (free)"
+• Gift wrapping: "Premium gift wrapping (+₹200)"
+• Express engraving: "Rush engraving (+₹500, ready in 24hrs)"
+
+IMPORTANT NOTES:
+----------------
+• "Each piece is engraved specially for you"
+• "Personalized items are non-returnable"
+• "Engraving adds 2 business days to delivery"
+• "Preview your engraving before checkout"
+
+VISUAL ELEMENTS:
+----------------
+• Text input field with character counter
+• Font selector with visual samples
+• Live preview (3D render or high-quality mockup)
+• Before/after comparison slider
+• Engraving examples gallery
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light cream (#FAF9F6)
+   - Border: 1px solid light grey
+   - Border-radius: 12px
+   - Padding: 32px
+   - Margin-top: 32px (below main info panel)
+
+✨ Input Field:
+   - Height: 48px
+   - Border: 2px solid light grey
+   - Focus: Rose gold border
+   - Font: 16px, matches selected engraving font
+   - Character counter: Right side, small, grey
+   - Max-length validation: Red border if exceeded
+
+🎭 Font Selector:
+   - Display: Grid of 4 font samples
+   - Each sample: 120px x 80px card
+   - Shows "ABC abc 123" in that font
+   - Active: Rose gold border (2px)
+   - Hover: Slight scale up
+   - Radio button: Hidden, card acts as selector
+
+📐 Preview Display:
+   - Size: 400px x 300px
+   - Background: White
+   - Product image: Pen with engraving visible
+   - Zoom: Click to see detail
+   - Update: Real-time as user types
+   - Loading: Shimmer effect while generating
+
+🎬 Interactive Features:
+   - Text input: Debounced preview update (0.5s)
+   - Font change: Instant preview update
+   - Preview toggle: Smooth expand/collapse
+   - Character limit: Warning at 18/20, error at 20/20
+
+🏷️ Additional Options:
+   - Checkboxes for add-ons
+   - Gift message: Expandable textarea
+   - Gift wrapping: Shows preview image on hover
+   - Express: Highlighted badge with clock icon
+
+
+═══════════════════════════════════════════════════════════════════
+4️⃣ PRODUCT STORY / USAGE SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"More Than a Pen. A Legacy."
+
+STORY NARRATIVE:
+"In a world of disposable everything, our silver pen stands apart. Crafted 
+from pure 925 sterling silver, each pen is designed to be used daily and 
+passed down through generations. Whether you're signing your first business 
+deal, journaling your thoughts, or gifting a milestone achievement, this pen 
+carries weight—both literally and symbolically.
+
+The smooth German ink cartridge glides effortlessly across paper, while the 
+substantial silver body provides perfect balance in your hand. This isn't 
+just a writing instrument; it's a statement of who you are and what you value."
+
+WHO IS THIS FOR:
+----------------
+• Business Executives & Professionals
+• Writers & Journalists
+• Lawyers & Doctors
+• Graduates & Achievers
+• Gift Givers (for special occasions)
+
+WHEN TO GIFT:
+-------------
+• Promotions & Career Milestones
+• Graduations & Academic Achievements
+• Retirements & Farewells
+• Anniversaries & Birthdays
+• Corporate Recognition & Awards
+
+WHY SILVER PEN IS SPECIAL:
+--------------------------
+1. TIMELESS VALUE
+   "Silver appreciates over time, making this both a tool and an investment"
+
+2. DAILY LUXURY
+   "Experience the weight and feel of premium silver every time you write"
+
+3. PERSONAL CONNECTION
+   "Engraving transforms it from a product into a personal treasure"
+
+4. HEIRLOOM QUALITY
+   "Built to last generations, not just years"
+
+VISUAL ELEMENTS:
+----------------
+• Lifestyle photography: Professional using pen
+• Close-up: Hand holding pen, showing weight and feel
+• Occasion images: Graduation, boardroom, gift giving
+• Timeline graphic: "A pen for life's important moments"
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Two-column layout: Story (left 60%), Images (right 40%)
+   - Padding: 80px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Typography:
+   - Headline: 32px, Playfair Display, centered
+   - Story text: 17px, line-height: 1.8, justified
+   - Section titles: 18px, bold, uppercase, tracking: 1px
+   - Lists: 16px, with custom bullet points (rose gold dots)
+
+🎭 Visual Layout:
+   - Story on left, images on right
+   - Images: Stacked vertically, overlapping slightly
+   - Image borders: Thin white border (8px)
+   - Shadows: Soft, elevated
+
+📐 Content Blocks:
+   - "Who is this for": Icon list (person icons)
+   - "When to gift": Calendar-style grid
+   - "Why special": Numbered cards (1-4)
+   - Spacing: 48px between blocks
+
+🎬 Animations:
+   - Fade in on scroll
+   - Images slide in from right (stagger)
+   - Icons draw/animate on view
+   - Parallax: Images move slower than text
+
+
+═══════════════════════════════════════════════════════════════════
+5️⃣ CRAFTSMANSHIP & MATERIALS SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Crafted with Precision. Built to Last."
+
+MATERIAL DETAILS:
+-----------------
+1. SILVER TYPE: 925 Sterling Silver
+   "The international standard for premium silver products. 92.5% pure silver 
+   alloyed with 7.5% copper for strength and durability."
+
+2. FINISH OPTIONS:
+   • Polished: Mirror-like shine, classic elegance
+   • Matte: Brushed texture, modern sophistication
+   • Oxidized: Vintage look with darkened accents (if available)
+
+3. INK MECHANISM:
+   "German-engineered ink cartridge provides smooth, consistent flow. 
+   Replaceable cartridges available in blue and black."
+
+4. WEIGHT & BALANCE:
+   "At 45 grams, the pen provides substantial feel without fatigue. 
+   Perfectly balanced for extended writing sessions."
+
+DURABILITY & CARE:
+------------------
+• Scratch Resistant: Silver naturally resists minor scratches
+• Tarnish Protection: Included anti-tarnish pouch
+• Water Resistant: Safe from accidental splashes
+• Lifetime Craftsmanship: We stand behind our work
+
+CARE INSTRUCTIONS:
+------------------
+1. Clean with soft, dry cloth after use
+2. Store in provided anti-tarnish pouch
+3. Avoid harsh chemicals and abrasives
+4. Polish occasionally with silver cleaning cloth
+5. Replace ink cartridge when needed (included instructions)
+
+HALLMARK CERTIFICATION:
+-----------------------
+"Every pen is hallmarked with the 925 stamp, certifying its silver purity. 
+This official mark guarantees authenticity and quality."
+
+VISUAL ELEMENTS:
+----------------
+• Close-up macro photography of silver texture
+• Hallmark stamp detail shot
+• Finish comparison (polished vs. matte)
+• Exploded view diagram (pen components)
+• Care instruction infographic
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Dark charcoal (#1C1C1C)
+   - Text: White and light grey
+   - Accent: Metallic silver highlights
+   - Padding: 100px top/bottom
+
+✨ Layout:
+   - Three-column grid for material details
+   - Two-column for durability and care
+   - Full-width for hallmark certification
+   - Centered content, max-width: 1200px
+
+🎭 Visual Style:
+   - Material cards: Dark background, light border
+   - Icons: Minimalist line style, silver color
+   - Diagrams: Technical drawing style
+   - Photography: High contrast, dramatic lighting
+
+📐 Card Design:
+   - Background: Slightly lighter than section (#252525)
+   - Border: 1px solid #3A3A3A
+   - Border-radius: 8px
+   - Padding: 32px
+   - Hover: Border glows (silver color)
+
+🎬 Interactive Elements:
+   - Finish selector: Click to see comparison
+   - Hover on diagram: Highlights component with label
+   - Care instructions: Expandable accordion
+   - Hallmark: Magnify on hover to see detail
+
+🏷️ Certification Badge:
+   - Large "925" number (72px, metallic gradient)
+   - "Hallmark Certified" text below
+   - Official seal/stamp graphic
+   - Position: Centered, prominent
+
+
+═══════════════════════════════════════════════════════════════════
+6️⃣ PACKAGING & DELIVERY SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Unboxing Excellence"
+
+MAIN MESSAGE:
+"Your pen arrives in premium packaging, ready to gift or enjoy. Every detail 
+is designed to create a memorable unboxing experience."
+
+WHAT'S INCLUDED:
+----------------
+📦 LUXURY GIFT BOX
+• Premium rigid box with magnetic closure
+• Soft velvet interior lining
+• Custom foam insert (pen-shaped cutout)
+• Embossed logo on lid
+
+✉️ CERTIFICATE OF AUTHENTICITY
+• Hallmark certification details
+• Silver purity guarantee
+• Unique serial number
+• Care instructions
+
+🎁 ACCESSORIES
+• Anti-tarnish storage pouch
+• Extra ink cartridge (blue or black)
+• Silver polishing cloth
+• User manual & warranty card
+
+💌 GIFT MESSAGE CARD (Optional)
+• Premium cardstock
+• Handwritten or printed message
+• Elegant envelope included
+
+PACKAGING FEATURES:
+-------------------
+• Ready-to-Gift: No additional wrapping needed
+• Eco-Friendly: Recyclable materials used
+• Protective: Secure packaging for shipping
+• Reusable: Box designed for long-term storage
+
+DELIVERY OPTIONS:
+-----------------
+1. STANDARD DELIVERY (Free on orders ₹3,000+)
+   • 5-7 business days
+   • Tracking included
+   • Signature required
+
+2. EXPRESS DELIVERY (+₹200)
+   • 2-3 business days
+   • Priority processing
+   • SMS & email updates
+
+3. PERSONALIZED ORDERS
+   • Add 2 days for engraving
+   • Quality check before shipping
+   • Preview photo sent before dispatch (optional)
+
+VISUAL ELEMENTS:
+----------------
+• Unboxing video or photo sequence
+• Packaging components laid out
+• Gift box closed and open views
+• Certificate close-up
+• Delivery truck icon/illustration
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Soft cream (#FAF9F6)
+   - Two-column layout: Images (left 50%), Details (right 50%)
+   - Padding: 80px top/bottom
+   - Border-top: Thin gold line
+
+✨ Image Presentation:
+   - Carousel: Multiple packaging photos
+   - Main image: 600px x 600px
+   - Thumbnails: Below main image
+   - Lifestyle shot: Gift being opened
+   - Flat lay: All components arranged
+
+🎭 Content Layout:
+   - "What's Included": Checklist with icons
+   - Icons: 32px, rose gold color
+   - Text: 16px, dark grey
+   - Spacing: 16px between items
+   - Expandable: Click to see more details
+
+📐 Delivery Options:
+   - Three cards: One for each option
+   - Card design: White background, subtle shadow
+   - Icon: Truck, plane, or clock
+   - Price: Bold, if applicable
+   - Timeline: Visual progress bar
+
+🎬 Animations:
+   - Unboxing sequence: Auto-play carousel
+   - Checklist items: Checkmarks animate in
+   - Delivery cards: Hover to highlight
+   - Expandable sections: Smooth accordion
+
+🏷️ Special Badges:
+   - "Free Shipping" badge (if applicable)
+   - "Eco-Friendly Packaging" badge
+   - "Ready to Gift" badge
+   - Position: Top-right of section
+
+
+═══════════════════════════════════════════════════════════════════
+7️⃣ REVIEWS & RATINGS SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"What Our Customers Say"
+
+OVERALL RATING:
+---------------
+★★★★★ 4.9 out of 5
+Based on 127 verified reviews
+
+RATING BREAKDOWN:
+-----------------
+5 stars: ████████████████████ 85% (108 reviews)
+4 stars: ████░░░░░░░░░░░░░░░░ 12% (15 reviews)
+3 stars: █░░░░░░░░░░░░░░░░░░░  2% (3 reviews)
+2 stars: ░░░░░░░░░░░░░░░░░░░░  1% (1 review)
+1 star:  ░░░░░░░░░░░░░░░░░░░░  0% (0 reviews)
+
+FEATURED REVIEWS (3-5 Reviews):
+-------------------------------
+Review 1:
+★★★★★ "Perfect Retirement Gift"
+"I ordered this pen for my father's retirement with his name and years of 
+service engraved. The quality is outstanding, and the engraving was perfect. 
+He was so touched that he teared up. Worth every rupee!"
+— Priya Sharma, Mumbai
+Verified Purchase | 2 months ago
+Helpful: 45 people found this helpful
+
+Review 2:
+★★★★★ "Exceeded Expectations"
+"As a lawyer, I sign documents daily. This pen has become my signature tool—
+literally! The weight, balance, and smooth writing make it a pleasure to use. 
+The silver finish still looks brand new after 6 months."
+— Advocate Rajesh Kumar, Delhi
+Verified Purchase | 6 months ago
+Helpful: 38 people found this helpful
+
+Review 3:
+★★★★★ "Best Corporate Gift"
+"Ordered 20 pens for our top performers with company logo. The team at 
+[Brand] handled everything professionally. Our employees loved them!"
+— Neha Patel, HR Manager, TechCorp
+Verified Purchase | 1 month ago
+Helpful: 29 people found this helpful
+
+Review 4:
+★★★★☆ "Beautiful, but pricey"
+"The pen is absolutely gorgeous and feels premium. Only giving 4 stars 
+because it's a bit expensive, but I understand you're paying for quality."
+— Amit Desai, Bangalore
+Verified Purchase | 3 weeks ago
+Helpful: 12 people found this helpful
+
+REVIEW FILTERS:
+---------------
+• All Reviews (127)
+• With Photos (23)
+• Verified Purchases Only (115)
+• Most Recent
+• Most Helpful
+• Highest Rating
+• Lowest Rating
+
+WRITE A REVIEW:
+---------------
+Button: "Write a Review"
+Opens: Review form modal
+Fields: Rating, title, review text, photo upload (optional)
+
+VISUAL ELEMENTS:
+----------------
+• Star ratings (visual, not just text)
+• Customer photos (if provided)
+• Verified purchase badge
+• Helpful vote buttons (thumbs up)
+• Review date and location
+• Product variant mentioned (if applicable)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 100px top/bottom
+   - Max-width: 1200px, centered
+   - Border-top: Thin grey line
+
+✨ Overall Rating Display:
+   - Large star icons: 48px, gold color
+   - Rating number: 64px, bold
+   - "out of 5": 18px, grey
+   - Review count: 16px, grey, below rating
+   - Position: Centered at top of section
+
+🎭 Rating Breakdown:
+   - Horizontal bar chart
+   - Bars: Rose gold fill, grey background
+   - Width: 400px
+   - Height: 24px per bar
+   - Percentage: Right side, bold
+   - Count: In parentheses, grey
+
+📐 Review Card Design:
+   - Background: Very light grey (#F9F9F9)
+   - Border-radius: 12px
+   - Padding: 32px
+   - Margin-bottom: 24px
+   - Shadow: Subtle (0 2px 8px rgba(0,0,0,0.06))
+
+🎬 Review Card Layout:
+   - Top: Star rating + verified badge
+   - Title: 18px, bold, dark grey
+   - Review text: 16px, line-height: 1.7
+   - Bottom: Reviewer name, location, date
+   - Right side: Helpful votes (thumbs up icon + count)
+   - Photos: Thumbnail grid below text (if available)
+
+🏷️ Badges & Icons:
+   - Verified Purchase: Checkmark icon + "Verified"
+   - Helpful: Thumbs up icon (outline, fills on click)
+   - Photo count: Camera icon + number
+   - Date: Calendar icon + relative time
+
+🎨 Write Review Button:
+   - Style: Outlined, rose gold border
+   - Position: Top-right of section
+   - Icon: Star icon
+   - Hover: Filled background, white text
+
+REVIEW PHOTOS:
+--------------
+• Thumbnail size: 80px x 80px
+• Grid: 4 photos per row
+• Click: Opens lightbox gallery
+• Border-radius: 8px
+• Hover: Slight scale up
+
+
+═══════════════════════════════════════════════════════════════════
+8️⃣ RELATED PRODUCTS / YOU MAY ALSO LIKE
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Complete Your Collection"
+
+PRODUCT SUGGESTIONS (4 Products):
+---------------------------------
+1. Silver Keychain
+   "Matching silver keychain with personalization"
+   ₹1,499
+
+2. Silver Phone Cover
+   "Premium silver phone cover for your device"
+   ₹3,999
+
+3. Pen Refill Set
+   "Pack of 5 German ink cartridges (blue/black)"
+   ₹499
+
+4. Gift Set
+   "Pen + Keychain combo in luxury box"
+   ₹5,999 (Save ₹500)
+
+VISUAL ELEMENTS:
+----------------
+• Product images (same style as shop page)
+• Price and quick "Add to Cart" button
+• "Personalizable" badge if applicable
+• Carousel format (scroll horizontally)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light grey (#F8F8F8)
+   - Padding: 80px top/bottom
+   - Full-width section
+
+✨ Product Cards:
+   - Same design as shop page
+   - Size: 280px x 380px
+   - Carousel: 4 visible on desktop, scroll for more
+   - Gap: 24px between cards
+   - Navigation: Arrow buttons on sides
+
+🎬 Interactions:
+   - Hover: Card lifts up
+   - Click: Goes to product page
+   - Add to cart: Quick add without leaving page
+   - Carousel: Auto-scroll or manual navigation
+
+
+═══════════════════════════════════════════════════════════════════
+OVERALL PRODUCT PAGE DESIGN PRINCIPLES
+═══════════════════════════════════════════════════════════════════
+
+🎨 LAYOUT STRUCTURE:
+- Top: Breadcrumb navigation
+- Main: Two-column (Gallery left, Info right)
+- Below: Full-width sections (Story, Craftsmanship, etc.)
+- Bottom: Reviews and Related Products
+
+✨ COLOR PALETTE:
+- Background: White and light grey alternating sections
+- Accent: Rose gold for CTAs and highlights
+- Text: Dark grey (#333) and medium grey (#666)
+- Premium: Metallic silver accents
+
+🎭 CONVERSION OPTIMIZATION:
+- Clear, prominent CTAs throughout
+- Trust signals (badges, certifications)
+- Social proof (reviews, ratings)
+- Urgency (limited stock, popular item)
+- Multiple purchase triggers
+
+📐 RESPONSIVE DESIGN:
+- Desktop: Two-column layout
+- Tablet: Stacked, gallery above info
+- Mobile: Single column, optimized for touch
+
+🎬 PERFORMANCE:
+- Lazy load images below fold
+- Optimize gallery images (WebP format)
+- Fast page load (< 2 seconds)
+- Smooth animations (60fps)
+
+🏆 PREMIUM TOUCHES:
+- High-quality photography throughout
+- Detailed product information
+- Interactive personalization preview
+- Professional copywriting
+- Luxury aesthetic consistency
+
+═══════════════════════════════════════════════════════════════════
+END OF PRODUCT DETAIL PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════

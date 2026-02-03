@@ -1,0 +1,578 @@
+═══════════════════════════════════════════════════════════════════
+📞 CONTACT / SUPPORT PAGE - DETAILED CONTENT & DESIGN GUIDE
+═══════════════════════════════════════════════════════════════════
+
+PAGE GOAL:
+Make it easy for customers to reach you by:
+✓ Providing multiple contact options
+✓ Answering common questions proactively
+✓ Building trust through accessibility
+✓ Encouraging communication
+
+═══════════════════════════════════════════════════════════════════
+1️⃣ HERO / INTRODUCTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+MAIN HEADLINE:
+"We're Here to Help"
+
+SUBHEADLINE:
+"Have a question? Need assistance? We'd love to hear from you."
+
+OPENING MESSAGE:
+"Whether you're looking for product information, need help with an order, 
+or want to discuss corporate gifting, our team is ready to assist. Reach 
+out through your preferred channel, and we'll respond promptly."
+
+RESPONSE TIME PROMISE:
+• Email: Within 24 hours
+• WhatsApp: Within 2-4 hours (business hours)
+• Phone: Immediate (business hours)
+
+VISUAL ELEMENTS:
+----------------
+• Friendly team photo or customer service rep
+• Contact icons (phone, email, WhatsApp)
+• Clean, welcoming design
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Hero Design:
+   - Background: Light gradient (white to light grey)
+   - Text: Centered, dark grey
+   - Height: 40vh (shorter than other pages)
+   - Icons: Rose gold color
+
+✨ Typography:
+   - Main headline: 48px, Playfair Display
+   - Subheadline: 20px, Montserrat
+   - Message: 17px, line-height: 1.8
+
+🎬 Animations:
+   - Text: Fade in
+   - Icons: Bounce in sequentially
+
+
+═══════════════════════════════════════════════════════════════════
+2️⃣ CONTACT OPTIONS
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Get in Touch"
+
+3 PRIMARY CONTACT METHODS:
+--------------------------
+1. 📧 EMAIL
+   Address: support@yourbrand.com
+   For: General inquiries, order questions, detailed requests
+   Response Time: Within 24 hours
+   
+   Button: "Send Email" (opens email client)
+
+2. 📱 WHATSAPP
+   Number: +91-XXXXX-XXXXX
+   For: Quick questions, order updates, personalization help
+   Response Time: 2-4 hours (business hours)
+   Available: Mon-Sat, 10 AM - 7 PM IST
+   
+   Button: "Chat on WhatsApp" (opens WhatsApp)
+
+3. ☎️ PHONE
+   Number: +91-XXXXX-XXXXX
+   For: Urgent matters, complex inquiries, corporate orders
+   Response Time: Immediate
+   Available: Mon-Sat, 10 AM - 7 PM IST
+   
+   Button: "Call Now" (tel: link)
+
+ADDITIONAL CONTACT:
+-------------------
+4. 💼 CORPORATE INQUIRIES
+   Email: corporate@yourbrand.com
+   For: Bulk orders, corporate gifting, partnership opportunities
+   
+   Button: "Corporate Contact"
+
+5. 📍 VISIT US (If applicable)
+   Address: [Your Workshop/Office Address]
+   [City, State, PIN Code]
+   
+   Note: "By appointment only. Please call ahead."
+   
+   Button: "Get Directions" (Google Maps link)
+
+VISUAL ELEMENTS:
+----------------
+• Contact method cards
+• Icons for each method
+• QR code for WhatsApp (optional)
+• Map embed (if physical location)
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 100px top/bottom
+   - Max-width: 1200px, centered
+
+✨ Contact Card Layout:
+   - Grid: 3 columns (primary methods)
+   - Card size: Equal height
+   - Gap: 32px
+   - Responsive: 1 column on mobile
+
+🎭 Card Design:
+   - Background: Very light grey (#F9F9F9)
+   - Border: 1px solid light grey
+   - Border-radius: 16px
+   - Padding: 40px
+   - Hover: Lift up, rose gold border
+   - Icon: Top, 56px, rose gold
+
+📐 Card Content:
+   - Icon: 56px, centered
+   - Method name: 22px, bold, centered
+   - Contact detail: 18px, bold, rose gold (clickable)
+   - "For:" label: 14px, grey
+   - Use cases: 14px, bulleted
+   - Response time: 14px, italic, highlighted
+   - Availability: 14px, grey
+   - CTA button: Full-width, bottom
+
+🎬 Interactions:
+   - Hover: Card lifts, border changes
+   - Click contact detail: Initiates contact
+   - CTA button: Color change on hover
+   - Icons: Subtle bounce on hover
+
+🏷️ Additional Contacts:
+   - Below main cards
+   - Horizontal layout: 2 columns
+   - Smaller cards
+   - Same design style
+
+
+═══════════════════════════════════════════════════════════════════
+3️⃣ CONTACT FORM
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Send Us a Message"
+
+SUBHEADLINE:
+"Fill out the form below, and we'll get back to you within 24 hours"
+
+FORM FIELDS:
+------------
+1. PERSONAL INFORMATION
+   • Full Name* (required)
+   • Email Address* (required)
+   • Phone Number (optional)
+
+2. INQUIRY TYPE
+   • Dropdown: 
+     - General Inquiry
+     - Product Question
+     - Order Status
+     - Personalization Help
+     - Corporate Gifting
+     - Complaint/Issue
+     - Other
+
+3. ORDER INFORMATION (Optional)
+   • Order Number (if applicable)
+
+4. MESSAGE
+   • Your Message* (required, text area, min 20 characters)
+
+5. CONSENT
+   ☐ I agree to receive email responses regarding my inquiry
+
+SUBMIT BUTTON:
+"Send Message"
+
+CONFIRMATION:
+"Thank you for contacting us! We've received your message and will respond 
+within 24 hours. Check your email (including spam folder) for our reply."
+
+VISUAL ELEMENTS:
+----------------
+• Clean form design
+• Field validation
+• Success animation
+• Loading state
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light cream (#FAF9F6)
+   - Padding: 100px top/bottom
+   - Max-width: 800px, centered
+
+✨ Form Design:
+   - Background: White card
+   - Border-radius: 16px
+   - Padding: 60px
+   - Shadow: Soft (0 8px 24px rgba(0,0,0,0.08))
+
+🎭 Field Styling:
+   - Input height: 48px
+   - Border: 2px solid light grey
+   - Border-radius: 8px
+   - Focus: Rose gold border, subtle glow
+   - Font: 16px
+   - Labels: 14px, bold, above fields
+   - Required asterisk: Rose gold
+
+📐 Layout:
+   - Two columns: Name/Email
+   - Full width: Phone, Inquiry Type, Order Number, Message
+   - Message field: 150px height (text area)
+   - Spacing: 24px between fields
+
+🎬 Interactions:
+   - Field focus: Border color change
+   - Validation: Real-time (red border for errors)
+   - Submit: Loading spinner, success animation
+   - Success: Checkmark animation, green confirmation message
+
+🏷️ Submit Button:
+   - Background: Rose gold gradient
+   - Text: White, 16px, bold
+   - Height: 56px, full width
+   - Border-radius: 8px
+   - Hover: Gradient shift
+   - Loading: Spinner replaces text
+   - Success: Checkmark icon
+
+
+═══════════════════════════════════════════════════════════════════
+4️⃣ FAQ SECTION
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Frequently Asked Questions"
+
+SUBHEADLINE:
+"Quick answers to common questions"
+
+COMMON QUESTIONS (12-15):
+-------------------------
+ORDERING & PAYMENT:
+Q1: How do I place an order?
+A: Browse our products, select your item, customize if desired, and add to 
+cart. Follow the checkout process to complete your order. We accept credit/
+debit cards, UPI, net banking, and wallets.
+
+Q2: Do you accept international orders?
+A: Currently, we ship within India only. International shipping coming soon!
+
+Q3: What payment methods do you accept?
+A: We accept all major credit/debit cards, UPI, net banking, and digital 
+wallets (Paytm, PhonePe, Google Pay).
+
+Q4: Is my payment information secure?
+A: Yes! We use industry-standard SSL encryption. We never store your card 
+details—all payments are processed through secure payment gateways.
+
+PERSONALIZATION:
+Q5: How does personalization work?
+A: Select your product, click "Customize," enter your text, choose a font, 
+and preview your engraving. We'll engrave it exactly as shown in the preview.
+
+Q6: Can I change my engraving after ordering?
+A: Engraving changes can be made within 2 hours of order placement. After 
+that, production begins and changes aren't possible. Contact us immediately 
+if you need to make changes.
+
+Q7: What if I make a spelling mistake?
+A: Please review your engraving carefully before checkout. We engrave exactly 
+what you enter. If there's an error on our end, we'll remake it free of charge.
+
+SHIPPING & DELIVERY:
+Q8: How long does delivery take?
+A: Standard products: 5-7 business days. Personalized products: 7-9 business 
+days (includes 2 days for engraving). Express delivery available.
+
+Q9: Do you ship to my city?
+A: We ship across India to all serviceable PIN codes. Enter your PIN code 
+at checkout to confirm delivery availability.
+
+Q10: How can I track my order?
+A: You'll receive a tracking number via email and SMS once your order ships. 
+Use this to track your package in real-time.
+
+RETURNS & REFUNDS:
+Q11: Can I return a personalized product?
+A: Personalized items cannot be returned unless there's a manufacturing defect 
+or error on our part. Non-personalized items can be returned within 30 days.
+
+Q12: What is your return policy?
+A: Non-personalized items: 30-day return window. Personalized items: Only if 
+defective or incorrect. See our Returns Policy for full details.
+
+PRODUCT CARE:
+Q13: How do I clean my silver product?
+A: Wipe with the included polishing cloth. For heavier tarnish, use silver 
+cleaning solution. See our Craftsmanship page for detailed care instructions.
+
+Q14: Will my silver tarnish?
+A: Silver naturally tarnishes when exposed to air and moisture. This is normal 
+and easily reversed with polishing. Store in the provided anti-tarnish pouch 
+to minimize tarnishing.
+
+CORPORATE GIFTING:
+Q15: Do you offer bulk discounts?
+A: Yes! Orders of 10+ pieces qualify for volume discounts. Contact our 
+corporate team for a custom quote.
+
+VISUAL ELEMENTS:
+----------------
+• Accordion-style FAQ
+• Search functionality
+• Category filters
+• "Still have questions?" CTA
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 100px top/bottom
+   - Max-width: 900px, centered
+
+✨ Category Tabs:
+   - Horizontal tabs: Ordering, Personalization, Shipping, Returns, Care, Corporate
+   - Active tab: Rose gold underline
+   - Click to filter FAQs by category
+
+🎭 Accordion Design:
+   - Question: Bold, 17px, dark grey, clickable
+   - Answer: 15px, line-height: 1.7, grey
+   - Background: Very light grey (#F9F9F9)
+   - Border-radius: 8px
+   - Margin-bottom: 16px
+   - Padding: 24px
+   - Icon: Arrow (rotates when open)
+
+📐 Layout:
+   - Single column
+   - Search bar: Top, full-width
+   - Category tabs: Below search
+   - FAQs: Below tabs
+   - "Contact us" CTA: Bottom
+
+🎬 Interactions:
+   - Click question: Smooth expand/collapse
+   - Search: Real-time filtering
+   - Category tabs: Instant filter
+   - Only one FAQ open at a time (optional)
+
+🏷️ Search Bar:
+   - Placeholder: "Search for answers..."
+   - Icon: Magnifying glass
+   - Height: 48px
+   - Border: 2px solid light grey
+   - Focus: Rose gold border
+
+
+═══════════════════════════════════════════════════════════════════
+5️⃣ BUSINESS HOURS & LOCATION (If Applicable)
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Visit Us"
+
+BUSINESS HOURS:
+---------------
+Monday - Saturday: 10:00 AM - 7:00 PM IST
+Sunday: Closed
+Public Holidays: Closed
+
+Note: "Workshop visits by appointment only. Please call ahead to schedule."
+
+LOCATION:
+---------
+[Your Brand Name]
+[Street Address]
+[City, State - PIN Code]
+India
+
+Landmarks: [Nearby landmark for easy finding]
+
+VISUAL ELEMENTS:
+----------------
+• Google Maps embed
+• Hours table
+• Directions button
+• Location icon
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: Light grey (#F8F8F8)
+   - Padding: 80px top/bottom
+   - Two-column: Hours/Address (left), Map (right)
+
+✨ Map:
+   - Embedded Google Maps
+   - Size: 500px x 400px
+   - Border-radius: 12px
+   - Interactive
+
+🎭 Hours Table:
+   - Clean, simple table
+   - Days: Bold
+   - Hours: Regular weight
+   - Closed days: Grey, italic
+
+📐 Layout:
+   - Left column: 40% width
+   - Right column: 60% width (map)
+   - Gap: 48px
+
+
+═══════════════════════════════════════════════════════════════════
+6️⃣ SOCIAL MEDIA & NEWSLETTER
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+SECTION HEADLINE:
+"Stay Connected"
+
+SOCIAL MEDIA:
+-------------
+"Follow us for product updates, gifting ideas, and behind-the-scenes content"
+
+Platforms:
+• Instagram: @yourbrand
+• Facebook: /yourbrand
+• Pinterest: /yourbrand (for gift ideas)
+• LinkedIn: /company/yourbrand (for corporate)
+
+NEWSLETTER:
+-----------
+Headline: "Join Our Community"
+Subtext: "Get exclusive offers, new product launches, and gifting inspiration"
+
+Form:
+• Email input
+• "Subscribe" button
+
+Privacy: "We respect your privacy. Unsubscribe anytime."
+
+VISUAL ELEMENTS:
+----------------
+• Social media icons
+• Instagram feed embed (optional)
+• Newsletter signup form
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Section Design:
+   - Background: White
+   - Padding: 80px top/bottom
+   - Centered content
+
+✨ Social Icons:
+   - Size: 48px
+   - Style: Outlined circles
+   - Hover: Fill with brand color
+   - Gap: 24px
+
+🎭 Newsletter Form:
+   - Horizontal layout: Input + Button
+   - Input: 300px width, 48px height
+   - Button: 140px width, 48px height
+   - Border-radius: 24px (pill shape)
+
+🎬 Interactions:
+   - Icons: Scale up on hover, color fill
+   - Form: Focus state on input
+   - Submit: Loading spinner, success message
+
+
+═══════════════════════════════════════════════════════════════════
+7️⃣ TRUST & SECURITY
+═══════════════════════════════════════════════════════════════════
+
+CONTENT STRATEGY:
+-----------------
+TRUST BADGES:
+• Secure Checkout (SSL)
+• 100% Authentic Silver
+• 30-Day Returns
+• Trusted by 10,000+ Customers
+
+VISUAL ELEMENTS:
+----------------
+• Badge icons
+• Trust seals
+
+PREMIUM DESIGN SUGGESTIONS:
+---------------------------
+🎨 Design:
+   - Horizontal row of badges
+   - Icon + text format
+   - Grey icons, dark text
+   - Centered
+
+
+═══════════════════════════════════════════════════════════════════
+OVERALL CONTACT PAGE DESIGN PRINCIPLES
+═══════════════════════════════════════════════════════════════════
+
+🎨 COLOR PALETTE:
+Primary: Deep Charcoal (#2C2C2C)
+Accent: Rose Gold (#B76E79)
+Background: White, Light Grey, Light Cream (alternating)
+Friendly, accessible aesthetic
+
+✨ TONE & VOICE:
+- Friendly and approachable
+- Helpful and supportive
+- Clear and direct
+- Responsive and reliable
+- Customer-focused
+
+🎭 LAYOUT:
+- Clear contact options
+- Easy-to-use form
+- Comprehensive FAQ
+- Multiple contact methods
+- Mobile-optimized
+
+📐 CONVERSION GOALS:
+- Make contact easy
+- Reduce friction
+- Answer questions proactively
+- Build trust
+- Encourage communication
+
+🎬 INTERACTIONS:
+- One-click contact (phone, email, WhatsApp)
+- Real-time form validation
+- Smooth animations
+- Fast page load
+- Accessible design
+
+🏆 PREMIUM TOUCHES:
+- Multiple contact options
+- Quick response promises
+- Comprehensive FAQ
+- Professional form design
+- Trust signals throughout
+
+═══════════════════════════════════════════════════════════════════
+END OF CONTACT / SUPPORT PAGE CONTENT GUIDE
+═══════════════════════════════════════════════════════════════════
