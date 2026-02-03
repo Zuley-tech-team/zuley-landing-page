@@ -1,6 +1,6 @@
 import { Navbar } from '../components/common';
 import {
-    HeroSection,
+    // HeroSection,
     ProductSpotlight,
     CategorySection,
     PersonalizationSection,

@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { Button } from '../common';
-import { Pen, Key, Smartphone, ArrowRight } from 'lucide-react';
+import { Pen, Smartphone, ArrowRight } from 'lucide-react';
+import { getCategorySlug } from '../../data/products';
 
 const categories = [
     {
@@ -45,8 +47,16 @@ export function CategorySection() {
     const cardsRef = useRef<HTMLDivElement>(null);
     const [activeImages, setActiveImages] = useState<number[]>([0, 0, 0]);
 
+    // Store interval IDs in a ref to persist across re-renders
+    const hoverIntervalsRef = useRef<(ReturnType<typeof setInterval> | null)[]>([null, null, null]);
+
     // Cycle images on hover
     const handleMouseEnter = (cardIndex: number) => {
+        // Clear any existing interval for this card first
+        if (hoverIntervalsRef.current[cardIndex]) {
+            clearInterval(hoverIntervalsRef.current[cardIndex]!);
+        }
+
         const interval = setInterval(() => {
             setActiveImages((prev) => {
                 const newImages = [...prev];
@@ -54,7 +64,20 @@ export function CategorySection() {
                 return newImages;
             });
         }, 800);
-        return interval;
+
+        hoverIntervalsRef.current[cardIndex] = interval;
+    };
+
+    const handleMouseLeave = (cardIndex: number) => {
+        if (hoverIntervalsRef.current[cardIndex]) {
+            clearInterval(hoverIntervalsRef.current[cardIndex]!);
+            hoverIntervalsRef.current[cardIndex] = null;
+        }
+        setActiveImages((prev) => {
+            const newImages = [...prev];
+            newImages[cardIndex] = 0;
+            return newImages;
+        });
     };
 
     useEffect(() => {
@@ -129,23 +152,15 @@ export function CategorySection() {
                 >
                     {categories.map((category, index) => {
                         const IconComponent = category.icon;
-                        let hoverInterval: ReturnType<typeof setInterval> | null = null;
+                        const categorySlug = getCategorySlug(category.title);
 
                         return (
-                            <div
+                            <Link
                                 key={index}
-                                className="category-card group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-luxury transition-all duration-500 cursor-pointer"
-                                onMouseEnter={() => {
-                                    hoverInterval = handleMouseEnter(index);
-                                }}
-                                onMouseLeave={() => {
-                                    if (hoverInterval) clearInterval(hoverInterval);
-                                    setActiveImages((prev) => {
-                                        const newImages = [...prev];
-                                        newImages[index] = 0;
-                                        return newImages;
-                                    });
-                                }}
+                                to={`/products?category=${categorySlug}`}
+                                className="category-card group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-luxury transition-all duration-500 cursor-pointer block"
+                                onMouseEnter={() => handleMouseEnter(index)}
+                                onMouseLeave={() => handleMouseLeave(index)}
                             >
                                 {/* Image Area - Separate from background */}
                                 <div className="relative aspect-video overflow-hidden">
@@ -211,7 +226,7 @@ export function CategorySection() {
                                         {category.cta}
                                     </Button>
                                 </div>
-                            </div>
+                            </Link>
                         );
                     })}
                 </div>

@@ -157,7 +157,7 @@ export function HeroSection1() {
                     </span>
                     <span className="flex items-center gap-2 font-body text-xs text-charcoal/70">
                         <span className="w-1.5 h-1.5 rounded-full bg-charcoal/40" />
-                        Luxury Gift Packaging
+                        Handmade
                     </span>
                 </div>
             </div>
