@@ -73,7 +73,7 @@ export function Footer() {
                                 <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
                                     <span className="font-heading text-2xl font-bold text-charcoal">A</span>
                                 </div>
-                                <span className="font-heading text-3xl font-bold text-pearl">Anekas</span>
+                                <span className="font-heading text-3xl font-bold text-pearl">Zuley</span>
                             </div>
                             <h3 className="font-heading text-xl md:text-2xl font-semibold mb-4">
                                 Redefining Silver Beyond Jewellery
@@ -233,7 +233,7 @@ export function Footer() {
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         {/* Copyright */}
                         <p className="font-body text-sm text-pearl/50 text-center md:text-left">
-                            © 2026 Anekas. All rights reserved.
+                            © 2026 Zuley. All rights reserved.
                         </p>
 
                         {/* Trust Badges */}

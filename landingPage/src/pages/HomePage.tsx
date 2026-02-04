@@ -4,7 +4,6 @@ import {
     ProductSpotlight,
     CategorySection,
     PersonalizationSection,
-    GiftingSection,
     CraftsmanshipSection,
     CorporateSection,
     TestimonialsSection,
@@ -19,10 +18,10 @@ export function HomePage() {
             <main className="min-h-screen bg-pearl overflow-x-hidden">
                 <HeroSection1 />
                 <CategorySection />
-                <ProductSpotlight />
-                <PersonalizationSection />
-                <GiftingSection />
-                <CraftsmanshipSection />
+                {/* <ProductSpotlight />
+                <PersonalizationSection /> */}
+                {/* <GiftingSection /> */}
+                {/* <CraftsmanshipSection /> */}
                 <CorporateSection />
                 <TestimonialsSection />
                 <Footer />
