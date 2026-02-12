@@ -1,0 +1,228 @@
+✅ MINIMAL-BUT-SAFE FEATURE SET (LOCK THIS)
+1️⃣ PAYMENTS (ABSOLUTE MUST)
+Required
+
+One payment gateway (Razorpay / Cashfree)
+
+Payment intent creation
+
+Webhook verification (HMAC)
+
+Idempotency (prevent duplicate orders)
+
+Payment success & failure handling
+
+Manual refund capability (via gateway dashboard is fine)
+
+Not required now
+
+Multiple gateways
+
+BNPL / EMI
+
+Auto-retry logic
+
+👉 If webhooks are wrong → nothing else matters
+
+2️⃣ ORDER SYSTEM (KEEP IT DEAD SIMPLE)
+Required
+
+Create order only after payment success
+
+Unique human-readable order ID
+
+Order states:
+
+Created
+
+Paid
+
+Shipped
+
+Delivered
+
+Cancelled
+
+Refunded
+
+Order history stored permanently
+
+Not required
+
+Complex state machines
+
+Partial shipments
+
+Order edits
+
+3️⃣ CUSTOMER DATA (BARE MINIMUM)
+Required
+
+Name
+
+Phone
+
+Email
+
+Shipping address
+
+One order → one customer record
+
+Not required
+
+User accounts
+
+Login / signup
+
+Wishlists
+
+Guest checkout only = safer & faster.
+
+4️⃣ INVENTORY (VERY BASIC BUT NECESSARY)
+Required
+
+Inventory decrement on payment success
+
+Inventory restore on cancellation/refund
+
+Manual inventory edit (admin only)
+
+Not required
+
+Warehouses
+
+Batch tracking
+
+Forecasting
+
+Overselling silver is expensive.
+This protects cash.
+
+5️⃣ INVOICING (LEGAL SAFETY NET)
+Required
+
+GST invoice generated after payment
+
+Sequential invoice numbers
+
+Seller GST details
+
+Buyer name + address
+
+Tax breakup
+
+PDF generation
+
+Invoice emailed to customer
+
+Invoices stored securely
+
+Not required
+
+Fancy invoice templates
+
+Auto-GST filing
+
+Credit notes (can be manual)
+
+⚠️ This is where founders get notices. Don’t skip.
+
+6️⃣ SHIPPING (MANUAL IS OKAY)
+Required
+
+Capture shipping address accurately
+
+Store courier name + tracking number
+
+Send tracking link to customer
+
+Delivery status (even manual update)
+
+Not required
+
+Courier APIs
+
+Auto label generation
+
+SLA optimisation
+
+Manual Shiprocket / India Post / courier dashboard is fine.
+
+7️⃣ EMAIL NOTIFICATIONS (ONLY THE ESSENTIALS)
+Required
+
+Order confirmation
+
+Invoice email
+
+Shipping confirmation
+
+Refund confirmation
+
+Not required
+
+Marketing emails
+
+SMS automation
+
+Fancy templates
+
+Plain transactional emails are enough.
+
+8️⃣ ADMIN ACCESS (YOU NEED VISIBILITY)
+Required
+
+Secure admin login
+
+View orders
+
+View payments
+
+Upload tracking number
+
+Trigger refund
+
+Download invoice
+
+Not required
+
+Analytics dashboards
+
+Role management
+
+Bulk actions
+
+If you can see and fix things manually → you’re safe.
+
+9️⃣ LOGGING & BACKUPS (SLEEP FEATURE)
+Required
+
+Payment webhook logs
+
+Order creation logs
+
+Invoice generation logs
+
+Error logs
+
+Daily DB backup (automated)
+
+Not required
+
+Observability platforms
+
+Fancy monitoring
+
+Logs = peace of mind.
+
+🔟 LEGAL PAGES (NON-TECH BUT REQUIRED)
+
+Backend must respect:
+
+Refund policy
+
+Shipping policy
+
+Terms & conditions
+
+Even if pages are simple, rules must be enforced.
