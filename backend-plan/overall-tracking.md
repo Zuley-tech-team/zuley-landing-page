@@ -18,6 +18,21 @@ We have successfully set up the foundation for the Payment System using Razorpay
 **Next Steps:**
 - Add `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` to `.env` to enable full functionality.
 
+**Frontend Integration Status:** ✅ Complete
+
+The "Buy Now" checkout flow has been integrated into the landing page, connecting the product detail page to the backend's `/api/v1/payments/create-order` endpoint.
+
+**Frontend Files Created/Modified:**
+- **`index.html`** — Added Razorpay `checkout.js` SDK script tag.
+- **`src/api/config.ts`** (NEW) — Exports `API_BASE_URL` from env vars.
+- **`src/api/payment.ts`** (NEW) — API layer to call backend `create-order` endpoint.
+- **`src/hooks/useRazorpay.ts`** (NEW) — React hook orchestrating the full payment flow: create order → open Razorpay widget → handle success/failure. Passes `items`, customer, and shipping data as `notes` matching the backend webhook parser.
+- **`src/components/checkout/CheckoutModal.tsx`** (NEW) — Slide-in checkout modal with customer info form (name, email, phone with +91), shipping address (with Indian state dropdown, pincode), quantity selector, order summary, form validation, loading/error states, and payment success view.
+- **`src/components/checkout/CheckoutModal.css`** (NEW) — Modal overlay, slide-in animation, backdrop blur, input styles.
+- **`src/pages/ProductDetailPage.tsx`** — "Buy Now" button now opens the CheckoutModal.
+- **`.env.development`** (NEW) — `VITE_API_BASE_URL=http://localhost:8000`.
+
+
 ---
 
 # Phase 2: Order System Implementation Tracking
@@ -40,6 +55,13 @@ We have successfully implemented the core Order System that works in tandem with
 **Verification:**
 - Verified with `verifyOrderSystem.ts` script using mock Razorpay payloads. Confirmed ID generation, order creation, and inventory updates work as expected.
 
+**Frontend Integration Status:** ✅ Complete
+
+- **Order Confirmation Page** (`/order-success`) — Dedicated page shown after successful payment with animated checkmark, payment details card, copy-to-clipboard, and CTAs.
+- **Order Tracking Page** (`/track-order`) — Customer-facing page with search by order ID (ZUL-YYMMDD-XXXX), visual timeline (Paid → Shipped → Delivered), shipping card with courier/tracking link.
+- **Backend:** New public endpoint `GET /api/v1/orders/:orderId/track` for customer-facing order lookup.
+- **Navbar:** "Track Order" link added.
+
 ---
 
 # Phase 3: Customer Data Implementation Tracking
@@ -61,6 +83,11 @@ We have successfully implemented the Customer Data system, following the "Guest 
 **Verification:**
 - Verified with `verifyCustomerData.ts`. Confirmed that incoming webhooks correctly create Customer documents and link them to Orders.
 
+**Frontend Integration Status:** ✅ Complete
+
+- Customer details and shipping address are collected in the `CheckoutModal` and passed through Razorpay `notes`.
+- Order tracking page displays delivery city/state/pincode (customer-facing, no sensitive data exposed).
+
 ---
 
 # Phase 4: Inventory Management Implementation Tracking
@@ -80,3 +107,10 @@ We have successfully implemented a robust, concurrent-safe inventory management 
 
 **Verification:**
 - Verified with `verifyInventorySystem.ts`. Simulating 15 concurrent requests for 10 items resulted in **exactly 10 sales and 5 rejections**, proving the system prevents overselling under load.
+
+**Frontend Integration Status:** ✅ Complete
+
+- **Stock availability badge** on `ProductDetailPage` — shows "In Stock" / "Low Stock" / "Out of Stock" with colored indicators.
+- **Buy Now disabled** when product is out of stock.
+- **Backend:** New public endpoint `GET /api/v1/inventory/:sku/availability` returning `inStock` and `lowStock` booleans.
+- **`useStockStatus` hook** fetches stock on mount, fails gracefully (defaults to in-stock on error).

@@ -1,0 +1,132 @@
+/* ============================================
+   CHECKOUT MODAL — Overlay + Slide-in
+   ============================================ */
+
+.checkout-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  background-color: rgba(28, 30, 35, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: checkout-fade-in 0.25s ease-out;
+}
+
+.checkout-modal {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  height: 100dvh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.12);
+  animation: checkout-slide-in 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* On smaller screens, make it full-width centered */
+@media (max-width: 540px) {
+  .checkout-modal {
+    max-width: 100%;
+    border-radius: 0;
+  }
+}
+
+/* On larger screens, round the left corners slightly */
+@media (min-width: 541px) {
+  .checkout-modal {
+    border-radius: 1.5rem 0 0 1.5rem;
+  }
+}
+
+/* ─── Form body fills space between header and footer ─── */
+.checkout-form-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.checkout-form-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+/* Custom scrollbar for the form area */
+.checkout-form-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.checkout-form-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.checkout-form-scroll::-webkit-scrollbar-thumb {
+  background: rgba(28, 30, 35, 0.15);
+  border-radius: 999px;
+}
+
+/* ─── Input Styles ─── */
+.checkout-input {
+  width: 100%;
+  padding: 0.6875rem 0.875rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  color: #1c1e23;
+  border: 1px solid rgba(28, 30, 35, 0.15);
+  border-radius: 0.75rem;
+  background-color: #fff;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.checkout-input::placeholder {
+  color: rgba(28, 30, 35, 0.35);
+}
+
+.checkout-input:focus {
+  border-color: #1c1e23;
+  box-shadow: 0 0 0 3px rgba(28, 30, 35, 0.06);
+}
+
+.checkout-input-error {
+  border-color: #d96c6c;
+}
+
+.checkout-input-error:focus {
+  border-color: #d96c6c;
+  box-shadow: 0 0 0 3px rgba(217, 108, 108, 0.12);
+}
+
+.checkout-field-error {
+  margin-top: 0.25rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.75rem;
+  color: #d96c6c;
+}
+
+/* ─── Select styling (to match inputs) ─── */
+.checkout-input option {
+  color: #1c1e23;
+}
+
+/* ─── Animations ─── */
+@keyframes checkout-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes checkout-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}

@@ -2,15 +2,19 @@ import { useParams, Link } from 'react-router-dom';
 import { Navbar } from '../components/common';
 import { Footer } from '../components/home';
 import { ProductsGrid } from '../components/products';
+import { CheckoutModal } from '../components/checkout';
 import { getProductById, getRelatedProducts } from '../data/products';
 import { ChevronRight, Check, ShoppingCart, ArrowLeft } from 'lucide-react';
 import { Button } from '../components/common';
 import { useState } from 'react';
+import { useStockStatus } from '../hooks/useStockStatus';
 
 export function ProductDetailPage() {
     const { id } = useParams<{ id: string }>();
     const product = id ? getProductById(id) : undefined;
     const [selectedImage, setSelectedImage] = useState(0);
+    const [showCheckout, setShowCheckout] = useState(false);
+    const { inStock, lowStock } = useStockStatus(product?.id || '');
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -102,10 +106,10 @@ export function ProductDetailPage() {
                                         <div className="absolute top-4 left-4">
                                             <span
                                                 className={`px-4 py-2 rounded-full text-sm font-medium uppercase tracking-wide ${product.badge === 'Bestseller'
-                                                        ? 'bg-success text-white'
-                                                        : product.badge === 'New'
-                                                            ? 'bg-charcoal text-pearl'
-                                                            : 'bg-warning text-charcoal'
+                                                    ? 'bg-success text-white'
+                                                    : product.badge === 'New'
+                                                        ? 'bg-charcoal text-pearl'
+                                                        : 'bg-warning text-charcoal'
                                                     }`}
                                             >
                                                 {product.badge}
@@ -130,8 +134,8 @@ export function ProductDetailPage() {
                                                 key={index}
                                                 onClick={() => setSelectedImage(index)}
                                                 className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${selectedImage === index
-                                                        ? 'border-charcoal shadow-soft'
-                                                        : 'border-transparent hover:border-charcoal/30'
+                                                    ? 'border-charcoal shadow-soft'
+                                                    : 'border-transparent hover:border-charcoal/30'
                                                     }`}
                                             >
                                                 <img
@@ -174,6 +178,26 @@ export function ProductDetailPage() {
                                     )}
                                 </div>
 
+                                {/* Stock Status Badge */}
+                                <div className="flex items-center gap-2">
+                                    {!inStock ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-error/10 text-error text-sm font-medium">
+                                            <span className="w-2 h-2 rounded-full bg-error" />
+                                            Out of Stock
+                                        </span>
+                                    ) : lowStock ? (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warning/10 text-warning text-sm font-medium">
+                                            <span className="w-2 h-2 rounded-full bg-warning" />
+                                            Low Stock — Order Soon
+                                        </span>
+                                    ) : (
+                                        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium">
+                                            <span className="w-2 h-2 rounded-full bg-success" />
+                                            In Stock
+                                        </span>
+                                    )}
+                                </div>
+
                                 {/* Description */}
                                 <p className="font-body text-charcoal/70 leading-relaxed">
                                     {product.longDescription || product.description}
@@ -204,11 +228,18 @@ export function ProductDetailPage() {
                                         icon={<ShoppingCart className="w-5 h-5" />}
                                         iconPosition="left"
                                         className="flex-1"
+                                        disabled={!inStock}
                                     >
                                         Add to Cart
                                     </Button>
-                                    <Button variant="secondary" size="lg" className="flex-1">
-                                        Buy Now
+                                    <Button
+                                        variant="secondary"
+                                        size="lg"
+                                        className="flex-1"
+                                        onClick={() => setShowCheckout(true)}
+                                        disabled={!inStock}
+                                    >
+                                        {inStock ? 'Buy Now' : 'Out of Stock'}
                                     </Button>
                                 </div>
 
@@ -287,6 +318,13 @@ export function ProductDetailPage() {
                 )}
 
                 <Footer />
+
+                {/* Checkout Modal */}
+                <CheckoutModal
+                    product={product}
+                    isOpen={showCheckout}
+                    onClose={() => setShowCheckout(false)}
+                />
             </main>
         </>
     );
