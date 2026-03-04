@@ -1,10 +1,10 @@
 import { Navbar } from '../components/common';
 import {
     // HeroSection,
-    ProductSpotlight,
+    // ProductSpotlight,
     CategorySection,
-    PersonalizationSection,
-    CraftsmanshipSection,
+    // PersonalizationSection,
+    // CraftsmanshipSection,
     CorporateSection,
     TestimonialsSection,
     Footer,
