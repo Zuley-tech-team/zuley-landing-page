@@ -1,0 +1,98 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.Order = void 0;
+const mongoose_1 = __importDefault(require("mongoose"));
+const orderSchema = new mongoose_1.default.Schema({
+    order_id: {
+        type: String,
+        required: true,
+        unique: true,
+        index: true,
+        description: "Human-readable ID: ZUL-YYMMDD-XXXX",
+    },
+    customer_details: {
+        name: { type: String, required: true },
+        email: { type: String, required: true },
+        phone: { type: String, required: true },
+        // Link to Customer model
+        customer_id: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Customer", required: true },
+    },
+    items: [
+        {
+            product_id: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Product" },
+            sku: { type: String, required: true }, // Added for inventory matching
+            name: { type: String, required: true },
+            variant_info: { type: String }, // For size/color if needed
+            quantity: { type: Number, required: true, min: 1 },
+            price: { type: Number, required: true }, // Store snapshot of price in paise at time of purchase
+            total_price: { type: Number, required: true }, // quantity * price
+            gst_rate: { type: Number, default: 0 },
+            gst_amount: { type: Number, default: 0 },
+        },
+    ],
+    total_amount: {
+        type: Number,
+        required: true,
+        description: "Total amount in paise",
+    },
+    items_count: {
+        type: Number,
+        required: true,
+        default: 0,
+    },
+    status: {
+        type: String,
+        enum: [
+            "created",
+            "paid",
+            "shipped",
+            "delivered",
+            "cancelled",
+            "refunded",
+            "failed"
+        ],
+        default: "created",
+    },
+    payment_id: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Payment",
+        required: true,
+    },
+    shipping_address: {
+        line1: { type: String, required: true },
+        line2: String,
+        city: { type: String, required: true },
+        state: { type: String, required: true },
+        pincode: { type: String, required: true },
+        country: { type: String, default: "India" },
+    },
+    shipping_details: {
+        courier_name: String,
+        tracking_number: String,
+        tracking_url: String,
+        shipped_at: Date,
+        delivered_at: Date,
+    },
+    billing_address: {
+        // Optional, usually same as shipping for simple e-com
+        line1: String,
+        city: String,
+        state: String,
+        pincode: String,
+        country: String,
+    },
+    history: [
+        {
+            status: String,
+            changed_by: String, // 'system' or 'admin'
+            timestamp: { type: Date, default: Date.now },
+            reason: String,
+        }
+    ]
+}, {
+    timestamps: true,
+});
+exports.Order = mongoose_1.default.model("Order", orderSchema);
