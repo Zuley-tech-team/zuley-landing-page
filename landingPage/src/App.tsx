@@ -2,6 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './App.css';
 import { HomePage, ProductsPage, ProductDetailPage, OrderSuccessPage, TrackOrderPage, PrivacyPolicyPage, RefundPolicyPage, ShippingPolicyPage, TermsConditionsPage } from './pages';
 
+
+
 function App() {
   return (
     <Router>
