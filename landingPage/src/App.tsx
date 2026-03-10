@@ -12,6 +12,7 @@ function App() {
         <Route path="/order-success" element={<OrderSuccessPage />} />
         <Route path="/track-order" element={<TrackOrderPage />} />
 
+        
         <Route path="/privacy-policy" element={<PrivacyPolicyPage />} />
         <Route path="/refund-policy" element={<RefundPolicyPage />} />
         <Route path="/shipping-policy" element={<ShippingPolicyPage />} />
