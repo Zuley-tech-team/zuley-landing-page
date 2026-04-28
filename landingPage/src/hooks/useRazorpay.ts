@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { createPaymentOrder } from '../api/payment';
-import type { Product } from '../data/products';
+import type { Product } from '../api/products';
 
 declare global {
     interface Window {
@@ -51,10 +51,11 @@ export function useRazorpay() {
                 // Prepare item data that the backend webhook will parse from notes
                 const items = [
                     {
-                        sku: product.id,
+                        sku: product.sku,
                         name: product.name,
                         price: product.price * 100, // paise
                         quantity,
+                        total_price: product.price * quantity * 100,
                     },
                 ];
 
@@ -64,7 +65,7 @@ export function useRazorpay() {
                 const orderData = await createPaymentOrder({
                     amount: totalAmountPaise,
                     currency: 'INR',
-                    receipt: `rcpt_${product.id}_${Date.now()}`,
+                    receipt: `rcpt_${product.sku}_${Date.now()}`,
                     notes: {
                         items: JSON.stringify(items),
                         customer_name: customerInfo.name,

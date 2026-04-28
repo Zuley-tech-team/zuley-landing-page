@@ -17,17 +17,6 @@ const categories = [
             'https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?w=600&q=80',
         ],
     },
-    // {
-    //     title: 'Silver Keychains',
-    //     description: 'Carry your identity with you, every day',
-    //     cta: 'Shop Keychains',
-    //     icon: Key,
-    //     images: [
-    //         'https://images.unsplash.com/photo-1622445275576-721325763afe?w=600&q=80',
-    //         'https://images.unsplash.com/photo-1622434641406-a158123450f9?w=600&q=80',
-    //         'https://images.unsplash.com/photo-1609709295948-17d77cb2a69b?w=600&q=80',
-    //     ],
-    // },
     {
         title: 'Silver Phone Covers',
         description: 'Protect your device in premium silver style',

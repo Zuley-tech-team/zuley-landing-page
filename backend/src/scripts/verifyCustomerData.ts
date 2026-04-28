@@ -3,6 +3,7 @@ import { processWebhookEvent } from "../modules/payment/payment.service";
 import { Order } from "../models/order.model";
 import { Customer } from "../models/customer.model";
 import { Payment } from "../models/payment.model";
+import { Inventory } from "../models/inventory.model";
 import { env } from "../config/env.config";
 import crypto from "crypto";
 
@@ -11,6 +12,7 @@ const mockPaymentId = "pay_" + crypto.randomBytes(4).toString("hex");
 const mockOrderId = "order_" + crypto.randomBytes(4).toString("hex");
 const mockEmail = `test_${Date.now()}@example.com`;
 const mockPhone = "9988776655";
+const testSku = "VERIFY-CUSTOMER-SKU";
 
 const mockPayload = {
     payment: {
@@ -35,7 +37,7 @@ const mockPayload = {
                 }),
                 items: JSON.stringify([
                     {
-                        sku: "SKU123",
+                        sku: testSku,
                         name: "Test Product",
                         quantity: 1,
                         price: 10000,
@@ -54,6 +56,11 @@ const verifyCustomerData = async () => {
         console.log("Connected to MongoDB");
 
         // Clear any existing test data if needed (optional, using random IDs so unlikely to clash)
+        await Inventory.updateOne(
+            { sku: testSku },
+            { $set: { quantity: 5, reserved: 0, low_stock_threshold: 1 } },
+            { upsert: true }
+        );
 
         // Call processWebhookEvent
         console.log("Simulating 'payment.captured' webhook...");
@@ -105,6 +112,7 @@ const verifyCustomerData = async () => {
             await Payment.deleteOne({ gateway_payment_id: mockPaymentId });
             await Customer.deleteOne({ email: mockEmail });
             await Order.deleteOne({ "customer_details.email": mockEmail });
+            await Inventory.deleteOne({ sku: testSku });
             await mongoose.disconnect();
         }
     }

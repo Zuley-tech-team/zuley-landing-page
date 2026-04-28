@@ -40,6 +40,7 @@ export function CorporateSection() {
     return (
         <section
             ref={sectionRef}
+            id="corporate"
             className="py-12 md:py-16 lg:py-20 bg-pearl"
         >
             <div className="max-w-7xl mx-auto px-6">

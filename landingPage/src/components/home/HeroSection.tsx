@@ -172,7 +172,7 @@ export function HeroSection() {
 
                         {/* Subtitle */}
                         <p className="hero-subtitle font-body text-lg md:text-xl text-charcoal/70 max-w-lg mb-10 leading-relaxed">
-                            Premium 925 sterling silver pens, keychains & accessories —
+                            Premium 925 sterling silver pens and silver covers —
                             personalized with your name, message, or logo. Crafted for those
                             who appreciate the finer things.
                         </p>

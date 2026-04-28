@@ -11,6 +11,8 @@ export function OrderSuccessPage() {
     const orderId = searchParams.get('order_id') || '';
     const productName = searchParams.get('product') || '';
     const amount = searchParams.get('amount') || '';
+    const method = searchParams.get('method') || '';
+    const invoice = searchParams.get('invoice') || '';
     const [copied, setCopied] = useState(false);
     const [showContent, setShowContent] = useState(false);
 
@@ -57,10 +59,12 @@ export function OrderSuccessPage() {
 
                         {/* Heading */}
                         <h1 className="font-heading text-3xl md:text-4xl font-bold text-charcoal mb-3">
-                            Payment Successful!
+                            {method === 'cod' ? 'Order Placed Successfully!' : 'Payment Successful!'}
                         </h1>
                         <p className="font-body text-charcoal/60 text-lg mb-10 max-w-md mx-auto">
-                            Thank you for your purchase. Your order is being processed and you'll receive a confirmation email shortly.
+                            {method === 'cod'
+                                ? 'Thank you for your purchase. Your Cash on Delivery order is confirmed and will move into processing shortly.'
+                                : "Thank you for your purchase. Your order is being processed and you'll receive a confirmation email shortly."}
                         </p>
 
                         {/* Order Details Card */}
@@ -110,8 +114,43 @@ export function OrderSuccessPage() {
                                         <span className="font-body text-sm text-charcoal/60">
                                             Order ID
                                         </span>
+                                        <div className="flex items-center gap-2">
+                                            <span className="font-body text-sm font-medium text-charcoal">
+                                                {orderId}
+                                            </span>
+                                            <button
+                                                onClick={() => handleCopy(orderId)}
+                                                className="p-1.5 rounded-lg hover:bg-charcoal/5 transition-colors cursor-pointer"
+                                                title="Copy"
+                                            >
+                                                {copied ? (
+                                                    <Check className="w-3.5 h-3.5 text-success" />
+                                                ) : (
+                                                    <Copy className="w-3.5 h-3.5 text-charcoal/40" />
+                                                )}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {method && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-body text-sm text-charcoal/60">
+                                            Payment Method
+                                        </span>
                                         <span className="font-body text-sm font-medium text-charcoal">
-                                            {orderId}
+                                            {method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {invoice && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-body text-sm text-charcoal/60">
+                                            Invoice
+                                        </span>
+                                        <span className="font-body text-sm font-medium text-charcoal">
+                                            {invoice}
                                         </span>
                                     </div>
                                 )}
@@ -130,7 +169,7 @@ export function OrderSuccessPage() {
                                 {amount && (
                                     <div className="flex items-center justify-between pt-3 border-t border-charcoal/10">
                                         <span className="font-body text-sm font-medium text-charcoal/70">
-                                            Amount Paid
+                                            {method === 'cod' ? 'Amount Due on Delivery' : 'Amount Paid'}
                                         </span>
                                         <span className="font-heading text-xl font-bold text-charcoal">
                                             {formatPrice(amount)}
@@ -143,13 +182,20 @@ export function OrderSuccessPage() {
                         {/* Info Banner */}
                         <div className="bg-primary-light/40 rounded-xl p-4 mb-8 text-left">
                             <p className="font-body text-sm text-charcoal/60">
-                                📧 A confirmation email with your invoice will be sent to your registered email address.
+                                A confirmation email with your invoice will be sent to your registered email address.
                                 If you don't receive it within 15 minutes, please check your spam folder.
                             </p>
                         </div>
 
                         {/* CTAs */}
                         <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                            {orderId && (
+                                <Link to={`/track-order?orderId=${encodeURIComponent(orderId)}`}>
+                                    <Button variant="secondary" size="lg">
+                                        Track Order
+                                    </Button>
+                                </Link>
+                            )}
                             <Link to="/products">
                                 <Button
                                     variant="primary"
@@ -160,11 +206,11 @@ export function OrderSuccessPage() {
                                     Continue Shopping
                                 </Button>
                             </Link>
-                            <Link to="/">
+                            {!orderId && <Link to="/">
                                 <Button variant="secondary" size="lg">
                                     Back to Home
                                 </Button>
-                            </Link>
+                            </Link>}
                         </div>
                     </div>
                 </div>

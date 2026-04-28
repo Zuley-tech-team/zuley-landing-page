@@ -17,6 +17,7 @@ const payment_service_1 = require("../modules/payment/payment.service");
 const order_model_1 = require("../models/order.model");
 const customer_model_1 = require("../models/customer.model");
 const payment_model_1 = require("../models/payment.model");
+const inventory_model_1 = require("../models/inventory.model");
 const env_config_1 = require("../config/env.config");
 const crypto_1 = __importDefault(require("crypto"));
 // Mock data
@@ -24,6 +25,7 @@ const mockPaymentId = "pay_" + crypto_1.default.randomBytes(4).toString("hex");
 const mockOrderId = "order_" + crypto_1.default.randomBytes(4).toString("hex");
 const mockEmail = `test_${Date.now()}@example.com`;
 const mockPhone = "9988776655";
+const testSku = "VERIFY-CUSTOMER-SKU";
 const mockPayload = {
     payment: {
         entity: {
@@ -47,7 +49,7 @@ const mockPayload = {
                 }),
                 items: JSON.stringify([
                     {
-                        sku: "SKU123",
+                        sku: testSku,
                         name: "Test Product",
                         quantity: 1,
                         price: 10000,
@@ -64,6 +66,7 @@ const verifyCustomerData = () => __awaiter(void 0, void 0, void 0, function* () 
         yield mongoose_1.default.connect(env_config_1.env.MONGO_URI);
         console.log("Connected to MongoDB");
         // Clear any existing test data if needed (optional, using random IDs so unlikely to clash)
+        yield inventory_model_1.Inventory.updateOne({ sku: testSku }, { $set: { quantity: 5, reserved: 0, low_stock_threshold: 1 } }, { upsert: true });
         // Call processWebhookEvent
         console.log("Simulating 'payment.captured' webhook...");
         yield (0, payment_service_1.processWebhookEvent)({
@@ -112,6 +115,7 @@ const verifyCustomerData = () => __awaiter(void 0, void 0, void 0, function* () 
             yield payment_model_1.Payment.deleteOne({ gateway_payment_id: mockPaymentId });
             yield customer_model_1.Customer.deleteOne({ email: mockEmail });
             yield order_model_1.Order.deleteOne({ "customer_details.email": mockEmail });
+            yield inventory_model_1.Inventory.deleteOne({ sku: testSku });
             yield mongoose_1.default.disconnect();
         }
     }

@@ -4,8 +4,8 @@ const paymentSchema = new mongoose.Schema(
   {
     gateway_payment_id: {
       type: String,
-      required: true,
       unique: true,
+      sparse: true,
       index: true,
     },
     gateway_order_id: {
@@ -26,12 +26,21 @@ const paymentSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      enum: ["pending", "captured", "failed", "refunded"],
+      enum: ["pending", "captured", "failed", "refunded", "cod_pending", "cod_collected"],
       default: "pending",
     },
     method: {
       type: String,
       description: "upi, card, netbanking, etc.",
+    },
+    payment_method: {
+      type: String,
+      enum: ["razorpay", "cod"],
+      default: "razorpay",
+      index: true,
+    },
+    collected_at: {
+      type: Date,
     },
     error_reason: {
       type: String,

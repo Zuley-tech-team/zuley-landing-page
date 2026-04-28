@@ -1,4 +1,4 @@
-*Last updated: 12 February, 2026*
+*Last updated: 17 April, 2026*
 
 These Terms & Conditions (“Terms”) govern your access to and use of **zuley.in** (“Website”) operated by **Zuley**, a sole proprietorship based in India (“we”, “our”, “us”).
 
@@ -55,7 +55,7 @@ We accept:
 For online payments:
 
 - Zuley does not store or process card, UPI, or banking details.
-- Refunds (if applicable) will be issued to the **original payment method** as per out Payment Gateway.
+- Refunds (if applicable) will be issued to the **original payment method** as per our payment gateway policies.
 
 ---
 

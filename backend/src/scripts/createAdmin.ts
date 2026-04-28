@@ -8,7 +8,7 @@ async function createAdmin() {
         console.log("Connected to MongoDB");
 
         const email = process.argv[2] || "admin@zuley.in";
-        const password = process.argv[3] || "admin123";
+        const password = process.argv[3] || "Zuley@1770";
         const name = process.argv[4] || "Admin User";
 
         console.log(`Creating admin: ${email}`);

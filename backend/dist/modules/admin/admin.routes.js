@@ -32,21 +32,45 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const authController = __importStar(require("./auth.controller"));
 const admin_middleware_1 = require("../../middlewares/admin.middleware");
+const multer_1 = __importDefault(require("multer"));
+const publicRateLimit_1 = require("../../middlewares/publicRateLimit");
 const router = (0, express_1.Router)();
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: {
+        fileSize: 10 * 1024 * 1024,
+    },
+});
 // Public Routes
-router.post("/login", authController.login);
+router.post("/login", (0, publicRateLimit_1.publicRateLimit)({ windowMs: 15 * 60 * 1000, maxRequests: 8 }), authController.login);
 router.post("/logout", authController.logout);
 // Protected Routes
 router.use(admin_middleware_1.authenticateAdmin);
 router.get("/me", authController.getMe);
+// Dashboard Stats
+const productsController = __importStar(require("./products.controller"));
+router.get("/dashboard/stats", productsController.getDashboardStats);
+// Product Routes
+router.get("/products", productsController.getProducts);
+router.get("/products/:id", productsController.getProductById);
+router.post("/products/images", upload.array("images", 10), productsController.uploadProductImages);
+router.post("/products", productsController.createProduct);
+router.put("/products/:id", productsController.updateProduct);
+router.patch("/products/:id/toggle", productsController.toggleProductStatus);
+router.delete("/products/:id", productsController.deleteProduct);
 // Order Routes
 const orderController = __importStar(require("./order.controller"));
 router.get("/orders", orderController.getOrders);
 router.get("/orders/:id", orderController.getOrderById);
+router.get("/orders/:id/invoice", orderController.getOrderInvoice);
+router.get("/orders/:id/invoice/download", orderController.downloadOrderInvoice);
 router.put("/orders/:id/status", orderController.updateOrderStatus);
 // Inventory Routes
 const inventoryController = __importStar(require("./inventory.controller"));
@@ -55,4 +79,12 @@ router.post("/inventory/stock", inventoryController.updateStock);
 // Logs Routes
 const logsController = __importStar(require("./logs.controller"));
 router.get("/logs", logsController.getSystemLogs);
+// Engagement Routes
+const engagementController = __importStar(require("./engagement.controller"));
+router.get("/engagement/stats", engagementController.getEngagementStats);
+router.get("/engagement/contact-inquiries", engagementController.getContactInquiries);
+router.patch("/engagement/contact-inquiries/:id/status", engagementController.updateContactInquiryStatus);
+router.get("/engagement/corporate-leads", engagementController.getCorporateLeads);
+router.patch("/engagement/corporate-leads/:id/status", engagementController.updateCorporateLeadStatus);
+router.get("/engagement/newsletter-subscribers", engagementController.getNewsletterSubscribers);
 exports.default = router;

@@ -1,7 +1,12 @@
 import { useSearchParams } from 'react-router-dom';
-import { categories, type ProductCategory } from '../../data/products';
+import { categories } from '../../data/products';
+import { type ProductCategory } from '../../api/products';
 
-export function CategoryFilter() {
+interface CategoryFilterProps {
+    counts?: Record<string, number>;
+}
+
+export function CategoryFilter({ counts = {} }: CategoryFilterProps) {
     const [searchParams, setSearchParams] = useSearchParams();
     const currentCategory = searchParams.get('category') as ProductCategory | null;
 
@@ -23,7 +28,7 @@ export function CategoryFilter() {
                         : 'bg-white text-charcoal border border-charcoal/20 hover:border-charcoal/40 hover:bg-primary-light/30'
                     }`}
             >
-                All Products
+                All Products ({counts.all ?? 0})
             </button>
 
             {/* Category Buttons */}
@@ -36,7 +41,7 @@ export function CategoryFilter() {
                             : 'bg-white text-charcoal border border-charcoal/20 hover:border-charcoal/40 hover:bg-primary-light/30'
                         }`}
                 >
-                    {category.label}
+                    {category.label} ({counts[category.slug] ?? 0})
                 </button>
             ))}
         </div>

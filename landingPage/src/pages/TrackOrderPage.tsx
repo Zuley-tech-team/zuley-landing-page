@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Navbar } from '../components/common';
 import { Footer } from '../components/home';
@@ -10,7 +10,7 @@ import { Search, Package, Loader2, AlertCircle } from 'lucide-react';
 
 export function TrackOrderPage() {
     const [searchParams] = useSearchParams();
-    const initialOrderId = searchParams.get('id') || '';
+    const initialOrderId = searchParams.get('orderId') || searchParams.get('id') || '';
 
     const [orderId, setOrderId] = useState(initialOrderId);
     const [orderData, setOrderData] = useState<OrderTrackingData | null>(null);
@@ -44,6 +44,12 @@ export function TrackOrderPage() {
             setIsLoading(false);
         }
     };
+
+    useEffect(() => {
+        if (initialOrderId) {
+            handleSearch();
+        }
+    }, []);
 
     return (
         <>
@@ -159,6 +165,15 @@ export function TrackOrderPage() {
                                         {formatPrice(orderData.total_amount)}
                                     </span>
                                 </div>
+
+                                {orderData.payment_method && (
+                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-charcoal/10">
+                                        <span className="font-body text-sm text-charcoal/60">Payment</span>
+                                        <span className="font-body text-sm font-medium text-charcoal capitalize">
+                                            {orderData.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                                        </span>
+                                    </div>
+                                )}
 
                                 {/* Delivery address */}
                                 <div className="mt-4 pt-4 border-t border-charcoal/10">

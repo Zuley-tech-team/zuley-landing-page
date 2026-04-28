@@ -26,6 +26,8 @@ export interface OrderHistoryEntry {
 export interface OrderTrackingData {
     order_id: string;
     status: string;
+    payment_method?: 'razorpay' | 'cod';
+    payment_status?: string;
     items: OrderTrackingItem[];
     items_count: number;
     total_amount: number;
@@ -37,6 +39,36 @@ export interface OrderTrackingData {
     shipping: ShippingInfo | null;
     history: OrderHistoryEntry[];
     created_at: string;
+}
+
+export interface PlaceCodOrderPayload {
+    items: Array<{ sku: string; quantity: number; variant_info?: string }>;
+    customer: {
+        name: string;
+        email: string;
+        phone: string;
+    };
+    shipping_address: {
+        line1: string;
+        line2?: string;
+        city: string;
+        state: string;
+        pincode: string;
+        country?: string;
+    };
+}
+
+export interface PlaceCodOrderResponse {
+    success: boolean;
+    message: string;
+    data: {
+        order_id: string;
+        status: string;
+        payment_method: 'cod';
+        payment_status: string;
+        total_amount: number;
+        invoice_number: string | null;
+    };
 }
 
 export interface OrderTrackingResponse {
@@ -63,4 +95,22 @@ export async function getOrderTracking(
     }
 
     return response.json();
+}
+
+export async function placeCodOrder(
+    payload: PlaceCodOrderPayload
+): Promise<PlaceCodOrderResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/v1/orders/cod`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+        throw new Error(data.message || `COD order failed (${response.status})`);
+    }
+
+    return data;
 }

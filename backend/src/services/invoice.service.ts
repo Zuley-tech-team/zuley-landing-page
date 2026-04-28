@@ -5,15 +5,16 @@ import { Invoice, IInvoice, IInvoiceItem } from '../models/invoice.model';
 import { Counter } from '../models/counter.model';
 import { IOrder } from '../models/order.model';
 import { ICustomer } from '../models/customer.model';
+import { env } from '../config/env.config';
 
-const SELLER_STATE_CODE = '27'; // Maharashtra
+const SELLER_STATE_CODE = env.INVOICE_SELLER_STATE_CODE;
 const SELLER_DETAILS = {
-    name: 'Zuley',
-    gstin: '27XXXXX1234X1Z5', // Replace with env var if needed
-    address: '123, Zuley HQ, Mumbai, Maharashtra 400001',
-    state: 'Maharashtra',
-    stateCode: '27',
-    pan: 'XXXXX1234X'
+    name: env.INVOICE_SELLER_NAME,
+    gstin: env.INVOICE_SELLER_GSTIN,
+    address: env.INVOICE_SELLER_ADDRESS,
+    state: env.INVOICE_SELLER_STATE,
+    stateCode: env.INVOICE_SELLER_STATE_CODE,
+    pan: env.INVOICE_SELLER_PAN,
 };
 
 const GST_STATE_CODES: { [key: string]: string } = {
@@ -119,25 +120,24 @@ export class InvoiceService {
         let grandTotal = 0;
 
         const processedItems: IInvoiceItem[] = items.map(item => {
-            // Assuming item.price is the unit price (potentially unrelated to tax, need to clarify if inclusive or exclusive)
-            // For this implementation, we assume price is EXCLUSIVE of tax or we calculate tax on top.
-            // Let's assume the stored price in Order is the unit price.
-
-            const taxableValue = item.price * item.quantity;
-            const gstRate = 0.03; // Fixed 3% for Silver for now
+            const gstRate = 0.03; // Fixed 3% for silver products.
+            const grossUnitPrice = Number(item.price || 0) / 100;
+            const grossItemTotal = grossUnitPrice * item.quantity;
+            const taxableValue = grossItemTotal / (1 + gstRate);
+            const totalTax = grossItemTotal - taxableValue;
 
             let cgstAmount = 0;
             let sgstAmount = 0;
             let igstAmount = 0;
 
             if (isIntraState) {
-                cgstAmount = taxableValue * (gstRate / 2);
-                sgstAmount = taxableValue * (gstRate / 2);
+                cgstAmount = totalTax / 2;
+                sgstAmount = totalTax / 2;
             } else {
-                igstAmount = taxableValue * gstRate;
+                igstAmount = totalTax;
             }
 
-            const itemTotal = taxableValue + cgstAmount + sgstAmount + igstAmount;
+            const itemTotal = grossItemTotal;
 
             totalTaxableValue += taxableValue;
             totalCGST += cgstAmount;
@@ -149,7 +149,7 @@ export class InvoiceService {
                 description: item.name,
                 hsnCode: '711311', // Default for Silver Jewellery, should ideally come from Product model
                 quantity: item.quantity,
-                unitPrice: item.price,
+                unitPrice: grossUnitPrice,
                 taxableValue: taxableValue,
                 gstRate: gstRate * 100, // Store as percentage (3)
                 cgstAmount,
@@ -205,7 +205,7 @@ export class InvoiceService {
 
             doc.text(`Bill To: ${invoice.buyerDetails.name}`);
             doc.text(invoice.buyerDetails.billingAddress);
-            doc.text(`Phone: ${invoice.buyerDetails.state}`); // Simplified for now
+            doc.text(`State: ${invoice.buyerDetails.state}`);
             doc.text(`State Code: ${invoice.buyerDetails.stateCode}`);
 
             doc.text(`Invoice No: ${invoice.invoiceNumber}`, 300, startY);
@@ -256,7 +256,7 @@ export class InvoiceService {
 
             doc.fontSize(12).text(`Grand Total: ${invoice.totalAmount.toFixed(2)}`, 350, position + 10);
 
-            // Amount in words (Placeholder)
+            // Amount in words
             doc.fontSize(10).text(`Amount in Words: ${invoice.amountInWords}`, 50, position + 10);
 
             doc.end();
@@ -266,9 +266,86 @@ export class InvoiceService {
         });
     }
 
-    // TODO: Use a proper library for number to words
+    private static convertSubThousandToWords(value: number): string {
+        const ones = [
+            '', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine',
+            'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen',
+            'Seventeen', 'Eighteen', 'Nineteen'
+        ];
+        const tens = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+
+        let words = '';
+        const hundred = Math.floor(value / 100);
+        const remainder = value % 100;
+
+        if (hundred > 0) {
+            words += `${ones[hundred]} Hundred`;
+            if (remainder > 0) {
+                words += ' ';
+            }
+        }
+
+        if (remainder > 0) {
+            if (remainder < 20) {
+                words += ones[remainder];
+            } else {
+                const ten = Math.floor(remainder / 10);
+                const one = remainder % 10;
+                words += tens[ten];
+                if (one > 0) {
+                    words += ` ${ones[one]}`;
+                }
+            }
+        }
+
+        return words.trim();
+    }
+
+    private static convertNumberToIndianWords(value: number): string {
+        if (value === 0) {
+            return 'Zero';
+        }
+
+        if (value < 0) {
+            return `Minus ${this.convertNumberToIndianWords(Math.abs(value))}`;
+        }
+
+        const crore = Math.floor(value / 10000000);
+        const lakh = Math.floor((value % 10000000) / 100000);
+        const thousand = Math.floor((value % 100000) / 1000);
+        const hundredAndBelow = value % 1000;
+
+        const chunks: string[] = [];
+
+        if (crore > 0) {
+            chunks.push(`${this.convertSubThousandToWords(crore)} Crore`);
+        }
+        if (lakh > 0) {
+            chunks.push(`${this.convertSubThousandToWords(lakh)} Lakh`);
+        }
+        if (thousand > 0) {
+            chunks.push(`${this.convertSubThousandToWords(thousand)} Thousand`);
+        }
+        if (hundredAndBelow > 0) {
+            chunks.push(this.convertSubThousandToWords(hundredAndBelow));
+        }
+
+        return chunks.join(' ').trim();
+    }
+
     private static numberToWords(amount: number): string {
-        return `${amount} Rupees Only`; // simplified
+        const rounded = Number(amount.toFixed(2));
+        const rupees = Math.floor(rounded);
+        const paise = Math.round((rounded - rupees) * 100);
+
+        const rupeesInWords = this.convertNumberToIndianWords(rupees);
+
+        if (paise > 0) {
+            const paiseInWords = this.convertNumberToIndianWords(paise);
+            return `${rupeesInWords} Rupees and ${paiseInWords} Paise Only`;
+        }
+
+        return `${rupeesInWords} Rupees Only`;
     }
 
     public static async createInvoice(order: IOrder, customer: ICustomer): Promise<IInvoice> {

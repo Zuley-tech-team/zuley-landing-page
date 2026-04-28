@@ -1,10 +1,9 @@
 import { Navbar } from '../components/common';
 import {
-    // HeroSection,
-    // ProductSpotlight,
+    ProductSpotlight,
     CategorySection,
-    // PersonalizationSection,
-    // CraftsmanshipSection,
+    PersonalizationSection,
+    CraftsmanshipSection,
     CorporateSection,
     TestimonialsSection,
     Footer,
@@ -17,11 +16,10 @@ export function HomePage() {
             <Navbar />
             <main className="min-h-screen bg-pearl overflow-x-hidden">
                 <HeroSection1 />
+                <ProductSpotlight />
                 <CategorySection />
-                {/* <ProductSpotlight />
-                <PersonalizationSection /> */}
-                {/* <GiftingSection /> */}
-                {/* <CraftsmanshipSection /> */}
+                <PersonalizationSection />
+                <CraftsmanshipSection />
                 <CorporateSection />
                 <TestimonialsSection />
                 <Footer />

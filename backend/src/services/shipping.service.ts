@@ -1,5 +1,6 @@
 import { Shipping, IShipping } from '../models/shipping.model';
 import { Order } from '../models/order.model';
+import { Payment } from '../models/payment.model';
 import { EmailService } from './email.service';
 import mongoose from 'mongoose';
 
@@ -191,6 +192,13 @@ export class ShippingService {
 
         // Update Order
         order.status = 'delivered';
+        if (order.payment_method === 'cod') {
+            order.payment_status = 'cod_collected';
+            await Payment.findByIdAndUpdate(order.payment_id, {
+                status: 'cod_collected',
+                collected_at: new Date()
+            });
+        }
         if (!order.shipping_details) {
             order.shipping_details = {};
         }

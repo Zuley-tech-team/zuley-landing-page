@@ -4,6 +4,8 @@ import shippingRoutes from "../../routes/shipping.routes";
 import adminRoutes from "../../modules/admin/admin.routes";
 import orderRoutes from "./order.routes";
 import inventoryPublicRoutes from "./inventory.routes";
+import productsRoutes from "./products.routes";
+import engagementRoutes from "./engagement.routes";
 
 const router = express.Router();
 
@@ -12,5 +14,7 @@ router.use("/shipping", shippingRoutes);
 router.use("/admin", adminRoutes);
 router.use("/orders", orderRoutes);
 router.use("/inventory", inventoryPublicRoutes);
+router.use("/products", productsRoutes);
+router.use("/engagement", engagementRoutes);
 
 export default router;

@@ -47,6 +47,12 @@ const paymentService = __importStar(require("./payment.service"));
 const env_config_1 = require("../../config/env.config");
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
+        if (!env_config_1.env.ENABLE_ONLINE_PAYMENTS) {
+            return res.status(503).json({
+                success: false,
+                message: "Online payments are temporarily disabled. Please use Cash on Delivery.",
+            });
+        }
         const { amount, currency, receipt, notes } = req.body;
         // Basic Validation
         if (!amount || amount <= 0) {

@@ -15,7 +15,7 @@ const steps = [
     {
         number: '01',
         title: 'Choose Your Product',
-        description: 'Select from our collection of silver pens, keychains, or covers',
+        description: 'Select from our collection of silver pens and silver covers',
     },
     {
         number: '02',
@@ -101,6 +101,7 @@ export function PersonalizationSection() {
     return (
         <section
             ref={sectionRef}
+            id="personalization"
             className="py-16 md:py-24 lg:py-32 bg-charcoal text-pearl overflow-hidden relative"
         >
             {/* Background decoration */}

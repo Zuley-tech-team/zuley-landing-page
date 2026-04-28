@@ -9,10 +9,14 @@ const shipping_routes_1 = __importDefault(require("../../routes/shipping.routes"
 const admin_routes_1 = __importDefault(require("../../modules/admin/admin.routes"));
 const order_routes_1 = __importDefault(require("./order.routes"));
 const inventory_routes_1 = __importDefault(require("./inventory.routes"));
+const products_routes_1 = __importDefault(require("./products.routes"));
+const engagement_routes_1 = __importDefault(require("./engagement.routes"));
 const router = express_1.default.Router();
 router.use("/payments", payment_routes_1.default);
 router.use("/shipping", shipping_routes_1.default);
 router.use("/admin", admin_routes_1.default);
 router.use("/orders", order_routes_1.default);
 router.use("/inventory", inventory_routes_1.default);
+router.use("/products", products_routes_1.default);
+router.use("/engagement", engagement_routes_1.default);
 exports.default = router;

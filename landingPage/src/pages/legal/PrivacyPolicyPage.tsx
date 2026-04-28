@@ -8,12 +8,12 @@ export function PrivacyPolicyPage() {
             <main className="min-h-screen bg-pearl pt-32 pb-24 px-6">
                 <div className="max-w-4xl mx-auto bg-white p-8 md:p-12 rounded-3xl shadow-luxury">
                     <h1 className="font-heading text-4xl font-bold text-charcoal mb-4">Privacy Policy</h1>
-                    <p className="font-body text-charcoal/60 italic mb-10">*Last updated: 12 February, 2026*</p>
+                    <p className="font-body text-charcoal/60 italic mb-10">*Last updated: 17 April, 2026*</p>
 
                     <div className="space-y-8 font-body text-charcoal/80 leading-relaxed">
                         <section>
                             <p className="mb-4">
-                                This Privacy Policy explains how Zuley, a sole proprietorship operating in India (“we”, “our”, “us”), collects, uses, stores, and protects personal data when you visit or make a purchase from <a href="http://zuley.in" className="text-primary hover:underline">zuley.in</a> (“Website”).
+                                This Privacy Policy explains how Zuley, a sole proprietorship operating in India (“we”, “our”, “us”), collects, uses, stores, and protects personal data when you visit or make a purchase from <a href="https://zuley.in" className="text-primary hover:underline">zuley.in</a> (“Website”).
                             </p>
                             <p>
                                 By using our Website, you agree to the collection and use of information in accordance with this Privacy Policy.

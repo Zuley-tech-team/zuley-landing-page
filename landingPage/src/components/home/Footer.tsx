@@ -1,36 +1,36 @@
 import { useState } from 'react';
 import { Button } from '../common';
+import { useToast } from '../../contexts/ToastContext';
+import { subscribeNewsletter } from '../../api/engagement';
 import {
     Mail,
     ArrowUp,
     Instagram,
     Facebook,
-    MessageCircle,
     CreditCard,
     Shield,
     Truck,
     Send,
     MapPin,
-    Phone
 } from 'lucide-react';
 
 const footerLinks = {
     shop: [
-        { label: 'Silver Pens', href: '/products/pens' },
-        { label: 'Keychains', href: '/products/keychains' },
-        { label: 'Phone Covers', href: '/products/covers' },
+        { label: 'Silver Pens', href: '/products?category=silver-pens' },
+        { label: 'Phone Covers', href: '/products?category=silver-phone-covers' },
+        { label: 'Personalized Gifts', href: '/customize' },
         { label: 'All Products', href: '/products' },
     ],
     customize: [
         { label: 'Personalization Guide', href: '/customize' },
-        { label: 'Font Options', href: '/fonts' },
+        { label: 'Craftsmanship', href: '/craftsmanship' },
         { label: 'Corporate Gifting', href: '/corporate' },
-        { label: 'Bulk Orders', href: '/bulk' },
+        { label: 'Bulk Orders', href: '/corporate' },
     ],
     about: [
         { label: 'Our Story', href: '/about' },
         { label: 'Craftsmanship', href: '/craftsmanship' },
-        { label: 'Quality Promise', href: '/quality' },
+        { label: 'Quality Promise', href: '/about' },
         { label: 'Reviews', href: '/reviews' },
     ],
     support: [
@@ -39,24 +39,35 @@ const footerLinks = {
         { label: 'Returns & Refunds', href: '/refund-policy' },
         { label: 'Privacy Policy', href: '/privacy-policy' },
         { label: 'Terms & Conditions', href: '/terms' },
-        { label: 'FAQs', href: '/faq' },
+        { label: 'FAQs', href: '/contact' },
         { label: 'Track Order', href: '/track-order' },
     ],
 };
 
 const socialLinks = [
-    { icon: Instagram, href: '#', label: 'Instagram' },
-    { icon: Facebook, href: '#', label: 'Facebook' },
-    { icon: MessageCircle, href: '#', label: 'WhatsApp' },
+    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
+    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
 ];
 
 export function Footer() {
     const [email, setEmail] = useState('');
+    const [isSubscribing, setIsSubscribing] = useState(false);
+    const { showToast } = useToast();
 
-    const handleSubscribe = (e: React.FormEvent) => {
+    const handleSubscribe = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Subscribe:', email);
-        setEmail('');
+
+        try {
+            setIsSubscribing(true);
+            const response = await subscribeNewsletter({ email, source: 'footer' });
+            showToast(response.message || `Thanks! We'll keep ${email} posted on new launches and offers.`, 'success');
+            setEmail('');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to subscribe right now. Please try again.';
+            showToast(message, 'error');
+        } finally {
+            setIsSubscribing(false);
+        }
     };
 
     const scrollToTop = () => {
@@ -96,18 +107,18 @@ export function Footer() {
                                 <div>
                                     <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Visit Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        Mumbai, Maharashtra<br />India
+                                        Nawa City, Rajasthan<br />India
                                     </p>
                                 </div>
                             </div>
                             <div className="flex items-start gap-4 p-6 rounded-2xl bg-graphite/30 border border-pearl/10">
                                 <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                    <Phone className="w-6 h-6 text-primary" />
+                                    <Mail className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
-                                    <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Call Us</h4>
+                                    <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Email Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        +91 98765 43210<br />
+                                        support@zuley.in<br />
                                         Mon-Sat, 10am-7pm
                                     </p>
                                 </div>
@@ -145,8 +156,8 @@ export function Footer() {
                                 required
                             />
                         </div>
-                        <Button type="submit" variant="accent" size="lg" icon={<Send className="w-5 h-5" />}>
-                            Subscribe
+                        <Button type="submit" variant="accent" size="lg" icon={<Send className="w-5 h-5" />} disabled={isSubscribing}>
+                            {isSubscribing ? 'Subscribing...' : 'Subscribe'}
                         </Button>
                     </form>
 

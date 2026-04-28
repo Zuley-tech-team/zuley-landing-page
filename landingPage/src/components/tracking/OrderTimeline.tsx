@@ -11,7 +11,7 @@ interface OrderTimelineProps {
     history: { status: string; timestamp: string; reason?: string }[];
 }
 
-const STATUS_ORDER = ['paid', 'shipped', 'delivered'];
+const STATUS_ORDER = ['created', 'paid', 'shipped', 'delivered'];
 const STATUS_LABELS: Record<string, string> = {
     created: 'Order Created',
     paid: 'Payment Confirmed',
@@ -23,6 +23,7 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_ICONS: Record<string, React.ReactNode> = {
+    created: <Circle className="w-4 h-4" />,
     paid: <CreditCard className="w-4 h-4" />,
     shipped: <Truck className="w-4 h-4" />,
     delivered: <Package className="w-4 h-4" />,

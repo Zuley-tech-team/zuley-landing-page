@@ -20,13 +20,18 @@ export const getInventory = async (req: Request, res: Response) => {
         }
 
         if (status === 'low_stock') {
-            query.quantity = { $lt: 10 }; // Example threshold
+            query.$expr = {
+                $and: [
+                    { $gt: ["$quantity", 0] },
+                    { $lte: ["$quantity", "$low_stock_threshold"] },
+                ],
+            };
         } else if (status === 'out_of_stock') {
             query.quantity = { $lte: 0 };
         }
 
         const items = await Inventory.find(query)
-            .sort({ updatedAt: -1 })
+            .sort({ last_updated: -1 })
             .skip((Number(page) - 1) * Number(limit))
             .limit(Number(limit));
 
@@ -52,10 +57,23 @@ export const updateStock = async (req: Request, res: Response) => {
     session.startTransaction();
 
     try {
-        const { sku, quantity, reason } = req.body;
+        const { sku, quantity, reason, lowStockThreshold } = req.body;
 
         if (!sku || quantity === undefined) {
             return res.status(400).json({ message: "SKU and quantity are required" });
+        }
+
+        const nextQuantity = Number(quantity);
+        const nextThreshold = lowStockThreshold !== undefined ? Number(lowStockThreshold) : undefined;
+
+        if (!Number.isFinite(nextQuantity) || nextQuantity < 0) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Quantity must be a non-negative number" });
+        }
+
+        if (nextThreshold !== undefined && (!Number.isFinite(nextThreshold) || nextThreshold < 0)) {
+            await session.abortTransaction();
+            return res.status(400).json({ message: "Low stock threshold must be a non-negative number" });
         }
 
         const inventory = await Inventory.findOne({ sku }).session(session);
@@ -67,20 +85,26 @@ export const updateStock = async (req: Request, res: Response) => {
         }
 
         const previousQuantity = inventory.quantity;
+        const previousThreshold = inventory.low_stock_threshold;
 
         // Set absolute quantity (as per admin UI usually works "Update to X")
         // Or relative? Requirement says "Enter new quantity", usually implies absolute.
-        inventory.quantity = Number(quantity);
+        inventory.quantity = nextQuantity;
+        if (nextThreshold !== undefined) {
+            inventory.low_stock_threshold = nextThreshold;
+        }
         await inventory.save({ session });
 
         // Log to InventoryLog
         await InventoryLog.create([{
             sku,
-            change: Number(quantity) - previousQuantity,
-            reason: reason || "Admin Manual Update",
+            inventory_id: inventory._id,
+            change_quantity: nextQuantity - previousQuantity,
+            reason: "correction",
             order_id: null,
             previous_quantity: previousQuantity,
-            new_quantity: Number(quantity)
+            new_quantity: nextQuantity,
+            changed_by: `admin:${req.admin.email}`,
         }], { session });
 
         // Log Admin Action
@@ -89,7 +113,13 @@ export const updateStock = async (req: Request, res: Response) => {
             "UPDATE_STOCK",
             "inventory",
             sku,
-            { previous: previousQuantity, new: Number(quantity), reason },
+            {
+                previous: previousQuantity,
+                new: nextQuantity,
+                previousThreshold,
+                newThreshold: inventory.low_stock_threshold,
+                reason,
+            },
             req
         );
 

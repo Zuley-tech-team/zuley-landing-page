@@ -22,11 +22,18 @@ const customer_model_1 = require("../../models/customer.model");
 const inventory_service_1 = require("../inventory/inventory.service");
 const invoice_service_1 = require("../../services/invoice.service");
 const email_service_1 = require("../../services/email.service");
-// Initialize Razorpay
-const razorpay = new razorpay_1.default({
-    key_id: env_config_1.env.RAZORPAY_KEY_ID,
-    key_secret: env_config_1.env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayClient = () => {
+    if (!env_config_1.env.ENABLE_ONLINE_PAYMENTS) {
+        throw new Error("Online payments are disabled");
+    }
+    if (!env_config_1.env.RAZORPAY_KEY_ID || !env_config_1.env.RAZORPAY_KEY_SECRET) {
+        throw new Error("Razorpay credentials are not configured");
+    }
+    return new razorpay_1.default({
+        key_id: env_config_1.env.RAZORPAY_KEY_ID,
+        key_secret: env_config_1.env.RAZORPAY_KEY_SECRET,
+    });
+};
 const createPaymentOrder = (amount_1, ...args_1) => __awaiter(void 0, [amount_1, ...args_1], void 0, function* (amount, currency = "INR", receipt, notes = {}) {
     const options = {
         amount: amount, // Amount in paise
@@ -35,6 +42,7 @@ const createPaymentOrder = (amount_1, ...args_1) => __awaiter(void 0, [amount_1,
         notes,
     };
     try {
+        const razorpay = getRazorpayClient();
         const order = yield razorpay.orders.create(options);
         return order;
     }
@@ -45,6 +53,9 @@ const createPaymentOrder = (amount_1, ...args_1) => __awaiter(void 0, [amount_1,
 });
 exports.createPaymentOrder = createPaymentOrder;
 const verifyWebhookSignature = (body, signature) => {
+    if (!env_config_1.env.ENABLE_ONLINE_PAYMENTS || !env_config_1.env.RAZORPAY_WEBHOOK_SECRET) {
+        return false;
+    }
     const generatedSignature = crypto_1.default
         .createHmac("sha256", env_config_1.env.RAZORPAY_WEBHOOK_SECRET)
         .update(body)
@@ -87,6 +98,7 @@ const processWebhookEvent = (event) => __awaiter(void 0, void 0, void 0, functio
             currency,
             status,
             method,
+            payment_method: "razorpay",
             gateway_response: payload,
         });
         yield payment.save();
@@ -209,6 +221,8 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
         total_amount: payment.amount,
         items_count: items.reduce((acc, item) => acc + (item.quantity || 0), 0),
         status: "paid", // It's captured on payment.captured
+        payment_method: "razorpay",
+        payment_status: "captured",
         payment_id: payment._id,
         shipping_address: shippingAddress,
         shipping_details: {},
@@ -270,7 +284,7 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
             orderId: newOrder.order_id,
             customerName: customerDoc.full_name,
             invoiceNumber: invoice.invoiceNumber,
-            amount: newOrder.total_amount / 100,
+            amount: invoice.totalAmount,
             pdfPath: invoice.pdfPath,
         });
         // Update status to emailed

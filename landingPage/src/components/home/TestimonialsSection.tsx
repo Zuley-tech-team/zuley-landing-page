@@ -12,7 +12,7 @@ const testimonials = [
         image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
     },
     {
-        quote: "We ordered 50 silver keychains for our corporate event, each with our company logo. The quality exceeded our expectations, and our clients loved them. Professional service from start to finish.",
+        quote: "We ordered silver pens for our corporate event, each with our company logo. The quality exceeded our expectations, and our clients loved them. Professional service from start to finish.",
         name: 'Rajesh Kumar',
         title: 'CEO, TechVision',
         location: 'Bangalore',
@@ -115,6 +115,7 @@ export function TestimonialsSection() {
     return (
         <section
             ref={sectionRef}
+            id="testimonials"
             className="py-16 md:py-24 lg:py-32 bg-gradient-to-b from-white to-pearl overflow-hidden"
         >
             <div className="max-w-7xl mx-auto px-6">

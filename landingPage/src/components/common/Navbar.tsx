@@ -1,12 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Menu, X, ShoppingBag, Heart } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import logoLight from "../../assets/logo-light-transparent.webp"
 
 const navLinks = [
     { label: 'Silver Pens', href: '/products?category=silver-pens' },
     { label: 'Silver Phone Covers', href: '/products?category=silver-phone-covers' },
+    { label: 'Customize', href: '/customize' },
+    { label: 'Craftsmanship', href: '/craftsmanship' },
+    { label: 'About', href: '/about' },
     { label: 'Track Order', href: '/track-order' },
     { label: 'Corporate', href: '/corporate' },
+    { label: 'Contact', href: '/contact' },
 ];
 
 export function Navbar() {
@@ -51,27 +55,6 @@ export function Navbar() {
                             ))}
                         </div>
 
-                        {/* Desktop Actions - Wishlist & Cart */}
-                        <div className="hidden md:flex items-center gap-2">
-                            {/* Wishlist */}
-                            <button
-                                className="relative w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                                aria-label="Wishlist"
-                            >
-                                <Heart className="w-5 h-5" />
-                            </button>
-                            {/* Cart */}
-                            <button
-                                className="relative w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                                aria-label="Shopping Cart"
-                            >
-                                <ShoppingBag className="w-5 h-5" />
-                                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-charcoal text-pearl text-xs flex items-center justify-center font-body">
-                                    0
-                                </span>
-                            </button>
-                        </div>
-
                         {/* Mobile Menu Button */}
                         <button
                             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
@@ -106,27 +89,6 @@ export function Navbar() {
                                     {link.label}
                                 </a>
                             ))}
-                        </div>
-
-                        {/* Mobile Actions */}
-                        <div className="flex items-center gap-2 pt-4 border-t border-charcoal/10">
-                            {/* Wishlist */}
-                            <button
-                                className="w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                                aria-label="Wishlist"
-                            >
-                                <Heart className="w-5 h-5" />
-                            </button>
-                            {/* Cart */}
-                            <button
-                                className="relative w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                                aria-label="Shopping Cart"
-                            >
-                                <ShoppingBag className="w-5 h-5" />
-                                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-charcoal text-pearl text-xs flex items-center justify-center font-body">
-                                    0
-                                </span>
-                            </button>
                         </div>
                     </div>
                 </div>

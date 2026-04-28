@@ -2,8 +2,9 @@ import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { X, Truck, CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../common';
-import type { Product } from '../../data/products';
+import type { Product } from '../../api/products';
 import { useRazorpay, type CustomerInfo, type ShippingAddress } from '../../hooks/useRazorpay';
+import { placeCodOrder } from '../../api/orders';
 import './CheckoutModal.css';
 
 const INDIAN_STATES = [
@@ -41,8 +42,12 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
 
     // Validation
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+    const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
+    const [codError, setCodError] = useState<string | null>(null);
+    const [isPlacingCodOrder, setIsPlacingCodOrder] = useState(false);
 
     const { initiatePayment, isLoading, error: paymentError, clearError } = useRazorpay();
+    const onlinePaymentsEnabled = import.meta.env.VITE_ENABLE_ONLINE_PAYMENTS === 'true';
 
     // Close on Escape key
     useEffect(() => {
@@ -69,7 +74,9 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
     useEffect(() => {
         if (isOpen) {
             clearError();
+            setCodError(null);
             setFormErrors({});
+            setPaymentMethod('cod');
         }
     }, [isOpen, clearError]);
 
@@ -100,7 +107,7 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
         return Object.keys(errors).length === 0;
     };
 
-    const handleSubmit = (e: FormEvent) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
         if (!validateForm()) return;
 
@@ -113,6 +120,38 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
             pincode: pincode.trim(),
         };
 
+        if (paymentMethod === 'cod') {
+            setIsPlacingCodOrder(true);
+            setCodError(null);
+
+            try {
+                const response = await placeCodOrder({
+                    items: [{ sku: product.sku, quantity }],
+                    customer: customerInfo,
+                    shipping_address: {
+                        ...shippingAddress,
+                        country: 'India',
+                    },
+                });
+
+                onClose();
+                const params = new URLSearchParams({
+                    order_id: response.data.order_id,
+                    product: product.name,
+                    amount: String(response.data.total_amount / 100),
+                    method: 'cod',
+                    invoice: response.data.invoice_number || '',
+                });
+                navigate(`/order-success?${params.toString()}`);
+            } catch (error) {
+                const message = error instanceof Error ? error.message : 'Unable to place COD order.';
+                setCodError(message);
+            } finally {
+                setIsPlacingCodOrder(false);
+            }
+            return;
+        }
+
         initiatePayment({
             product,
             quantity,
@@ -122,8 +161,9 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
                 onClose();
                 const params = new URLSearchParams({
                     payment_id: response.razorpay_payment_id || '',
-                    product: encodeURIComponent(product.name),
+                    product: product.name,
                     amount: String(product.price * quantity),
+                    method: 'online',
                 });
                 navigate(`/order-success?${params.toString()}`);
             },
@@ -203,12 +243,47 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
                     {/* Form Fields */}
                     <div className="px-6 py-5 space-y-5 overflow-y-auto checkout-form-scroll">
                         {/* Error Banner */}
-                        {paymentError && (
+                        {(paymentError || codError) && (
                             <div className="flex items-start gap-3 p-3 bg-error/10 border border-error/20 rounded-xl">
                                 <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-                                <p className="font-body text-sm text-error">{paymentError}</p>
+                                <p className="font-body text-sm text-error">{paymentError || codError}</p>
                             </div>
                         )}
+
+                        <fieldset className="space-y-3">
+                            <legend className="font-heading text-sm font-semibold text-charcoal mb-1">
+                                Payment Method
+                            </legend>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setPaymentMethod('cod')}
+                                    className={`text-left rounded-xl border px-4 py-3 transition-colors ${paymentMethod === 'cod'
+                                        ? 'border-charcoal bg-charcoal text-white'
+                                        : 'border-charcoal/15 bg-white text-charcoal hover:bg-charcoal/5'
+                                        }`}
+                                >
+                                    <span className="block font-body text-sm font-semibold">Cash on Delivery</span>
+                                    <span className={`block font-body text-xs mt-1 ${paymentMethod === 'cod' ? 'text-white/70' : 'text-charcoal/50'}`}>
+                                        Pay when your order is delivered
+                                    </span>
+                                </button>
+                                <button
+                                    type="button"
+                                    disabled={!onlinePaymentsEnabled}
+                                    onClick={() => onlinePaymentsEnabled && setPaymentMethod('online')}
+                                    className={`text-left rounded-xl border px-4 py-3 transition-colors disabled:cursor-not-allowed ${paymentMethod === 'online'
+                                        ? 'border-charcoal bg-charcoal text-white'
+                                        : 'border-charcoal/15 bg-white text-charcoal hover:bg-charcoal/5 disabled:opacity-50'
+                                        }`}
+                                >
+                                    <span className="block font-body text-sm font-semibold">Online Payment</span>
+                                    <span className={`block font-body text-xs mt-1 ${paymentMethod === 'online' ? 'text-white/70' : 'text-charcoal/50'}`}>
+                                        {onlinePaymentsEnabled ? 'Pay securely with Razorpay' : 'Coming soon after Razorpay approval'}
+                                    </span>
+                                </button>
+                            </div>
+                        </fieldset>
 
                         {/* Customer Info */}
                         <fieldset className="space-y-3">
@@ -346,20 +421,28 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
                             variant="primary"
                             size="lg"
                             fullWidth
-                            disabled={isLoading}
+                            disabled={isLoading || isPlacingCodOrder}
                             icon={
-                                isLoading ? (
+                                isLoading || isPlacingCodOrder ? (
                                     <Loader2 className="w-5 h-5 animate-spin" />
+                                ) : paymentMethod === 'cod' ? (
+                                    <Truck className="w-5 h-5" />
                                 ) : (
                                     <CreditCard className="w-5 h-5" />
                                 )
                             }
                             iconPosition="left"
                         >
-                            {isLoading ? 'Processing...' : `Pay ${formatPrice(totalPrice)}`}
+                            {isLoading || isPlacingCodOrder
+                                ? 'Processing...'
+                                : paymentMethod === 'cod'
+                                    ? `Place COD Order ${formatPrice(totalPrice)}`
+                                    : `Pay ${formatPrice(totalPrice)}`}
                         </Button>
                         <p className="font-body text-xs text-charcoal/40 text-center mt-2">
-                            Secured by Razorpay · 256-bit SSL Encryption
+                            {paymentMethod === 'cod'
+                                ? 'No online payment required today'
+                                : 'Secured by Razorpay · 256-bit SSL Encryption'}
                         </p>
                     </div>
                 </form>

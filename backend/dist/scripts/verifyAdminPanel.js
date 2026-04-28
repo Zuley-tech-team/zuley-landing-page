@@ -33,9 +33,9 @@ function verifyAdminPanel() {
             }
             console.log("✅ Admin found:", admin.email);
             // 2. Test Password Logic
-            const isMatch = yield admin.comparePassword("securepassword123"); // Password used in previous step
+            const isMatch = yield admin.comparePassword("Zuley@1770"); // Default password from createAdmin script
             if (!isMatch) {
-                console.warn("⚠️ Password verification failed. Did you use 'securepassword123'?");
+                console.warn("⚠️ Password verification failed. Update verifyAdminPanel.ts if you are using a custom admin password.");
                 // Don't fail script, just warn, as manual run might have used different password
             }
             else {

@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShippingService = void 0;
 const shipping_model_1 = require("../models/shipping.model");
 const order_model_1 = require("../models/order.model");
+const payment_model_1 = require("../models/payment.model");
 const email_service_1 = require("./email.service");
 class ShippingService {
     /**
@@ -179,6 +180,13 @@ class ShippingService {
             yield shipment.save();
             // Update Order
             order.status = 'delivered';
+            if (order.payment_method === 'cod') {
+                order.payment_status = 'cod_collected';
+                yield payment_model_1.Payment.findByIdAndUpdate(order.payment_id, {
+                    status: 'cod_collected',
+                    collected_at: new Date()
+                });
+            }
             if (!order.shipping_details) {
                 order.shipping_details = {};
             }

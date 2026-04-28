@@ -4,6 +4,13 @@ import { env } from "../../config/env.config";
 
 export const createOrder = async (req: Request, res: Response) => {
     try {
+        if (!env.ENABLE_ONLINE_PAYMENTS) {
+            return res.status(503).json({
+                success: false,
+                message: "Online payments are temporarily disabled. Please use Cash on Delivery.",
+            });
+        }
+
         const { amount, currency, receipt, notes } = req.body;
 
         // Basic Validation

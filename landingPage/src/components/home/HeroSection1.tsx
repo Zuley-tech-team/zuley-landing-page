@@ -13,7 +13,7 @@ const heroBackgrounds = [
     {
         id: 2,
         image: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?w=1200&q=85',
-        alt: 'Luxury silver keychain with personal message',
+        alt: 'Luxury silver pen with personal message',
     },
     {
         id: 3,
@@ -25,6 +25,14 @@ const heroBackgrounds = [
 export function HeroSection1() {
     const sectionRef = useRef<HTMLElement>(null);
     const [currentBg, setCurrentBg] = useState(0);
+
+    const goToShop = () => {
+        window.location.href = '/products?category=silver-pens';
+    };
+
+    const goToCustomize = () => {
+        window.location.href = '/customize';
+    };
 
     // Background crossfade
     useEffect(() => {
@@ -97,13 +105,13 @@ export function HeroSection1() {
 
                             {/* Headline */}
                             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-pearl leading-tight mb-3 md:mb-4">
-                                Personalized Silver for{' '}
-                                <span className="text-primary-light">Everyday Elegance</span>
+                                Everyday Silver.{' '}
+                                <span className="text-primary-light">Made Personal.</span>
                             </h1>
 
                             {/* Sub-headline */}
                             <p className="font-body text-sm sm:text-base md:text-lg text-pearl/75 leading-relaxed mb-5 md:mb-6 max-w-lg">
-                                Premium engraved pens, keychains & accessories crafted in sterling silver.
+                                Premium personalized silver pens and accessories for meaningful gifting and modern professionals.
                             </p>
 
                             {/* CTA buttons */}
@@ -113,8 +121,9 @@ export function HeroSection1() {
                                     size="md"
                                     icon={<ArrowRight className="w-4 h-4" />}
                                     className="bg-charcoal text-charcoal hover:bg-primary-light text-sm"
+                                    onClick={goToShop}
                                 >
-                                    Explore Collection
+                                    Shop Silver Pens
                                 </Button>
                                 <Button
                                     variant="ghost"
@@ -122,8 +131,9 @@ export function HeroSection1() {
                                     icon={<Sparkles className="w-4 h-4" />}
                                     iconPosition="left"
                                     className="text-pearl/90 border-pearl/30 hover:bg-white/10 text-sm"
+                                    onClick={goToCustomize}
                                 >
-                                    Personalize
+                                    Customize Your Gift
                                 </Button>
                             </div>
                         </div>

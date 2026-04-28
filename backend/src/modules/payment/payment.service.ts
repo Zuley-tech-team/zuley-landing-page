@@ -9,11 +9,20 @@ import { reserveStock } from "../inventory/inventory.service";
 import { InvoiceService } from "../../services/invoice.service";
 import { EmailService } from "../../services/email.service";
 
-// Initialize Razorpay
-const razorpay = new Razorpay({
-    key_id: env.RAZORPAY_KEY_ID,
-    key_secret: env.RAZORPAY_KEY_SECRET,
-});
+const getRazorpayClient = () => {
+    if (!env.ENABLE_ONLINE_PAYMENTS) {
+        throw new Error("Online payments are disabled");
+    }
+
+    if (!env.RAZORPAY_KEY_ID || !env.RAZORPAY_KEY_SECRET) {
+        throw new Error("Razorpay credentials are not configured");
+    }
+
+    return new Razorpay({
+        key_id: env.RAZORPAY_KEY_ID,
+        key_secret: env.RAZORPAY_KEY_SECRET,
+    });
+};
 
 export const createPaymentOrder = async (
     amount: number,
@@ -29,6 +38,7 @@ export const createPaymentOrder = async (
     };
 
     try {
+        const razorpay = getRazorpayClient();
         const order = await razorpay.orders.create(options);
         return order;
     } catch (error) {
@@ -41,6 +51,10 @@ export const verifyWebhookSignature = (
     body: string,
     signature: string
 ): boolean => {
+    if (!env.ENABLE_ONLINE_PAYMENTS || !env.RAZORPAY_WEBHOOK_SECRET) {
+        return false;
+    }
+
     const generatedSignature = crypto
         .createHmac("sha256", env.RAZORPAY_WEBHOOK_SECRET)
         .update(body)
@@ -92,6 +106,7 @@ export const processWebhookEvent = async (event: any) => {
             currency,
             status,
             method,
+            payment_method: "razorpay",
             gateway_response: payload,
         });
         await payment.save();
@@ -223,6 +238,8 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
         total_amount: payment.amount,
         items_count: items.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0),
         status: "paid", // It's captured on payment.captured
+        payment_method: "razorpay",
+        payment_status: "captured",
         payment_id: payment._id,
         shipping_address: shippingAddress,
         shipping_details: {},
@@ -301,7 +318,7 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
                 orderId: newOrder.order_id,
                 customerName: customerDoc.full_name,
                 invoiceNumber: invoice.invoiceNumber,
-                amount: newOrder.total_amount / 100,
+                amount: invoice.totalAmount,
                 pdfPath: invoice.pdfPath,
             }
         );

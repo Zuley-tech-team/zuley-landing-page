@@ -21,7 +21,7 @@ function createAdmin() {
             yield mongoose_1.default.connect(env_config_1.env.MONGO_URI);
             console.log("Connected to MongoDB");
             const email = process.argv[2] || "admin@zuley.in";
-            const password = process.argv[3] || "admin123";
+            const password = process.argv[3] || "Zuley@1770";
             const name = process.argv[4] || "Admin User";
             console.log(`Creating admin: ${email}`);
             const existingAdmin = yield admin_model_1.Admin.findOne({ email });

@@ -101,6 +101,7 @@ export function CraftsmanshipSection() {
     return (
         <section
             ref={sectionRef}
+            id="craftsmanship"
             className="py-16 md:py-24 lg:py-32 bg-charcoal text-pearl overflow-hidden"
         >
             {/* Hero Video/Image Section */}

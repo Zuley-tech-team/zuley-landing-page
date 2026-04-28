@@ -1,8 +1,39 @@
 import { Router } from "express";
 import { Order } from "../../models/order.model";
 import { Shipping } from "../../models/shipping.model";
+import { createCodOrder } from "../../services/order-placement.service";
+import { publicRateLimit } from "../../middlewares/publicRateLimit";
 
 const router = Router();
+
+/**
+ * Public COD Checkout Endpoint
+ * POST /api/v1/orders/cod
+ */
+router.post("/cod", publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 5 }), async (req, res) => {
+    try {
+        const result = await createCodOrder(req.body);
+
+        return res.status(201).json({
+            success: true,
+            message: "Cash on Delivery order placed successfully",
+            data: {
+                order_id: result.order.order_id,
+                status: result.order.status,
+                payment_method: result.order.payment_method,
+                payment_status: result.order.payment_status,
+                total_amount: result.order.total_amount,
+                invoice_number: result.invoice?.invoiceNumber || null,
+            },
+        });
+    } catch (error: any) {
+        const statusCode = error.statusCode || 400;
+        return res.status(statusCode).json({
+            success: false,
+            message: error.message || "Failed to place COD order",
+        });
+    }
+});
 
 /**
  * Public Order Tracking Endpoint
@@ -48,6 +79,8 @@ router.get("/:orderId/track", async (req, res) => {
             data: {
                 order_id: order.order_id,
                 status: order.status,
+                payment_method: order.payment_method,
+                payment_status: order.payment_status,
                 items: order.items.map((item: any) => ({
                     name: item.name,
                     quantity: item.quantity,
