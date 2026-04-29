@@ -71,7 +71,7 @@ export function Footer() {
                         <div className="text-center lg:text-left">
                             <div className="flex items-center justify-center lg:justify-start gap-3 mb-6">
                                 <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center">
-                                    <span className="font-heading text-2xl font-bold text-charcoal">A</span>
+                                    <span className="font-heading text-2xl font-bold text-charcoal">Z</span>
                                 </div>
                                 <span className="font-heading text-3xl font-bold text-pearl">Zuley</span>
                             </div>
