@@ -1,0 +1,119 @@
+/* ============================================
+   CART DRAWER — Overlay + Slide-in Animation
+   ============================================ */
+
+.cart-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+  background-color: rgba(28, 30, 35, 0.45);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: cart-fade-in 0.3s ease-out;
+}
+
+.cart-overlay.closing {
+  animation: cart-fade-out 0.3s ease-in forwards;
+}
+
+.cart-drawer {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  height: 100dvh;
+  background-color: #fff;
+  display: flex;
+  flex-direction: column;
+  box-shadow: -12px 0 40px rgba(0, 0, 0, 0.12);
+  animation: cart-slide-in 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cart-drawer.closing {
+  animation: cart-slide-out 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* On smaller screens, make it full-width */
+@media (max-width: 540px) {
+  .cart-drawer {
+    max-width: 100%;
+    border-radius: 0;
+  }
+}
+
+/* On larger screens, round the top-left and top-right corners */
+@media (min-width: 541px) {
+  .cart-drawer {
+    border-radius: 1.5rem 0 0 1.5rem;
+  }
+}
+
+/* ─── Cart content scroll area ─── */
+.cart-content-scroll {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for cart items */
+.cart-content-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+
+.cart-content-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cart-content-scroll::-webkit-scrollbar-thumb {
+  background: rgba(28, 30, 35, 0.15);
+  border-radius: 999px;
+}
+
+.cart-content-scroll::-webkit-scrollbar-thumb:hover {
+  background: rgba(28, 30, 35, 0.25);
+}
+
+/* ─── Animations ─── */
+
+/* Fade in overlay background */
+@keyframes cart-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Fade out overlay background */
+@keyframes cart-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* Slide drawer in from the right */
+@keyframes cart-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Slide drawer out to the right */
+@keyframes cart-slide-out {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}

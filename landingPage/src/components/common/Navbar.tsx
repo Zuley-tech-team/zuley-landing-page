@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ShoppingCart } from 'lucide-react';
 import logoLight from "../../assets/logo-light-transparent.webp"
+import { useCart } from '../../contexts/CartContext';
+import { CartDrawer } from '../cart';
 
 const navLinks = [
     { label: 'Silver Pens', href: '/products?category=silver-pens' },
@@ -14,6 +16,7 @@ const navLinks = [
 export function Navbar() {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const { cartCount, setIsCartOpen } = useCart();
 
     useEffect(() => {
         const handleScroll = () => {
@@ -51,19 +54,45 @@ export function Navbar() {
                                     <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-charcoal transition-all duration-300 group-hover:w-full" />
                                 </a>
                             ))}
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="relative p-2 text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 rounded-full transition-colors ml-4"
+                                aria-label="Cart"
+                            >
+                                <ShoppingCart className="w-5 h-5" />
+                                {cartCount > 0 && (
+                                    <span className="absolute top-0 right-0 w-4 h-4 bg-charcoal text-pearl text-[10px] font-bold rounded-full flex items-center justify-center">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
                         </div>
 
-                        {/* Mobile Menu Button */}
-                        <button
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                            className="md:hidden w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
-                        >
-                            {isMobileMenuOpen ? (
-                                <X className="w-6 h-6" />
-                            ) : (
-                                <Menu className="w-6 h-6" />
-                            )}
-                        </button>
+                        {/* Mobile Menu Button & Cart */}
+                        <div className="md:hidden flex items-center gap-2">
+                            <button
+                                onClick={() => setIsCartOpen(true)}
+                                className="relative p-2 text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 rounded-full transition-colors"
+                                aria-label="Cart"
+                            >
+                                <ShoppingCart className="w-5 h-5" />
+                                {cartCount > 0 && (
+                                    <span className="absolute top-0 right-0 w-4 h-4 bg-charcoal text-pearl text-[10px] font-bold rounded-full flex items-center justify-center">
+                                        {cartCount}
+                                    </span>
+                                )}
+                            </button>
+                            <button
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                                className="w-10 h-10 rounded-full flex items-center justify-center text-charcoal/70 hover:text-charcoal hover:bg-charcoal/5 transition-colors"
+                            >
+                                {isMobileMenuOpen ? (
+                                    <X className="w-6 h-6" />
+                                ) : (
+                                    <Menu className="w-6 h-6" />
+                                )}
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -94,6 +123,8 @@ export function Navbar() {
 
             {/* Spacer for fixed navbar */}
             <div className="h-0" />
+
+            <CartDrawer />
         </>
     );
 }

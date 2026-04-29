@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Navbar } from '../components/common';
 import { Footer } from '../components/home';
 import { ProductsGrid } from '../components/products';
+import { useCart } from '../contexts/CartContext';
 import { CheckoutModal } from '../components/checkout';
 import { fetchProductBySku, fetchRelatedProducts, type Product } from '../api/products';
 import { ChevronRight, Check, ShoppingCart, ArrowLeft, Loader2, Star, X } from 'lucide-react';
@@ -37,8 +38,10 @@ export function ProductDetailPage() {
     const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const [showCheckout, setShowCheckout] = useState(false);
     const [showLightbox, setShowLightbox] = useState(false);
+    const [quantity] = useState(1);
     const { inStock, lowStock } = useStockStatus(product?.sku || '');
     const { showToast } = useToast();
+    const { addToCart } = useCart();
 
     useEffect(() => {
         let cancelled = false;
@@ -345,9 +348,10 @@ export function ProductDetailPage() {
                                         icon={<ShoppingCart className="w-5 h-5" />}
                                         iconPosition="left"
                                         className="flex-1"
-                                        onClick={() =>
-                                            showToast('Cart is currently disabled. Use Buy Now to checkout instantly.', 'info')
-                                        }
+                                        onClick={() => {
+                                            addToCart(product, quantity);
+                                            showToast('Item added to cart.', 'success');
+                                        }}
                                         disabled={!inStock}
                                     >
                                         Add to Cart
@@ -465,9 +469,10 @@ export function ProductDetailPage() {
 
                 {/* Checkout Modal */}
                 <CheckoutModal
-                    product={product}
+                    items={product ? [{ product, quantity }] : []}
                     isOpen={showCheckout}
                     onClose={() => setShowCheckout(false)}
+                    onSuccess={undefined}
                 />
 
                 {showLightbox && (

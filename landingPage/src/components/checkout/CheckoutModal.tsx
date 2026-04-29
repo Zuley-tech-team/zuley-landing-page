@@ -17,15 +17,14 @@ const INDIAN_STATES = [
 ];
 
 interface CheckoutModalProps {
-    product: Product;
+    items: { product: Product; quantity: number }[];
     isOpen: boolean;
     onClose: () => void;
+    onSuccess?: () => void;
 }
 
-
-export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) {
+export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutModalProps) {
     const navigate = useNavigate();
-    const [quantity, setQuantity] = useState(1);
     const modalRef = useRef<HTMLDivElement>(null);
 
     // Customer info
@@ -126,7 +125,7 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
 
             try {
                 const response = await placeCodOrder({
-                    items: [{ sku: product.sku, quantity }],
+                    items: items.map(item => ({ sku: item.product.sku, quantity: item.quantity })),
                     customer: customerInfo,
                     shipping_address: {
                         ...shippingAddress,
@@ -135,9 +134,11 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
                 });
 
                 onClose();
+                if (onSuccess) onSuccess();
+                const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
                 const params = new URLSearchParams({
                     order_id: response.data.order_id,
-                    product: product.name,
+                    product: productName,
                     amount: String(response.data.total_amount / 100),
                     method: 'cod',
                     invoice: response.data.invoice_number || '',
@@ -153,16 +154,17 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
         }
 
         initiatePayment({
-            product,
-            quantity,
+            items,
             customerInfo,
             shippingAddress,
             onSuccess: (response) => {
                 onClose();
+                if (onSuccess) onSuccess();
+                const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
                 const params = new URLSearchParams({
                     payment_id: response.razorpay_payment_id || '',
-                    product: product.name,
-                    amount: String(product.price * quantity),
+                    product: productName,
+                    amount: String(items.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0)),
                     method: 'online',
                 });
                 navigate(`/order-success?${params.toString()}`);
@@ -173,9 +175,9 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
         });
     };
 
-    if (!isOpen) return null;
+    if (!isOpen || items.length === 0) return null;
 
-    const totalPrice = product.price * quantity;
+    const totalPrice = items.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0);
 
     return (
         <div className="checkout-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -198,45 +200,21 @@ export function CheckoutModal({ product, isOpen, onClose }: CheckoutModalProps) 
                 <form onSubmit={handleSubmit} className="checkout-form-body">
                     {/* Order Summary */}
                     <div className="px-6 py-4 bg-pearl/80 border-b border-charcoal/10">
-                        <div className="flex gap-4 items-center">
-                            <img
-                                src={product.image}
-                                alt={product.name}
-                                className="w-16 h-16 rounded-xl object-cover shadow-soft"
-                            />
-                            <div className="flex-1 min-w-0">
-                                <h3 className="font-heading text-sm font-semibold text-charcoal truncate">
-                                    {product.name}
-                                </h3>
-                                <p className="font-body text-xs text-charcoal/50">{product.categoryLabel}</p>
-                            </div>
-                            <div className="text-right">
-                                <p className="font-heading text-lg font-bold text-charcoal">
-                                    {formatPrice(totalPrice)}
-                                </p>
-                            </div>
-                        </div>
-
-                        {/* Quantity */}
-                        <div className="flex items-center justify-between mt-3 pt-3 border-t border-charcoal/5">
-                            <span className="font-body text-sm text-charcoal/60">Quantity</span>
-                            <div className="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                    className="w-8 h-8 rounded-lg border border-charcoal/20 flex items-center justify-center hover:bg-charcoal/5 transition-colors cursor-pointer text-charcoal"
-                                >
-                                    −
-                                </button>
-                                <span className="font-body font-medium text-charcoal w-8 text-center">{quantity}</span>
-                                <button
-                                    type="button"
-                                    onClick={() => setQuantity(quantity + 1)}
-                                    className="w-8 h-8 rounded-lg border border-charcoal/20 flex items-center justify-center hover:bg-charcoal/5 transition-colors cursor-pointer text-charcoal"
-                                >
-                                    +
-                                </button>
-                            </div>
+                        <div className="flex flex-col gap-4">
+                            {items.map((item) => (
+                                <div key={item.product.sku} className="flex gap-4">
+                                    <div className="w-16 h-16 rounded-xl bg-white border border-charcoal/10 overflow-hidden flex-shrink-0">
+                                        <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="font-heading font-semibold text-charcoal truncate">{item.product.name}</h3>
+                                        <p className="font-body text-sm text-charcoal/60 mt-1">Qty: {item.quantity}</p>
+                                    </div>
+                                    <div className="text-right">
+                                        <p className="font-heading font-semibold text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     </div>
 

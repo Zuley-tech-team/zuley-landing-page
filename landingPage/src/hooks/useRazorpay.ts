@@ -23,8 +23,7 @@ export interface ShippingAddress {
 }
 
 interface UseRazorpayParams {
-    product: Product;
-    quantity: number;
+    items: { product: Product; quantity: number }[];
     customerInfo: CustomerInfo;
     shippingAddress: ShippingAddress;
     onSuccess: (response: any) => void;
@@ -37,8 +36,7 @@ export function useRazorpay() {
 
     const initiatePayment = useCallback(
         async ({
-            product,
-            quantity,
+            items,
             customerInfo,
             shippingAddress,
             onSuccess,
@@ -49,25 +47,23 @@ export function useRazorpay() {
 
             try {
                 // Prepare item data that the backend webhook will parse from notes
-                const items = [
-                    {
-                        sku: product.sku,
-                        name: product.name,
-                        price: product.price * 100, // paise
-                        quantity,
-                        total_price: product.price * quantity * 100,
-                    },
-                ];
+                const backendItems = items.map(item => ({
+                    sku: item.product.sku,
+                    name: item.product.name,
+                    price: item.product.price * 100, // paise
+                    quantity: item.quantity,
+                    total_price: item.product.price * item.quantity * 100,
+                }));
 
-                const totalAmountPaise = product.price * quantity * 100;
+                const totalAmountPaise = backendItems.reduce((acc, curr) => acc + curr.total_price, 0);
 
                 // Create order via backend
                 const orderData = await createPaymentOrder({
                     amount: totalAmountPaise,
                     currency: 'INR',
-                    receipt: `rcpt_${product.sku}_${Date.now()}`,
+                    receipt: `rcpt_${Date.now()}`,
                     notes: {
-                        items: JSON.stringify(items),
+                        items: JSON.stringify(backendItems),
                         customer_name: customerInfo.name,
                         customer_email: customerInfo.email,
                         customer_phone: customerInfo.phone,
@@ -83,12 +79,16 @@ export function useRazorpay() {
                 });
 
                 // Open Razorpay checkout
+                const description = backendItems.length === 1 
+                    ? `${backendItems[0].name}${backendItems[0].quantity > 1 ? ` × ${backendItems[0].quantity}` : ''}` 
+                    : `${backendItems.length} items`;
+                    
                 const options = {
                     key: orderData.key_id,
                     amount: orderData.amount,
                     currency: orderData.currency,
                     name: 'Zuley',
-                    description: `${product.name}${quantity > 1 ? ` × ${quantity}` : ''}`,
+                    description,
                     order_id: orderData.order_id,
                     prefill: {
                         name: customerInfo.name,
