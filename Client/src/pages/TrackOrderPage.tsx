@@ -179,7 +179,7 @@ export function TrackOrderPage() {
                                 <div className="mt-4 pt-4 border-t border-charcoal/10">
                                     <p className="font-body text-xs text-charcoal/50 mb-1">Delivering to</p>
                                     <p className="font-body text-sm text-charcoal">
-                                        {orderData.shipping_address.city}, {orderData.shipping_address.state} — {orderData.shipping_address.pincode}
+                                        {orderData.shipping_address.city}, {orderData.shipping_address.state} - {orderData.shipping_address.pincode}
                                     </p>
                                 </div>
                             </div>
@@ -191,6 +191,7 @@ export function TrackOrderPage() {
                                 </h2>
                                 <OrderTimeline
                                     currentStatus={orderData.status}
+                                    paymentMethod={orderData.payment_method}
                                     history={orderData.history}
                                 />
                             </div>

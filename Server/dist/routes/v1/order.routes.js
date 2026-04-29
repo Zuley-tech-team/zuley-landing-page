@@ -8,10 +8,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const fs_1 = __importDefault(require("fs"));
 const order_model_1 = require("../../models/order.model");
 const shipping_model_1 = require("../../models/shipping.model");
+const invoice_model_1 = require("../../models/invoice.model");
 const order_placement_service_1 = require("../../services/order-placement.service");
 const publicRateLimit_1 = require("../../middlewares/publicRateLimit");
 const router = (0, express_1.Router)();
@@ -41,6 +46,48 @@ router.post("/cod", (0, publicRateLimit_1.publicRateLimit)({ windowMs: 15 * 60 *
         return res.status(statusCode).json({
             success: false,
             message: error.message || "Failed to place COD order",
+        });
+    }
+}));
+/**
+ * Public Invoice Download Endpoint
+ * GET /api/v1/orders/:orderId/invoice
+ *
+ * Lets customers download the generated invoice from the order success
+ * and tracking pages using their public order ID.
+ */
+router.get("/:orderId/invoice", (0, publicRateLimit_1.publicRateLimit)({ windowMs: 15 * 60 * 1000, maxRequests: 30 }), (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { orderId } = req.params;
+        const invoiceNumber = String(req.query.invoiceNumber || "");
+        const order = yield order_model_1.Order.findOne({ order_id: orderId });
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found. Please check the order ID and try again.",
+            });
+        }
+        const query = {
+            orderId: order._id,
+            status: { $ne: "void" },
+        };
+        if (invoiceNumber) {
+            query.invoiceNumber = invoiceNumber;
+        }
+        const invoice = yield invoice_model_1.Invoice.findOne(query).sort({ createdAt: -1 });
+        if (!invoice || !invoice.pdfPath || !fs_1.default.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice is not available for this order yet.",
+            });
+        }
+        res.download(invoice.pdfPath, `${invoice.invoiceNumber}.pdf`);
+    }
+    catch (error) {
+        console.error("Invoice Download Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to download invoice",
         });
     }
 }));

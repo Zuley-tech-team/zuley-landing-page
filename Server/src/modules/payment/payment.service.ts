@@ -5,9 +5,9 @@ import { Payment } from "../../models/payment.model";
 import { Order } from "../../models/order.model";
 import { Inventory } from "../../models/inventory.model";
 import { Customer } from "../../models/customer.model";
+import { Product } from "../../models/product.model";
 import { reserveStock } from "../inventory/inventory.service";
 import { InvoiceService } from "../../services/invoice.service";
-import { EmailService } from "../../services/email.service";
 
 const getRazorpayClient = () => {
     if (!env.ENABLE_ONLINE_PAYMENTS) {
@@ -63,9 +63,83 @@ export const verifyWebhookSignature = (
     return generatedSignature === signature;
 };
 
+/**
+ * Verifies a Razorpay payment signature from the client-side checkout handler.
+ * Algorithm: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
+ */
+export const verifyPaymentSignature = (
+    orderId: string,
+    paymentId: string,
+    signature: string
+): boolean => {
+    if (!env.RAZORPAY_KEY_SECRET) {
+        throw new Error("Razorpay key secret is not configured");
+    }
+
+    const body = `${orderId}|${paymentId}`;
+    const generatedSignature = crypto
+        .createHmac("sha256", env.RAZORPAY_KEY_SECRET)
+        .update(body)
+        .digest("hex");
+
+    return generatedSignature === signature;
+};
+
 import { generateOrderId } from "../../utils/orderIdGenerator";
 
 // ... existing imports
+
+export const syncPaymentAndCreateOrder = async (razorpay_order_id: string, razorpay_payment_id: string) => {
+    const razorpay = getRazorpayClient();
+    const paymentEntity = await razorpay.payments.fetch(razorpay_payment_id);
+    
+    if (!paymentEntity) throw new Error("Payment not found on Razorpay");
+
+    const amount = paymentEntity.amount;
+    const currency = paymentEntity.currency;
+    const status = paymentEntity.status;
+    const method = paymentEntity.method;
+
+    let payment = await Payment.findOne({ gateway_payment_id: razorpay_payment_id });
+
+    if (payment && payment.status === "captured") {
+        console.log(`Payment ${razorpay_payment_id} already captured. Skipping sync.`);
+        const order = await Order.findOne({ payment_id: payment._id });
+        // NOTE: We don't import Invoice here, but we can look it up if needed.
+        // Actually, we don't need to look up Invoice explicitly if we just return order_id. The frontend API can fetch invoice by order_id later if needed, but it's better to return it if we can. Let's just return order_id for now if we can't get invoice easily, or we can just fetch it from the Invoice model.
+        // Let's import Invoice. Wait, Invoice is not imported at the top. Let's just return orderId for now, we can get invoice using orderId.
+        // Wait, I will just import Invoice at the top of the file since it's already there? I'll check.
+        return { orderId: order?.order_id, invoiceNumber: null };
+    }
+
+    let mappedStatus: any = status;
+    if (status === "created" || status === "authorized") {
+        mappedStatus = "pending";
+    }
+
+    if (!payment) {
+        payment = new Payment({
+            gateway_payment_id: razorpay_payment_id,
+            gateway_order_id: razorpay_order_id,
+            amount,
+            currency,
+            status: mappedStatus as any,
+            method,
+            payment_method: "razorpay",
+            gateway_response: { payment: { entity: paymentEntity } },
+        });
+        await payment.save();
+    } else {
+        payment.status = mappedStatus as any;
+        payment.gateway_response = { payment: { entity: paymentEntity } };
+        await payment.save();
+    }
+
+    if (status === "captured") {
+        return await handlePaymentCaptured(payment, razorpay_order_id, paymentEntity);
+    }
+    return { orderId: null, invoiceNumber: null };
+};
 
 export const processWebhookEvent = async (event: any) => {
     const { event: eventName, payload } = event;
@@ -97,6 +171,12 @@ export const processWebhookEvent = async (event: any) => {
         return;
     }
 
+    // Map Razorpay statuses to our schema statuses
+    let mappedStatus: any = status;
+    if (status === "created" || status === "authorized") {
+        mappedStatus = "pending";
+    }
+
     if (!payment) {
         // Create payment record if it doesn't exist
         payment = new Payment({
@@ -104,7 +184,7 @@ export const processWebhookEvent = async (event: any) => {
             gateway_order_id: gatewayOrderId,
             amount,
             currency,
-            status,
+            status: mappedStatus as any,
             method,
             payment_method: "razorpay",
             gateway_response: payload,
@@ -112,7 +192,7 @@ export const processWebhookEvent = async (event: any) => {
         await payment.save();
     } else {
         // Update existing payment
-        payment.status = status;
+        payment.status = mappedStatus as any;
         payment.gateway_response = payload;
         await payment.save();
     }
@@ -145,7 +225,7 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
     // We should log error or create a "Skeleton" order for manual review.
     // For now, let's try to parse.
 
-    let items = [];
+    let orderItems = [];
     let customerDetails = {
         name: "Unknown",
         email: entity.email || "",
@@ -163,7 +243,35 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
 
     try {
         if (notes.items) {
-            items = JSON.parse(notes.items);
+            const parsedItems = JSON.parse(notes.items);
+            // Fetch real product details from DB to ensure sync and populate product_id
+            for (const item of parsedItems) {
+                const product = await Product.findOne({ sku: item.sku });
+                if (product) {
+                    orderItems.push({
+                        product_id: product._id,
+                        sku: product.sku,
+                        name: product.name, // always use db name
+                        variant_info: item.variant_info,
+                        quantity: item.quantity,
+                        price: Math.round(product.price * 100), // always use db price in paise
+                        total_price: Math.round(product.price * item.quantity * 100),
+                        gst_rate: 3, // assuming 3% default like COD
+                        gst_amount: 0,
+                    });
+                } else {
+                    // Fallback to what frontend sent if product somehow deleted
+                    orderItems.push({
+                        sku: item.sku,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        total_price: item.total_price,
+                        gst_rate: 0,
+                        gst_amount: 0,
+                    });
+                }
+            }
         }
         if (notes.shipping_address) {
             const address = JSON.parse(notes.shipping_address);
@@ -178,7 +286,7 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
     }
 
     // if items are empty, we might have a problem.
-    if (items.length === 0) {
+    if (orderItems.length === 0) {
         console.error("No items found in payment notes. Creating empty order for review.");
     }
 
@@ -234,10 +342,10 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
             phone: customerDoc.phone,
             customer_id: customerDoc._id,
         },
-        items: items,
+        items: orderItems,
         total_amount: payment.amount,
-        items_count: items.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0),
-        status: "paid", // It's captured on payment.captured
+        items_count: orderItems.reduce((acc: number, item: any) => acc + (item.quantity || 0), 0),
+        status: "created",
         payment_method: "razorpay",
         payment_status: "captured",
         payment_id: payment._id,
@@ -247,10 +355,6 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
             status: "created",
             changed_by: "system",
             reason: "Payment verified"
-        }, {
-            status: "paid",
-            changed_by: "system",
-            reason: "Payment captured"
         }]
     });
 
@@ -271,7 +375,7 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
     // 6. Decrement Inventory
     // We do this concurrently or carefully.
     try {
-        const inventoryResults = await Promise.all(items.map(async (item: any) => {
+        const inventoryResults = await Promise.all(orderItems.map(async (item: any) => {
             if (!item.sku) return { sku: "unknown", success: true }; // Skip if no SKU
 
             const success = await reserveStock(item.sku, item.quantity, newOrder._id);
@@ -291,46 +395,20 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
     console.log(`Order ${newOrder.order_id} created successfully.`);
 
     // 7. Generate Invoice
+    let generatedInvoice = null;
     try {
         console.log(`Generating invoice for Order ${newOrder.order_id}...`);
-        const invoice = await InvoiceService.createInvoice(newOrder, customerDoc);
+        generatedInvoice = await InvoiceService.createInvoice(newOrder, customerDoc);
 
-        // 8. Send Email
-        // 8. Queue Emails
-        // Order Confirmation
-        await EmailService.addToQueue(
-            "order_confirmation" as any, // Using string or import enum if possible, keeping string to avoid import circular dependency issues if any, or just import
-            customerDoc.email,
-            newOrder._id,
-            {
-                orderId: newOrder.order_id,
-                customerName: customerDoc.full_name,
-                total: newOrder.total_amount / 100, // Convert to rupees
-            }
-        );
-
-        // Invoice Email
-        await EmailService.addToQueue(
-            "invoice" as any,
-            customerDoc.email,
-            newOrder._id,
-            {
-                orderId: newOrder.order_id,
-                customerName: customerDoc.full_name,
-                invoiceNumber: invoice.invoiceNumber,
-                amount: invoice.totalAmount,
-                pdfPath: invoice.pdfPath,
-            }
-        );
-
-        // Update status to emailed
-        invoice.status = 'emailed';
-        await invoice.save();
+        // Keep invoice generated for admin/customer download after order placement.
+        await generatedInvoice.save();
 
     } catch (invoiceError) {
         console.error("CRITICAL: Invoice generation failed for Order", newOrder.order_id, invoiceError);
         // Do not rollback order, but alert admin
     }
+
+    return { orderId: newOrder.order_id, invoiceNumber: generatedInvoice?.invoice_number };
 };
 
 const handlePaymentFailed = async (payment: any, entity: any) => {

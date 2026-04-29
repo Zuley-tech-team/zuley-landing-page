@@ -38,7 +38,7 @@ export function Navbar() {
                     : 'bg-transparent py-5'
                     }`}
             >
-                <div className="max-w-7xl mx-auto px-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
                     <div className="flex items-center justify-between">
                         {/* Logo */}
                         <a href="/" className="flex justify-center items-center flex-shrink-0">
@@ -139,7 +139,7 @@ export function Navbar() {
                         : 'opacity-0 invisible -translate-y-4'
                         }`}
                 >
-                    <div className="max-w-7xl mx-auto px-6 py-6">
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
                         {/* Nav Links */}
                         <div className="space-y-4 mb-6">
                             {navLinks.map((link) => (

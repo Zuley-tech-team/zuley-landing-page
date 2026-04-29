@@ -60,6 +60,7 @@ interface Order {
 
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
     created: { label: 'Placed', color: 'bg-amber-100 text-amber-700', icon: Clock },
+    confirmed: { label: 'Confirmed', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
     paid: { label: 'Paid', color: 'bg-blue-100 text-blue-700', icon: Clock },
     shipped: { label: 'Shipped', color: 'bg-purple-100 text-purple-700', icon: Truck },
     delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700', icon: CheckCircle },
@@ -132,6 +133,38 @@ export function AdminOrdersPage() {
             }
         } catch (error: any) {
             alert(error.message || 'Failed to update order status');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleConfirmOrder = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.confirmOrder(orderId, note);
+            loadOrders(pagination.current);
+            if (selectedOrder?.order_id === orderId) {
+                const response = await adminAPI.getOrder(orderId);
+                setSelectedOrder(response.data);
+            }
+        } catch (error: any) {
+            alert(error.message || 'Failed to confirm order');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleMarkCodPaid = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.markCodPaymentCollected(orderId, note);
+            loadOrders(pagination.current);
+            if (selectedOrder?.order_id === orderId) {
+                const response = await adminAPI.getOrder(orderId);
+                setSelectedOrder(response.data);
+            }
+        } catch (error: any) {
+            alert(error.message || 'Failed to mark COD payment as paid');
         } finally {
             setIsUpdating(false);
         }
@@ -235,6 +268,7 @@ export function AdminOrdersPage() {
                     >
                         <option value="All">All Status</option>
                         <option value="created">Placed</option>
+                        <option value="confirmed">Confirmed</option>
                         <option value="paid">Paid</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
@@ -372,6 +406,8 @@ export function AdminOrdersPage() {
                 <OrderDetailModal
                     order={selectedOrder}
                     onClose={() => setSelectedOrder(null)}
+                    onConfirmOrder={handleConfirmOrder}
+                    onMarkCodPaid={handleMarkCodPaid}
                     onUpdateStatus={handleUpdateStatus}
                     onShipOrder={handleShipOrder}
                     onMarkDelivered={handleMarkDelivered}
@@ -385,13 +421,15 @@ export function AdminOrdersPage() {
 interface OrderDetailModalProps {
     order: Order;
     onClose: () => void;
+    onConfirmOrder: (orderId: string, note?: string) => void;
+    onMarkCodPaid: (orderId: string, note?: string) => void;
     onUpdateStatus: (orderId: string, status: string, note?: string) => void;
     onShipOrder: (orderId: string, courierName: string, trackingNumber: string, trackingUrl?: string, notes?: string) => void;
     onMarkDelivered: (orderId: string, notes?: string) => void;
     isUpdating: boolean;
 }
 
-function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkDelivered, isUpdating }: OrderDetailModalProps) {
+function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpdateStatus, onShipOrder, onMarkDelivered, isUpdating }: OrderDetailModalProps) {
     const [newStatus, setNewStatus] = useState(order.status);
     const [statusNote, setStatusNote] = useState('');
     const [courierName, setCourierName] = useState(order.shipping_details?.courier_name || '');
@@ -438,6 +476,14 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkD
         );
     };
 
+    const handleConfirmOrder = () => {
+        onConfirmOrder(order.order_id, statusNote.trim() || 'Order confirmed by admin');
+    };
+
+    const handleRejectOrder = () => {
+        onUpdateStatus(order.order_id, 'cancelled', statusNote.trim() || 'Order not confirmed by admin');
+    };
+
     const config = statusConfig[order.status] || {
         label: order.status,
         color: 'bg-gray-100 text-gray-700',
@@ -449,7 +495,7 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkD
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
-                <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 bg-white">
+                <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 z-30 bg-white shadow-sm">
                     <div>
                         <h2 className="font-heading text-xl font-bold text-gray-900">
                             Order {order.order_id}
@@ -483,7 +529,7 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkD
 	                                className="px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-charcoal focus:border-transparent"
 	                            >
 	                                <option value="created">Placed</option>
-	                                <option value="paid">Paid</option>
+                                <option value="confirmed">Confirmed</option>
 	                                <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
                                 <option value="cancelled">Cancelled</option>
@@ -507,6 +553,28 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkD
 	                            </a>
 	                        </div>
                     </div>
+
+                    {order.status === 'created' && (
+                        <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
+                            <p className="text-sm text-amber-800 mr-2">Admin action required for this newly placed order.</p>
+                            <button
+                                onClick={handleConfirmOrder}
+                                disabled={isUpdating}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50"
+                            >
+                                <CheckCircle className="w-4 h-4" />
+                                Confirm Order
+                            </button>
+                            <button
+                                onClick={handleRejectOrder}
+                                disabled={isUpdating}
+                                className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50"
+                            >
+                                <XCircle className="w-4 h-4" />
+                                Not Confirm
+                            </button>
+                        </div>
+                    )}
 
                     {/* Customer Details */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -543,6 +611,18 @@ function OrderDetailModal({ order, onClose, onUpdateStatus, onShipOrder, onMarkD
 	                                <p><span className="text-gray-500">Status:</span> {order.payment_status || order.status}</p>
 	                                <p><span className="text-gray-500">Invoice:</span> {order.invoice?.invoiceNumber || 'Generated on download'}</p>
 	                            </div>
+                                {order.payment_method === 'cod' && order.payment_status === 'cod_pending' && order.status !== 'cancelled' && (
+                                    <div className="mt-3">
+                                        <button
+                                            onClick={() => onMarkCodPaid(order.order_id, statusNote.trim() || 'COD payment collected by admin')}
+                                            disabled={isUpdating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 border border-green-300 bg-green-50 text-green-700 text-sm rounded-lg hover:bg-green-100 disabled:opacity-50"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            Mark as Paid
+                                        </button>
+                                    </div>
+                                )}
 	                        </div>
 	                        <input
 	                            value={statusNote}

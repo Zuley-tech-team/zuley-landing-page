@@ -58,7 +58,7 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const [isPlacingCodOrder, setIsPlacingCodOrder] = useState(false);
 
     const { initiatePayment, isLoading, error: paymentError, clearError } = useRazorpay();
-    const onlinePaymentsEnabled = import.meta.env.VITE_ENABLE_ONLINE_PAYMENTS === 'true';
+    const onlinePaymentsEnabled = String(import.meta.env.VITE_ENABLE_ONLINE_PAYMENTS).toLowerCase() === 'true';
 
     // Close on Escape key
     useEffect(() => {
@@ -174,10 +174,12 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                 if (onSuccess) onSuccess();
                 const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
                 const params = new URLSearchParams({
+                    order_id: response.zuley_order_id || '',
                     payment_id: response.razorpay_payment_id || '',
                     product: productName,
                     amount: String(items.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0)),
                     method: 'online',
+                    invoice: response.zuley_invoice || ''
                 });
                 navigate(`/order-success?${params.toString()}`);
             },

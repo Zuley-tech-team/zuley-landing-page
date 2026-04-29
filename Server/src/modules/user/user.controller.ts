@@ -235,11 +235,24 @@ export const getMyOrders = async (req: Request, res: Response) => {
             .select(
                 "order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details"
             )
+            .populate({
+                path: "items.product_id",
+                select: "sku image",
+            })
             .lean();
+
+        const enrichedOrders = orders.map((order: any) => ({
+            ...order,
+            items: (order.items || []).map((item: any) => ({
+                ...item,
+                product_image: item.product_id?.image || "",
+                product_sku: item.product_id?.sku || item.sku,
+            })),
+        }));
 
         return res.json({
             success: true,
-            orders,
+            orders: enrichedOrders,
         });
     } catch (error) {
         console.error("[UserAuth] getMyOrders error:", error);

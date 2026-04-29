@@ -3,11 +3,9 @@ import { Customer } from "../models/customer.model";
 import { Order } from "../models/order.model";
 import { Payment } from "../models/payment.model";
 import { Product } from "../models/product.model";
-import { EmailType } from "../models/email-queue.model";
 import { reserveStock, restoreStock } from "../modules/inventory/inventory.service";
 import { generateOrderId } from "../utils/orderIdGenerator";
 import { InvoiceService } from "./invoice.service";
-import { EmailService } from "./email.service";
 
 type CheckoutItemInput = {
   sku: string;
@@ -185,33 +183,6 @@ export const createCodOrder = async (input: CodOrderInput) => {
     let invoice = null;
     try {
       invoice = await InvoiceService.createInvoice(order as any, customerDoc as any);
-
-      await EmailService.addToQueue(
-        EmailType.ORDER_CONFIRMATION,
-        customerDoc.email,
-        order._id,
-        {
-          orderId: order.order_id,
-          customerName: customerDoc.full_name,
-          total: order.total_amount / 100,
-          paymentMethod: "Cash on Delivery",
-        }
-      );
-
-      await EmailService.addToQueue(
-        EmailType.INVOICE,
-        customerDoc.email,
-        order._id,
-        {
-          orderId: order.order_id,
-          customerName: customerDoc.full_name,
-          invoiceNumber: invoice.invoiceNumber,
-          amount: invoice.totalAmount,
-          pdfPath: invoice.pdfPath,
-        }
-      );
-
-      invoice.status = "emailed";
       await invoice.save();
     } catch (invoiceError) {
       console.error("Invoice/email generation failed for COD order", order.order_id, invoiceError);

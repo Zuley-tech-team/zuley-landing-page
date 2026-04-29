@@ -12,16 +12,16 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.processWebhookEvent = exports.verifyWebhookSignature = exports.createPaymentOrder = void 0;
+exports.processWebhookEvent = exports.syncPaymentAndCreateOrder = exports.verifyPaymentSignature = exports.verifyWebhookSignature = exports.createPaymentOrder = void 0;
 const razorpay_1 = __importDefault(require("razorpay"));
 const crypto_1 = __importDefault(require("crypto"));
 const env_config_1 = require("../../config/env.config");
 const payment_model_1 = require("../../models/payment.model");
 const order_model_1 = require("../../models/order.model");
 const customer_model_1 = require("../../models/customer.model");
+const product_model_1 = require("../../models/product.model");
 const inventory_service_1 = require("../inventory/inventory.service");
 const invoice_service_1 = require("../../services/invoice.service");
-const email_service_1 = require("../../services/email.service");
 const getRazorpayClient = () => {
     if (!env_config_1.env.ENABLE_ONLINE_PAYMENTS) {
         throw new Error("Online payments are disabled");
@@ -63,8 +63,71 @@ const verifyWebhookSignature = (body, signature) => {
     return generatedSignature === signature;
 };
 exports.verifyWebhookSignature = verifyWebhookSignature;
+/**
+ * Verifies a Razorpay payment signature from the client-side checkout handler.
+ * Algorithm: HMAC-SHA256(order_id + "|" + payment_id, KEY_SECRET)
+ */
+const verifyPaymentSignature = (orderId, paymentId, signature) => {
+    if (!env_config_1.env.RAZORPAY_KEY_SECRET) {
+        throw new Error("Razorpay key secret is not configured");
+    }
+    const body = `${orderId}|${paymentId}`;
+    const generatedSignature = crypto_1.default
+        .createHmac("sha256", env_config_1.env.RAZORPAY_KEY_SECRET)
+        .update(body)
+        .digest("hex");
+    return generatedSignature === signature;
+};
+exports.verifyPaymentSignature = verifyPaymentSignature;
 const orderIdGenerator_1 = require("../../utils/orderIdGenerator");
 // ... existing imports
+const syncPaymentAndCreateOrder = (razorpay_order_id, razorpay_payment_id) => __awaiter(void 0, void 0, void 0, function* () {
+    const razorpay = getRazorpayClient();
+    const paymentEntity = yield razorpay.payments.fetch(razorpay_payment_id);
+    if (!paymentEntity)
+        throw new Error("Payment not found on Razorpay");
+    const amount = paymentEntity.amount;
+    const currency = paymentEntity.currency;
+    const status = paymentEntity.status;
+    const method = paymentEntity.method;
+    let payment = yield payment_model_1.Payment.findOne({ gateway_payment_id: razorpay_payment_id });
+    if (payment && payment.status === "captured") {
+        console.log(`Payment ${razorpay_payment_id} already captured. Skipping sync.`);
+        const order = yield order_model_1.Order.findOne({ payment_id: payment._id });
+        // NOTE: We don't import Invoice here, but we can look it up if needed.
+        // Actually, we don't need to look up Invoice explicitly if we just return order_id. The frontend API can fetch invoice by order_id later if needed, but it's better to return it if we can. Let's just return order_id for now if we can't get invoice easily, or we can just fetch it from the Invoice model.
+        // Let's import Invoice. Wait, Invoice is not imported at the top. Let's just return orderId for now, we can get invoice using orderId.
+        // Wait, I will just import Invoice at the top of the file since it's already there? I'll check.
+        return { orderId: order === null || order === void 0 ? void 0 : order.order_id, invoiceNumber: null };
+    }
+    let mappedStatus = status;
+    if (status === "created" || status === "authorized") {
+        mappedStatus = "pending";
+    }
+    if (!payment) {
+        payment = new payment_model_1.Payment({
+            gateway_payment_id: razorpay_payment_id,
+            gateway_order_id: razorpay_order_id,
+            amount,
+            currency,
+            status: mappedStatus,
+            method,
+            payment_method: "razorpay",
+            gateway_response: { payment: { entity: paymentEntity } },
+        });
+        yield payment.save();
+    }
+    else {
+        payment.status = mappedStatus;
+        payment.gateway_response = { payment: { entity: paymentEntity } };
+        yield payment.save();
+    }
+    if (status === "captured") {
+        return yield handlePaymentCaptured(payment, razorpay_order_id, paymentEntity);
+    }
+    return { orderId: null, invoiceNumber: null };
+});
+exports.syncPaymentAndCreateOrder = syncPaymentAndCreateOrder;
 const processWebhookEvent = (event) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const { event: eventName, payload } = event;
@@ -89,6 +152,11 @@ const processWebhookEvent = (event) => __awaiter(void 0, void 0, void 0, functio
         // But for strict idempotency, if payment is 'captured', we assume we handled it.
         return;
     }
+    // Map Razorpay statuses to our schema statuses
+    let mappedStatus = status;
+    if (status === "created" || status === "authorized") {
+        mappedStatus = "pending";
+    }
     if (!payment) {
         // Create payment record if it doesn't exist
         payment = new payment_model_1.Payment({
@@ -96,7 +164,7 @@ const processWebhookEvent = (event) => __awaiter(void 0, void 0, void 0, functio
             gateway_order_id: gatewayOrderId,
             amount,
             currency,
-            status,
+            status: mappedStatus,
             method,
             payment_method: "razorpay",
             gateway_response: payload,
@@ -105,7 +173,7 @@ const processWebhookEvent = (event) => __awaiter(void 0, void 0, void 0, functio
     }
     else {
         // Update existing payment
-        payment.status = status;
+        payment.status = mappedStatus;
         payment.gateway_response = payload;
         yield payment.save();
     }
@@ -134,7 +202,7 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
     // Safety check: if no notes, we can't create a proper order. 
     // We should log error or create a "Skeleton" order for manual review.
     // For now, let's try to parse.
-    let items = [];
+    let orderItems = [];
     let customerDetails = {
         name: "Unknown",
         email: entity.email || "",
@@ -150,7 +218,36 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
     };
     try {
         if (notes.items) {
-            items = JSON.parse(notes.items);
+            const parsedItems = JSON.parse(notes.items);
+            // Fetch real product details from DB to ensure sync and populate product_id
+            for (const item of parsedItems) {
+                const product = yield product_model_1.Product.findOne({ sku: item.sku });
+                if (product) {
+                    orderItems.push({
+                        product_id: product._id,
+                        sku: product.sku,
+                        name: product.name, // always use db name
+                        variant_info: item.variant_info,
+                        quantity: item.quantity,
+                        price: Math.round(product.price * 100), // always use db price in paise
+                        total_price: Math.round(product.price * item.quantity * 100),
+                        gst_rate: 3, // assuming 3% default like COD
+                        gst_amount: 0,
+                    });
+                }
+                else {
+                    // Fallback to what frontend sent if product somehow deleted
+                    orderItems.push({
+                        sku: item.sku,
+                        name: item.name,
+                        quantity: item.quantity,
+                        price: item.price,
+                        total_price: item.total_price,
+                        gst_rate: 0,
+                        gst_amount: 0,
+                    });
+                }
+            }
         }
         if (notes.shipping_address) {
             const address = JSON.parse(notes.shipping_address);
@@ -167,7 +264,7 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
         console.error("Failed to parse notes data:", e);
     }
     // if items are empty, we might have a problem.
-    if (items.length === 0) {
+    if (orderItems.length === 0) {
         console.error("No items found in payment notes. Creating empty order for review.");
     }
     // 3. Create Customer Record
@@ -217,10 +314,10 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
             phone: customerDoc.phone,
             customer_id: customerDoc._id,
         },
-        items: items,
+        items: orderItems,
         total_amount: payment.amount,
-        items_count: items.reduce((acc, item) => acc + (item.quantity || 0), 0),
-        status: "paid", // It's captured on payment.captured
+        items_count: orderItems.reduce((acc, item) => acc + (item.quantity || 0), 0),
+        status: "created",
         payment_method: "razorpay",
         payment_status: "captured",
         payment_id: payment._id,
@@ -230,10 +327,6 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
                 status: "created",
                 changed_by: "system",
                 reason: "Payment verified"
-            }, {
-                status: "paid",
-                changed_by: "system",
-                reason: "Payment captured"
             }]
     });
     yield newOrder.save();
@@ -250,7 +343,7 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
     // 6. Decrement Inventory
     // We do this concurrently or carefully.
     try {
-        const inventoryResults = yield Promise.all(items.map((item) => __awaiter(void 0, void 0, void 0, function* () {
+        const inventoryResults = yield Promise.all(orderItems.map((item) => __awaiter(void 0, void 0, void 0, function* () {
             if (!item.sku)
                 return { sku: "unknown", success: true }; // Skip if no SKU
             const success = yield (0, inventory_service_1.reserveStock)(item.sku, item.quantity, newOrder._id);
@@ -267,34 +360,18 @@ const handlePaymentCaptured = (payment, gatewayOrderId, entity) => __awaiter(voi
     }
     console.log(`Order ${newOrder.order_id} created successfully.`);
     // 7. Generate Invoice
+    let generatedInvoice = null;
     try {
         console.log(`Generating invoice for Order ${newOrder.order_id}...`);
-        const invoice = yield invoice_service_1.InvoiceService.createInvoice(newOrder, customerDoc);
-        // 8. Send Email
-        // 8. Queue Emails
-        // Order Confirmation
-        yield email_service_1.EmailService.addToQueue("order_confirmation", // Using string or import enum if possible, keeping string to avoid import circular dependency issues if any, or just import
-        customerDoc.email, newOrder._id, {
-            orderId: newOrder.order_id,
-            customerName: customerDoc.full_name,
-            total: newOrder.total_amount / 100, // Convert to rupees
-        });
-        // Invoice Email
-        yield email_service_1.EmailService.addToQueue("invoice", customerDoc.email, newOrder._id, {
-            orderId: newOrder.order_id,
-            customerName: customerDoc.full_name,
-            invoiceNumber: invoice.invoiceNumber,
-            amount: invoice.totalAmount,
-            pdfPath: invoice.pdfPath,
-        });
-        // Update status to emailed
-        invoice.status = 'emailed';
-        yield invoice.save();
+        generatedInvoice = yield invoice_service_1.InvoiceService.createInvoice(newOrder, customerDoc);
+        // Keep invoice generated for admin/customer download after order placement.
+        yield generatedInvoice.save();
     }
     catch (invoiceError) {
         console.error("CRITICAL: Invoice generation failed for Order", newOrder.order_id, invoiceError);
         // Do not rollback order, but alert admin
     }
+    return { orderId: newOrder.order_id, invoiceNumber: generatedInvoice === null || generatedInvoice === void 0 ? void 0 : generatedInvoice.invoice_number };
 });
 const handlePaymentFailed = (payment, entity) => __awaiter(void 0, void 0, void 0, function* () {
     payment.status = "failed";

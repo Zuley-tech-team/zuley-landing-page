@@ -220,10 +220,18 @@ const getMyOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
         })
             .sort({ createdAt: -1 })
             .select("order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details")
+            .populate({
+            path: "items.product_id",
+            select: "sku image",
+        })
             .lean();
+        const enrichedOrders = orders.map((order) => (Object.assign(Object.assign({}, order), { items: (order.items || []).map((item) => {
+                var _a, _b;
+                return (Object.assign(Object.assign({}, item), { product_image: ((_a = item.product_id) === null || _a === void 0 ? void 0 : _a.image) || "", product_sku: ((_b = item.product_id) === null || _b === void 0 ? void 0 : _b.sku) || item.sku }));
+            }) })));
         return res.json({
             success: true,
-            orders,
+            orders: enrichedOrders,
         });
     }
     catch (error) {

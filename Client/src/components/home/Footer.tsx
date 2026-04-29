@@ -4,7 +4,6 @@ import { useToast } from '../../contexts/ToastContext';
 import { subscribeNewsletter } from '../../api/engagement';
 import {
     Mail,
-    ArrowUp,
     Instagram,
     Facebook,
     CreditCard,
@@ -62,15 +61,11 @@ export function Footer() {
         }
     };
 
-    const scrollToTop = () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    };
-
     return (
         <footer className="bg-charcoal text-pearl">
             {/* Brand Story Section */}
             <div className="border-b border-pearl/10">
-                <div className="max-w-7xl mx-auto px-6 py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-14 sm:py-16">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                         {/* Brand Logo & Story */}
                         <div className="text-center lg:text-left">
@@ -84,7 +79,7 @@ export function Footer() {
                                 Redefining Silver Beyond Jewellery
                             </h3>
                             <p className="font-body text-pearl/70 leading-relaxed">
-                                We believe silver belongs in your everyday life—in the tools you use,
+                                We believe silver belongs in your everyday life, in the tools you use,
                                 the accessories you carry, and the gifts you give. Each piece we create
                                 is a blend of timeless craftsmanship and personal meaning.
                             </p>
@@ -122,7 +117,7 @@ export function Footer() {
 
             {/* Newsletter Section */}
             <div className="border-b border-pearl/10 bg-graphite/30">
-                <div className="max-w-4xl mx-auto px-6 py-12 md:py-16">
+                <div className="max-w-4xl mx-auto px-4 sm:px-6 py-10 sm:py-12 md:py-16">
                     <div className="text-center mb-8">
                         <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-4 bg-primary/10 rounded-full">
                             <Mail className="w-4 h-4 text-primary" />
@@ -160,7 +155,7 @@ export function Footer() {
             </div>
 
             {/* Links Section */}
-            <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 md:py-16">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
                     {/* Shop */}
                     <div>
@@ -217,7 +212,7 @@ export function Footer() {
 
             {/* Bottom Bar */}
             <div className="border-t border-pearl/10">
-                <div className="max-w-7xl mx-auto px-6 py-6">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-6">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-6">
                         {/* Copyright */}
                         <p className="font-body text-sm text-pearl/50 text-center md:text-left">
@@ -260,14 +255,6 @@ export function Footer() {
                 </div>
             </div>
 
-            {/* Scroll to Top Button */}
-            <button
-                onClick={scrollToTop}
-                className="fixed bottom-6 right-6 w-12 h-12 rounded-full bg-primary text-charcoal flex items-center justify-center shadow-luxury hover:scale-110 transition-transform z-50"
-                aria-label="Scroll to top"
-            >
-                <ArrowUp className="w-5 h-5" />
-            </button>
         </footer>
     );
 }

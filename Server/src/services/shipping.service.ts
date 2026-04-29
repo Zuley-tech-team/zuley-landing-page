@@ -2,6 +2,7 @@ import { Shipping, IShipping } from '../models/shipping.model';
 import { Order } from '../models/order.model';
 import { Payment } from '../models/payment.model';
 import { EmailService } from './email.service';
+import { EmailType } from '../models/email-queue.model';
 import mongoose from 'mongoose';
 
 export class ShippingService {
@@ -43,7 +44,7 @@ export class ShippingService {
             throw new Error(`Order ${orderId} not found`);
         }
 
-        if (order.status !== 'paid' && order.status !== 'created') {
+        if (order.status !== 'paid' && order.status !== 'created' && order.status !== 'confirmed') {
             // Allow 'created' just in case payment flow had minor sync issues, but ideally 'paid'
             // If already shipped, throw error? 
             if (order.status === 'shipped' || order.status === 'delivered') {
@@ -90,26 +91,19 @@ export class ShippingService {
 
         await order.save();
 
-        // Send Email Notification
-        // Since EmailService might not have this method yet, we suppress error or assuming it exists
-        try {
-            // We need to fetch customer email. It's in order.customer_details.email
-            if (order.customer_details?.email) {
-                await EmailService.addToQueue(
-                    "shipping_confirmation" as any,
-                    order.customer_details.email,
-                    order._id,
-                    {
-                        orderId: orderId,
-                        customerName: order.customer_details.name,
-                        courierName: courierName,
-                        trackingNumber: trackingNumber,
-                        trackingUrl: finalTrackingUrl
-                    }
-                );
-            }
-        } catch (emailErr) {
-            console.error(`Failed to send shipping email for ${orderId}`, emailErr);
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.SHIPPING_CONFIRMATION,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details.name,
+                    courierName,
+                    trackingNumber,
+                    trackingUrl: finalTrackingUrl,
+                }
+            );
         }
 
         return shipment;
@@ -211,21 +205,16 @@ export class ShippingService {
         });
         await order.save();
 
-        // Send Delivery Email
-        try {
-            if (order.customer_details?.email) {
-                await EmailService.addToQueue(
-                    "delivery_confirmation" as any,
-                    order.customer_details.email, // Use order's customer email
-                    order._id,
-                    {
-                        orderId: orderId,
-                        customerName: order.customer_details.name,
-                    }
-                );
-            }
-        } catch (emailErr) {
-            console.error(`Failed to send delivery email for ${orderId}`, emailErr);
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.DELIVERY_CONFIRMATION,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details.name,
+                }
+            );
         }
 
         return shipment;

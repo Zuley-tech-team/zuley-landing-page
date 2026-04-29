@@ -38,6 +38,8 @@ const paymentController = __importStar(require("./payment.controller"));
 const router = (0, express_1.Router)();
 // Route to create a payment order/intent
 router.post("/create-order", paymentController.createOrder);
+// Route to verify payment signature after client-side checkout success
+router.post("/verify-payment", paymentController.verifyPayment);
 // Webhook route - Gateway calls this
 // Note: This route requires raw body for signature verification, 
 // ensuring index.ts middleware captures it is crucial.

@@ -8,7 +8,6 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const morgan_1 = __importDefault(require("morgan"));
 const helmet_1 = __importDefault(require("helmet"));
 const cors_1 = __importDefault(require("cors"));
-const path_1 = __importDefault(require("path"));
 const env_config_1 = require("./config/env.config");
 const db_config_1 = __importDefault(require("./config/db.config"));
 const index_1 = __importDefault(require("./routes/v1/index"));
@@ -26,7 +25,7 @@ app.use((0, helmet_1.default)({
     contentSecurityPolicy: false, // Disable CSP for now
 }));
 const corsOptions = {
-    origin: env_config_1.env.FRONTEND_URL,
+    origin: env_config_1.env.FRONTEND_URL.includes(",") ? env_config_1.env.FRONTEND_URL.split(",") : env_config_1.env.FRONTEND_URL,
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization", "X-VERIFY", "x-verify"],
@@ -42,10 +41,12 @@ app.use(express_1.default.json({
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/api/v1", index_1.default);
 if (env_config_1.env.NODE_ENV === "production") {
-    const buildPath = path_1.default.join(__dirname, "..", "..", "Client", "dist");
-    app.use(express_1.default.static(buildPath));
-    app.get("*", (req, res) => {
-        res.sendFile(path_1.default.resolve(buildPath, "index.html"));
+    app.get("/", (req, res) => {
+        res.json({
+            success: true,
+            message: "Zuley API is running smoothly",
+            environment: "production"
+        });
     });
 }
 app.use(notFound_1.default);

@@ -40,6 +40,8 @@ router.get("/orders", orderController.getOrders);
 router.get("/orders/:id", orderController.getOrderById);
 router.get("/orders/:id/invoice", orderController.getOrderInvoice);
 router.get("/orders/:id/invoice/download", orderController.downloadOrderInvoice);
+router.post("/orders/:id/confirm", orderController.confirmOrder);
+router.post("/orders/:id/mark-cod-paid", orderController.markCodPaymentCollected);
 router.put("/orders/:id/status", orderController.updateOrderStatus);
 
 // Inventory Routes

@@ -716,6 +716,15 @@
   flex-shrink: 0;
 }
 
+.orders-item-image {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid rgba(28,30,35,0.08);
+  flex-shrink: 0;
+}
+
 .orders-item-info {
   flex: 1;
   min-width: 0;
@@ -729,6 +738,22 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.orders-item-name-link {
+  font-family: var(--font-body);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #1c1e23;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+  transition: color 0.15s;
+}
+
+.orders-item-name-link:hover {
+  color: #6f7380;
 }
 
 .orders-item-variant {
@@ -882,4 +907,47 @@
   color: #d96c6c;
   font-family: var(--font-body);
   font-size: 0.875rem;
+}
+
+@media (max-width: 640px) {
+  .orders-card-header {
+    padding: 1rem 1rem 0.875rem;
+  }
+
+  .orders-items {
+    padding: 0.875rem 1rem;
+  }
+
+  .orders-item-row {
+    align-items: flex-start;
+    gap: 0.625rem;
+  }
+
+  .orders-item-image,
+  .orders-item-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+
+  .orders-item-qty-price {
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.125rem;
+  }
+
+  .orders-card-footer {
+    padding: 0.875rem 1rem;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .orders-address,
+  .orders-tracking-row {
+    width: 100%;
+  }
+
+  .orders-track-btn {
+    margin-left: 0;
+    justify-content: center;
+  }
 }

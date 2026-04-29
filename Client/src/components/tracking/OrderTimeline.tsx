@@ -8,12 +8,15 @@ interface TimelineStep {
 
 interface OrderTimelineProps {
     currentStatus: string;
+    paymentMethod?: 'razorpay' | 'cod';
     history: { status: string; timestamp: string; reason?: string }[];
 }
 
-const STATUS_ORDER = ['created', 'paid', 'shipped', 'delivered'];
+const ONLINE_STATUS_ORDER = ['created', 'confirmed', 'shipped', 'delivered'];
+const COD_STATUS_ORDER = ['created', 'shipped', 'delivered'];
 const STATUS_LABELS: Record<string, string> = {
     created: 'Order Created',
+    confirmed: 'Order Confirmed',
     paid: 'Payment Confirmed',
     shipped: 'Shipped',
     delivered: 'Delivered',
@@ -24,14 +27,20 @@ const STATUS_LABELS: Record<string, string> = {
 
 const STATUS_ICONS: Record<string, React.ReactNode> = {
     created: <Circle className="w-4 h-4" />,
+    confirmed: <Check className="w-4 h-4" />,
     paid: <CreditCard className="w-4 h-4" />,
     shipped: <Truck className="w-4 h-4" />,
     delivered: <Package className="w-4 h-4" />,
 };
 
-export function OrderTimeline({ currentStatus, history }: OrderTimelineProps) {
+export function OrderTimeline({ currentStatus, paymentMethod, history }: OrderTimelineProps) {
     // For cancelled/refunded/failed — show a special state
     const isTerminal = ['cancelled', 'refunded', 'failed'].includes(currentStatus);
+    const isCod = paymentMethod === 'cod';
+    const statusOrder = isCod ? COD_STATUS_ORDER : ONLINE_STATUS_ORDER;
+    const normalizedCurrentStatus = isCod
+        ? (currentStatus === 'paid' || currentStatus === 'confirmed' ? 'created' : currentStatus)
+        : (currentStatus === 'paid' ? 'confirmed' : currentStatus);
 
     const getTimestamp = (status: string): string | undefined => {
         const entry = [...history].reverse().find((h) => h.status === status);
@@ -51,9 +60,9 @@ export function OrderTimeline({ currentStatus, history }: OrderTimelineProps) {
     };
 
     // Build steps
-    const steps: TimelineStep[] = STATUS_ORDER.map((status) => {
-        const currentIdx = STATUS_ORDER.indexOf(currentStatus);
-        const stepIdx = STATUS_ORDER.indexOf(status);
+    const steps: TimelineStep[] = statusOrder.map((status) => {
+        const currentIdx = statusOrder.indexOf(normalizedCurrentStatus);
+        const stepIdx = statusOrder.indexOf(status);
 
         let stepStatus: TimelineStep['status'] = 'pending';
         if (isTerminal) {
@@ -90,7 +99,7 @@ export function OrderTimeline({ currentStatus, history }: OrderTimelineProps) {
                             {step.status === 'completed' ? (
                                 <Check className="w-4 h-4" />
                             ) : (
-                                STATUS_ICONS[STATUS_ORDER[idx]] || <Circle className="w-3 h-3" />
+                                STATUS_ICONS[statusOrder[idx]] || <Circle className="w-3 h-3" />
                             )}
                         </div>
                         {idx < steps.length - 1 && (

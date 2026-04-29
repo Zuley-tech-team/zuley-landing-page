@@ -28,6 +28,10 @@ const SELLER_DETAILS = {
     stateCode: env_config_1.env.INVOICE_SELLER_STATE_CODE,
     pan: env_config_1.env.INVOICE_SELLER_PAN,
 };
+const formatInvoiceMoney = (amount) => new Intl.NumberFormat('en-IN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+}).format(amount);
 const GST_STATE_CODES = {
     "Jammu & Kashmir": "01",
     "Himachal Pradesh": "02",
@@ -164,9 +168,10 @@ class InvoiceService {
      * Generates PDF and saves to disk
      */
     static generatePDF(invoice_1) {
-        return __awaiter(this, arguments, void 0, function* (invoice, paymentMethod = 'online') {
+        return __awaiter(this, arguments, void 0, function* (invoice, paymentMethod = 'online', orderNumber) {
             return new Promise((resolve, reject) => {
                 const doc = new pdfkit_1.default({ size: 'A4', margin: 50 });
+                const isCod = paymentMethod === 'cod';
                 const fileName = `${invoice.invoiceNumber}.pdf`;
                 // Ensure directory exists
                 const dir = path_1.default.join(__dirname, '../../invoices');
@@ -176,39 +181,39 @@ class InvoiceService {
                 const filePath = path_1.default.join(dir, fileName);
                 const stream = fs_1.default.createWriteStream(filePath);
                 doc.pipe(stream);
-                // Modern Header
-                doc.font('Helvetica-Bold').fontSize(28).fillColor('#1A1A1A').text('ZULEY', { align: 'left' });
-                doc.fontSize(10).fillColor('#666666').text('Premium Silver Crafted for You', { align: 'left' });
-                doc.moveDown(1);
-                doc.font('Helvetica-Bold').fontSize(16).fillColor('#1A1A1A').text('TAX INVOICE', { align: 'center' });
-                if (paymentMethod === 'cod') {
-                    doc.font('Helvetica-Bold').fontSize(10).fillColor('#D97706').text('PAYMENT DUE (CASH ON DELIVERY)', { align: 'center' });
+                doc.rect(0, 0, 595.28, 112).fillColor('#1C1C1E').fill();
+                doc.font('Helvetica-Bold').fontSize(28).fillColor('#FFFFFF').text('ZULEY', 50, 34);
+                doc.font('Helvetica').fontSize(9).fillColor('#D7D2CB').text('Premium Silver Crafted for You', 50, 67);
+                doc.font('Helvetica-Bold').fontSize(18).fillColor('#FFFFFF').text('TAX INVOICE', 360, 34, { width: 185, align: 'right' });
+                doc.font('Helvetica').fontSize(9).fillColor('#D7D2CB').text(`Invoice No: ${invoice.invoiceNumber}`, 360, 62, { width: 185, align: 'right' });
+                doc.text(`Date: ${new Date(invoice.invoiceDate).toLocaleDateString('en-IN')}`, 360, 78, { width: 185, align: 'right' });
+                if (isCod) {
+                    doc.roundedRect(50, 126, 495, 32, 6).fillColor('#FFF7ED').fill();
+                    doc.font('Helvetica-Bold').fontSize(10).fillColor('#B45309').text('PAYMENT ON DELIVERY', 64, 137);
+                    doc.font('Helvetica').fontSize(9).fillColor('#92400E').text('Cash on Delivery order. Amount is payable when the shipment is delivered.', 208, 137);
                 }
-                doc.moveDown(2);
+                doc.y = isCod ? 182 : 132;
                 // Seller Details
-                doc.font('Helvetica-Bold').fontSize(10).fillColor('#1A1A1A').text('Sold By:', 50, doc.y);
-                doc.font('Helvetica').fillColor('#333333');
+                doc.font('Helvetica-Bold').fontSize(10).fillColor('#1A1A1A').text('Sold By', 50, doc.y);
+                doc.font('Helvetica').fontSize(9).fillColor('#333333');
                 doc.text(invoice.sellerDetails.name);
-                doc.text(invoice.sellerDetails.address);
-                if (paymentMethod !== 'cod') {
-                    doc.text(`GSTIN: ${invoice.sellerDetails.gstin}`);
-                }
+                doc.text(invoice.sellerDetails.address, { width: 230 });
+                doc.text(`PAN: ${invoice.sellerDetails.pan}`);
                 doc.text(`State: ${invoice.sellerDetails.state} (${invoice.sellerDetails.stateCode})`);
-                doc.moveDown();
                 // Buyer Details & Invoice Details
-                const startY = doc.y;
-                doc.font('Helvetica-Bold').fillColor('#1A1A1A').text('Bill To:', 50, startY);
+                const startY = isCod ? 182 : 132;
+                doc.font('Helvetica-Bold').fontSize(10).fillColor('#1A1A1A').text('Bill To', 330, startY);
+                doc.font('Helvetica').fontSize(9).fillColor('#333333');
+                doc.text(invoice.buyerDetails.name, 330, startY + 15);
+                doc.text(invoice.buyerDetails.billingAddress, 330, startY + 30, { width: 210 });
+                doc.text(`State: ${invoice.buyerDetails.state}`, 330, doc.y);
+                doc.text(`State Code: ${invoice.buyerDetails.stateCode}`, 330, doc.y);
+                doc.moveDown(0.8);
+                doc.font('Helvetica-Bold').fillColor('#1A1A1A').text('Order Details', 330, doc.y);
                 doc.font('Helvetica').fillColor('#333333');
-                doc.text(invoice.buyerDetails.name, 50, startY + 15);
-                doc.text(invoice.buyerDetails.billingAddress, 50, startY + 30, { width: 200 });
-                doc.text(`State: ${invoice.buyerDetails.state}`, 50, doc.y);
-                doc.text(`State Code: ${invoice.buyerDetails.stateCode}`, 50, doc.y);
-                doc.font('Helvetica-Bold').fillColor('#1A1A1A').text('Invoice Details:', 350, startY);
-                doc.font('Helvetica').fillColor('#333333');
-                doc.text(`Invoice No: ${invoice.invoiceNumber}`, 350, startY + 15);
-                doc.text(`Date: ${new Date(invoice.invoiceDate).toLocaleDateString()}`, 350, startY + 30);
-                doc.text(`Order ID: ${invoice.orderId}`, 350, startY + 45);
-                doc.moveDown(3);
+                doc.text(`Order ID: ${orderNumber || invoice.orderId}`);
+                doc.text(`Payment: ${isCod ? 'Payment on Delivery (COD)' : 'Paid Online'}`);
+                doc.y = Math.max(doc.y, isCod ? 292 : 242);
                 // Table Header Background
                 const tableTop = doc.y;
                 doc.rect(50, tableTop - 5, 500, 20).fillColor('#F3F4F6').fill();
@@ -226,9 +231,9 @@ class InvoiceService {
                     doc.text(item.description, 60, position, { width: 140 });
                     doc.text(item.hsnCode, 210, position);
                     doc.text(item.quantity.toString(), 260, position);
-                    doc.text(item.unitPrice.toFixed(2), 310, position);
-                    doc.text(item.taxableValue.toFixed(2), 380, position);
-                    doc.text(item.totalAmount.toFixed(2), 480, position);
+                    doc.text(formatInvoiceMoney(item.unitPrice), 310, position);
+                    doc.text(formatInvoiceMoney(item.taxableValue), 380, position);
+                    doc.text(formatInvoiceMoney(item.totalAmount), 480, position);
                     position += 25;
                 });
                 doc.moveTo(50, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
@@ -236,32 +241,37 @@ class InvoiceService {
                 position += 20;
                 doc.font('Helvetica').fontSize(9);
                 doc.text(`Taxable Value:`, 350, position);
-                doc.text(`${invoice.taxSummary.totalTaxableValue.toFixed(2)}`, 480, position);
+                doc.text(`${formatInvoiceMoney(invoice.taxSummary.totalTaxableValue)}`, 480, position);
                 position += 15;
                 if (invoice.taxSummary.totalIGST > 0) {
                     doc.text(`IGST:`, 350, position);
-                    doc.text(`${invoice.taxSummary.totalIGST.toFixed(2)}`, 480, position);
+                    doc.text(`${formatInvoiceMoney(invoice.taxSummary.totalIGST)}`, 480, position);
                     position += 15;
                 }
                 else {
                     doc.text(`CGST:`, 350, position);
-                    doc.text(`${invoice.taxSummary.totalCGST.toFixed(2)}`, 480, position);
+                    doc.text(`${formatInvoiceMoney(invoice.taxSummary.totalCGST)}`, 480, position);
                     position += 15;
                     doc.text(`SGST:`, 350, position);
-                    doc.text(`${invoice.taxSummary.totalSGST.toFixed(2)}`, 480, position);
+                    doc.text(`${formatInvoiceMoney(invoice.taxSummary.totalSGST)}`, 480, position);
                     position += 15;
                 }
                 doc.moveTo(350, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
                 position += 15;
                 doc.font('Helvetica-Bold').fontSize(11).fillColor('#1A1A1A');
                 doc.text(`Grand Total:`, 350, position);
-                doc.text(`INR ${invoice.totalAmount.toFixed(2)}`, 480, position);
-                // Amount in words
-                doc.moveDown(3);
-                doc.font('Helvetica-Bold').fontSize(9).text('Amount in Words:');
-                doc.font('Helvetica').text(invoice.amountInWords);
-                doc.moveDown(4);
-                doc.font('Helvetica-Oblique').fontSize(8).fillColor('#9CA3AF').text('This is a computer generated invoice and does not require a physical signature.', { align: 'center' });
+                doc.text(`INR ${formatInvoiceMoney(invoice.totalAmount)}`, 480, position);
+                if (isCod) {
+                    position += 18;
+                    doc.font('Helvetica-Bold').fontSize(9).fillColor('#B45309');
+                    doc.text("");
+                }
+                const footerStartY = Math.max(position + 30, doc.y + 26);
+                doc.font('Helvetica-Bold').fontSize(9).fillColor('#1A1A1A').text('Amount in Words:', 50, footerStartY);
+                doc.font('Helvetica').fontSize(9).fillColor('#333333').text(invoice.amountInWords, 50, footerStartY + 14, { width: 500 });
+                const signatureY = footerStartY + 48;
+                doc.font('Helvetica-Oblique').fontSize(8).fillColor('#9CA3AF')
+                    .text('This is a computer generated invoice and does not require a physical signature.', 50, signatureY, { width: 500, align: 'center' });
                 doc.end();
                 stream.on('finish', () => resolve(filePath));
                 stream.on('error', (err) => reject(err));
@@ -369,7 +379,7 @@ class InvoiceService {
             // 4. Save to DB (Status: generated)
             const invoice = new invoice_model_1.Invoice(invoiceData);
             // 5. Generate PDF
-            const pdfPath = yield this.generatePDF(invoice, order.payment_method);
+            const pdfPath = yield this.generatePDF(invoice, order.payment_method, order.order_id);
             invoice.pdfPath = pdfPath;
             yield invoice.save();
             return invoice;

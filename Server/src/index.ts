@@ -29,7 +29,7 @@ app.use(
 );
 
 const corsOptions = {
-  origin: env.FRONTEND_URL,
+  origin: env.FRONTEND_URL.includes(",") ? env.FRONTEND_URL.split(",") : env.FRONTEND_URL,
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "X-VERIFY", "x-verify"],

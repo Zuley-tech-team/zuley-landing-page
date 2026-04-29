@@ -50,6 +50,8 @@ export interface OrderItem {
     price: number;
     total_price: number;
     variant_info?: string;
+    product_image?: string;
+    product_sku?: string;
 }
 
 export interface CustomerOrder {

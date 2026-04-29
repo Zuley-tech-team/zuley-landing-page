@@ -37,3 +37,39 @@ export async function createPaymentOrder(
 
     return response.json();
 }
+
+export interface VerifyPaymentPayload {
+    razorpay_order_id: string;
+    razorpay_payment_id: string;
+    razorpay_signature: string;
+}
+
+export interface VerifyPaymentResponse {
+    success: boolean;
+    message: string;
+    order_id?: string;
+    invoice?: string;
+}
+
+/**
+ * Sends the Razorpay callback IDs to the backend for HMAC-SHA256 verification.
+ * Must succeed before treating a payment as confirmed on the frontend.
+ */
+export async function verifyPayment(
+    payload: VerifyPaymentPayload
+): Promise<VerifyPaymentResponse> {
+    const response = await fetch(`${API_BASE_URL}/api/v1/payments/verify-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(
+            errorData.message || `Payment verification failed (${response.status})`
+        );
+    }
+
+    return response.json();
+}

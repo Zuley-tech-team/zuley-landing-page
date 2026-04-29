@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { createPaymentOrder } from '../api/payment';
+import { createPaymentOrder, verifyPayment } from '../api/payment';
 import type { Product } from '../api/products';
 
 declare global {
@@ -98,10 +98,26 @@ export function useRazorpay() {
                     theme: {
                         color: '#1c1e23', // charcoal from design system
                     },
-                    handler: function (response: any) {
-                        // Payment successful on client side
-                        // Backend webhook handles order creation automatically
-                        onSuccess(response);
+                    handler: async function (response: any) {
+                        // Verify signature with backend before confirming success
+                        try {
+                            const verifyRes = await verifyPayment({
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_signature: response.razorpay_signature,
+                            });
+                            // Pass back the Zuley order details from verify response
+                            onSuccess({ 
+                                ...response, 
+                                zuley_order_id: verifyRes.order_id, 
+                                zuley_invoice: verifyRes.invoice 
+                            });
+                        } catch (err: any) {
+                            const msg = err.message || 'Payment verification failed. Please contact support.';
+                            setError(msg);
+                            onFailure(msg);
+                            setIsLoading(false);
+                        }
                     },
                     modal: {
                         ondismiss: function () {
@@ -137,5 +153,6 @@ export function useRazorpay() {
         []
     );
 
-    return { initiatePayment, isLoading, error, clearError: () => setError(null) };
+    const clearError = useCallback(() => setError(null), []);
+    return { initiatePayment, isLoading, error, clearError };
 }

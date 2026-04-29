@@ -114,3 +114,13 @@ export async function placeCodOrder(
 
     return data;
 }
+
+export function getInvoiceDownloadUrl(orderId: string, invoiceNumber?: string | null): string {
+    const params = new URLSearchParams();
+    if (invoiceNumber) {
+        params.set('invoiceNumber', invoiceNumber);
+    }
+
+    const query = params.toString();
+    return `${API_BASE_URL}/api/v1/orders/${encodeURIComponent(orderId)}/invoice${query ? `?${query}` : ''}`;
+}

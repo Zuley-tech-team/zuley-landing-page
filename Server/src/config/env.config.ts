@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import { z } from "zod";
-import path from "path";
 
 dotenv.config();
 
@@ -12,21 +11,20 @@ const envSchema = z.object({
   NODE_ENV: z
     .enum(["staging", "production", "development"])
     .default("development"),
-  PORT: z.string().transform(Number).default(8000),
+  PORT: z.string().transform(Number).default("8000" as any),
 
   MONGO_URI: z.string().min(1, "MONGO_URI is required"),
 
-
-
+  // Accepts a single URL or comma-separated list (e.g. for multi-port local dev)
   FRONTEND_URL: z
     .string()
-    .url("FRONTEND_URL must be a valid URL")
+    .min(1, "FRONTEND_URL is required")
     .default("http://localhost:5173"),
 
   ENABLE_ONLINE_PAYMENTS: z
     .string()
     .transform((value) => value === "true")
-    .default(false),
+    .default("false" as any),
   RAZORPAY_KEY_ID: z.string().optional().default(""),
   RAZORPAY_KEY_SECRET: z.string().optional().default(""),
   RAZORPAY_WEBHOOK_SECRET: z.string().optional().default(""),
@@ -70,12 +68,13 @@ const envSchema = z.object({
     });
   }
 
+  // RAZORPAY_WEBHOOK_SECRET is optional — only needed if using webhook-based order creation.
+  // Add it via Razorpay Dashboard > Webhooks once your server is publicly reachable.
   if (!value.RAZORPAY_WEBHOOK_SECRET) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      path: ["RAZORPAY_WEBHOOK_SECRET"],
-      message: "RAZORPAY_WEBHOOK_SECRET is required when ENABLE_ONLINE_PAYMENTS=true",
-    });
+    console.warn(
+      "⚠️  RAZORPAY_WEBHOOK_SECRET is not set. Webhook signature verification will be disabled. " +
+      "Client-side verify-payment endpoint will still work normally."
+    );
   }
 });
 

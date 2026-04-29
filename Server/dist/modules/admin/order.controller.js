@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadOrderInvoice = exports.getOrderInvoice = exports.updateOrderStatus = exports.getOrderById = exports.getOrders = void 0;
+exports.downloadOrderInvoice = exports.getOrderInvoice = exports.markCodPaymentCollected = exports.confirmOrder = exports.updateOrderStatus = exports.getOrderById = exports.getOrders = void 0;
 const order_model_1 = require("../../models/order.model");
 const admin_logger_service_1 = require("../../services/admin-logger.service");
 const customer_model_1 = require("../../models/customer.model");
@@ -25,44 +25,26 @@ const payment_model_1 = require("../../models/payment.model");
 const fs_1 = __importDefault(require("fs"));
 const TERMINAL_STATUSES = new Set(["cancelled", "refunded"]);
 const triggerOrderStatusSideEffects = (order, oldStatus, newStatus, note) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f, _g;
+    var _a, _b, _c, _d, _e;
     if (oldStatus === newStatus) {
         return;
     }
     const customerEmail = (_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email;
     const customerName = ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer";
-    if (newStatus === "paid") {
-        order.payment_status = order.payment_method === "cod" ? "cod_collected" : "captured";
+    if (newStatus === "confirmed") {
+        order.payment_status = order.payment_method === "cod" ? order.payment_status : "captured";
         yield order.save();
-        if (order.payment_id) {
+        if (order.payment_id && order.payment_method !== "cod") {
             yield payment_model_1.Payment.findByIdAndUpdate(order.payment_id, {
-                status: order.payment_method === "cod" ? "cod_collected" : "captured",
-                collected_at: order.payment_method === "cod" ? new Date() : undefined,
+                status: "captured",
             });
         }
-        const customer = yield customer_model_1.Customer.findById((_c = order.customer_details) === null || _c === void 0 ? void 0 : _c.customer_id);
-        if (!customer) {
-            console.warn(`[OrderStatus] Customer not found for order ${order.order_id}; skipping invoice generation.`);
-        }
-        else {
-            const existingInvoice = yield invoice_model_1.Invoice.findOne({ orderId: order._id });
-            const invoice = existingInvoice || (yield invoice_service_1.InvoiceService.createInvoice(order, customer));
-            if (customerEmail) {
-                yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.ORDER_CONFIRMATION, customerEmail, order._id, {
-                    orderId: order.order_id,
-                    customerName,
-                    total: order.total_amount / 100,
-                });
-                yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.INVOICE, customerEmail, order._id, {
-                    orderId: order.order_id,
-                    customerName,
-                    invoiceNumber: invoice.invoiceNumber,
-                    amount: invoice.totalAmount,
-                    pdfPath: invoice.pdfPath,
-                });
-                invoice.status = "emailed";
-                yield invoice.save();
-            }
+        if (customerEmail) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.ORDER_CONFIRMATION, customerEmail, order._id, {
+                orderId: order.order_id,
+                customerName,
+                total: order.total_amount / 100,
+            });
         }
     }
     if (newStatus === "shipped") {
@@ -73,21 +55,13 @@ const triggerOrderStatusSideEffects = (order, oldStatus, newStatus, note) => __a
             order.shipping_details.shipped_at = new Date();
             yield order.save();
         }
-        let invoice = null;
         if (customerEmail) {
-            const customer = yield customer_model_1.Customer.findById((_d = order.customer_details) === null || _d === void 0 ? void 0 : _d.customer_id);
-            if (customer) {
-                const existingInvoice = yield invoice_model_1.Invoice.findOne({ orderId: order._id });
-                invoice = existingInvoice || (yield invoice_service_1.InvoiceService.createInvoice(order, customer));
-            }
             yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.SHIPPING_CONFIRMATION, customerEmail, order._id, {
                 orderId: order.order_id,
                 customerName,
-                courierName: ((_e = order.shipping_details) === null || _e === void 0 ? void 0 : _e.courier_name) || "Shipping Partner",
-                trackingNumber: ((_f = order.shipping_details) === null || _f === void 0 ? void 0 : _f.tracking_number) || "TBD",
-                trackingUrl: ((_g = order.shipping_details) === null || _g === void 0 ? void 0 : _g.tracking_url) || "",
-                invoiceNumber: invoice === null || invoice === void 0 ? void 0 : invoice.invoiceNumber,
-                invoicePdfPath: invoice === null || invoice === void 0 ? void 0 : invoice.pdfPath,
+                courierName: ((_c = order.shipping_details) === null || _c === void 0 ? void 0 : _c.courier_name) || "Our Shipping Partner",
+                trackingNumber: ((_d = order.shipping_details) === null || _d === void 0 ? void 0 : _d.tracking_number) || "Will be shared shortly",
+                trackingUrl: ((_e = order.shipping_details) === null || _e === void 0 ? void 0 : _e.tracking_url) || "",
             });
         }
     }
@@ -125,6 +99,14 @@ const triggerOrderStatusSideEffects = (order, oldStatus, newStatus, note) => __a
                 console.error(`[OrderStatus] Failed to restore stock for ${order.order_id} (${item.sku}):`, stockError);
             }
         }
+    }
+    if (newStatus === "cancelled" && customerEmail) {
+        yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.REFUND_CONFIRMATION, customerEmail, order._id, {
+            subjectPrefix: "Order Cancelled",
+            orderId: order.order_id,
+            customerName,
+            message: `Your order ${order.order_id} has been cancelled as per our review. If this was unexpected, please contact support.`,
+        });
     }
     if (note) {
         console.log(`[OrderStatus] ${order.order_id} side effects processed with note: ${note}`);
@@ -193,7 +175,7 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const { id } = req.params;
         const { status, note } = req.body;
         // Validate Status transition (simplified for now)
-        const validStatuses = ['created', 'paid', 'shipped', 'delivered', 'cancelled', 'refunded'];
+        const validStatuses = ['created', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
@@ -227,6 +209,101 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.updateOrderStatus = updateOrderStatus;
+const confirmOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.status === "confirmed") {
+            return res.status(400).json({ message: "Order is already confirmed" });
+        }
+        if (order.status === "cancelled" || order.status === "refunded" || order.status === "delivered") {
+            return res.status(400).json({ message: "Cannot confirm this order from its current status" });
+        }
+        const previousStatus = order.status;
+        order.status = "confirmed";
+        order.history.push({
+            status: "confirmed",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Order confirmed by admin",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.ORDER_CONFIRMATION, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer",
+                total: order.total_amount / 100,
+            });
+        }
+        yield admin_logger_service_1.AdminLogger.logAction(req.admin._id, "CONFIRM_ORDER", "order", order.order_id, { oldStatus: previousStatus, newStatus: "confirmed", note: note || "Order confirmed by admin" }, req);
+        res.json({
+            success: true,
+            data: order,
+            message: "Order confirmed successfully",
+        });
+    }
+    catch (error) {
+        console.error("Confirm Order Error:", error);
+        res.status(500).json({ message: "Failed to confirm order" });
+    }
+});
+exports.confirmOrder = confirmOrder;
+const markCodPaymentCollected = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.payment_method !== "cod") {
+            return res.status(400).json({ message: "Only COD orders can be marked as paid from admin." });
+        }
+        if (order.payment_status === "cod_collected") {
+            return res.status(400).json({ message: "COD payment is already marked as collected." });
+        }
+        order.payment_status = "cod_collected";
+        order.status = "paid";
+        order.history.push({
+            status: "paid",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "COD payment collected",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if (order.payment_id) {
+            yield payment_model_1.Payment.findByIdAndUpdate(order.payment_id, {
+                status: "cod_collected",
+                collected_at: new Date(),
+            });
+        }
+        if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.REFUND_CONFIRMATION, order.customer_details.email, order._id, {
+                subjectPrefix: "Payment Received",
+                orderId: order.order_id,
+                customerName: ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer",
+                message: `We have received your Cash on Delivery payment for order ${order.order_id}. Thank you.`,
+            });
+        }
+        yield admin_logger_service_1.AdminLogger.logAction(req.admin._id, "MARK_COD_PAID", "order", order.order_id, { note: note || "COD payment collected by admin" }, req);
+        res.json({
+            success: true,
+            data: order,
+            message: "COD payment marked as collected",
+        });
+    }
+    catch (error) {
+        console.error("Mark COD Paid Error:", error);
+        res.status(500).json({ message: "Failed to mark COD payment as collected" });
+    }
+});
+exports.markCodPaymentCollected = markCodPaymentCollected;
 const getOrderInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {

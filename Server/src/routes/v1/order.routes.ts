@@ -1,6 +1,8 @@
 import { Router } from "express";
+import fs from "fs";
 import { Order } from "../../models/order.model";
 import { Shipping } from "../../models/shipping.model";
+import { Invoice } from "../../models/invoice.model";
 import { createCodOrder } from "../../services/order-placement.service";
 import { publicRateLimit } from "../../middlewares/publicRateLimit";
 
@@ -31,6 +33,53 @@ router.post("/cod", publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 5 }
         return res.status(statusCode).json({
             success: false,
             message: error.message || "Failed to place COD order",
+        });
+    }
+});
+
+/**
+ * Public Invoice Download Endpoint
+ * GET /api/v1/orders/:orderId/invoice
+ *
+ * Lets customers download the generated invoice from the order success
+ * and tracking pages using their public order ID.
+ */
+router.get("/:orderId/invoice", publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 30 }), async (req, res) => {
+    try {
+        const { orderId } = req.params;
+        const invoiceNumber = String(req.query.invoiceNumber || "");
+
+        const order = await Order.findOne({ order_id: orderId });
+        if (!order) {
+            return res.status(404).json({
+                success: false,
+                message: "Order not found. Please check the order ID and try again.",
+            });
+        }
+
+        const query: any = {
+            orderId: order._id,
+            status: { $ne: "void" },
+        };
+
+        if (invoiceNumber) {
+            query.invoiceNumber = invoiceNumber;
+        }
+
+        const invoice = await Invoice.findOne(query).sort({ createdAt: -1 });
+        if (!invoice || !invoice.pdfPath || !fs.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice is not available for this order yet.",
+            });
+        }
+
+        res.download(invoice.pdfPath, `${invoice.invoiceNumber}.pdf`);
+    } catch (error) {
+        console.error("Invoice Download Error:", error);
+        res.status(500).json({
+            success: false,
+            message: "Failed to download invoice",
         });
     }
 });

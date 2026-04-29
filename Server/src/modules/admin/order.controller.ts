@@ -25,53 +25,27 @@ const triggerOrderStatusSideEffects = async (
     const customerEmail = order.customer_details?.email;
     const customerName = order.customer_details?.name || "Customer";
 
-    if (newStatus === "paid") {
-        order.payment_status = order.payment_method === "cod" ? "cod_collected" : "captured";
+    if (newStatus === "confirmed") {
+        order.payment_status = order.payment_method === "cod" ? order.payment_status : "captured";
         await order.save();
 
-        if (order.payment_id) {
+        if (order.payment_id && order.payment_method !== "cod") {
             await Payment.findByIdAndUpdate(order.payment_id, {
-                status: order.payment_method === "cod" ? "cod_collected" : "captured",
-                collected_at: order.payment_method === "cod" ? new Date() : undefined,
+                status: "captured",
             });
         }
 
-        const customer = await Customer.findById(order.customer_details?.customer_id);
-
-        if (!customer) {
-            console.warn(`[OrderStatus] Customer not found for order ${order.order_id}; skipping invoice generation.`);
-        } else {
-            const existingInvoice = await Invoice.findOne({ orderId: order._id });
-            const invoice: any = existingInvoice || await InvoiceService.createInvoice(order, customer as any);
-
-            if (customerEmail) {
-                await EmailService.addToQueue(
-                    EmailType.ORDER_CONFIRMATION,
-                    customerEmail,
-                    order._id,
-                    {
-                        orderId: order.order_id,
-                        customerName,
-                        total: order.total_amount / 100,
-                    }
-                );
-
-                await EmailService.addToQueue(
-                    EmailType.INVOICE,
-                    customerEmail,
-                    order._id,
-                    {
-                        orderId: order.order_id,
-                        customerName,
-                        invoiceNumber: invoice.invoiceNumber,
-                        amount: invoice.totalAmount,
-                        pdfPath: invoice.pdfPath,
-                    }
-                );
-
-                invoice.status = "emailed";
-                await invoice.save();
-            }
+        if (customerEmail) {
+            await EmailService.addToQueue(
+                EmailType.ORDER_CONFIRMATION,
+                customerEmail,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName,
+                    total: order.total_amount / 100,
+                }
+            );
         }
     }
 
@@ -84,14 +58,7 @@ const triggerOrderStatusSideEffects = async (
             await order.save();
         }
 
-        let invoice: any = null;
         if (customerEmail) {
-            const customer = await Customer.findById(order.customer_details?.customer_id);
-            if (customer) {
-                const existingInvoice = await Invoice.findOne({ orderId: order._id });
-                invoice = existingInvoice || await InvoiceService.createInvoice(order, customer as any);
-            }
-
             await EmailService.addToQueue(
                 EmailType.SHIPPING_CONFIRMATION,
                 customerEmail,
@@ -99,11 +66,9 @@ const triggerOrderStatusSideEffects = async (
                 {
                     orderId: order.order_id,
                     customerName,
-                    courierName: order.shipping_details?.courier_name || "Shipping Partner",
-                    trackingNumber: order.shipping_details?.tracking_number || "TBD",
+                    courierName: order.shipping_details?.courier_name || "Our Shipping Partner",
+                    trackingNumber: order.shipping_details?.tracking_number || "Will be shared shortly",
                     trackingUrl: order.shipping_details?.tracking_url || "",
-                    invoiceNumber: invoice?.invoiceNumber,
-                    invoicePdfPath: invoice?.pdfPath,
                 }
             );
         }
@@ -159,6 +124,20 @@ const triggerOrderStatusSideEffects = async (
                 );
             }
         }
+    }
+
+    if (newStatus === "cancelled" && customerEmail) {
+        await EmailService.addToQueue(
+            EmailType.REFUND_CONFIRMATION,
+            customerEmail,
+            order._id,
+            {
+                subjectPrefix: "Order Cancelled",
+                orderId: order.order_id,
+                customerName,
+                message: `Your order ${order.order_id} has been cancelled as per our review. If this was unexpected, please contact support.`,
+            }
+        );
     }
 
     if (note) {
@@ -240,7 +219,7 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
         const { status, note } = req.body;
 
         // Validate Status transition (simplified for now)
-        const validStatuses = ['created', 'paid', 'shipped', 'delivered', 'cancelled', 'refunded'];
+        const validStatuses = ['created', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
@@ -284,6 +263,136 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Update Order Status Error:", error);
         res.status(500).json({ message: "Failed to update order status" });
+    }
+};
+
+export const confirmOrder = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.status === "confirmed") {
+            return res.status(400).json({ message: "Order is already confirmed" });
+        }
+
+        if (order.status === "cancelled" || order.status === "refunded" || order.status === "delivered") {
+            return res.status(400).json({ message: "Cannot confirm this order from its current status" });
+        }
+
+        const previousStatus = order.status;
+        order.status = "confirmed";
+        order.history.push({
+            status: "confirmed",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Order confirmed by admin",
+            timestamp: new Date(),
+        });
+        await order.save();
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.ORDER_CONFIRMATION,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    total: order.total_amount / 100,
+                }
+            );
+        }
+
+        await AdminLogger.logAction(
+            req.admin._id,
+            "CONFIRM_ORDER",
+            "order",
+            order.order_id,
+            { oldStatus: previousStatus, newStatus: "confirmed", note: note || "Order confirmed by admin" },
+            req
+        );
+
+        res.json({
+            success: true,
+            data: order,
+            message: "Order confirmed successfully",
+        });
+    } catch (error) {
+        console.error("Confirm Order Error:", error);
+        res.status(500).json({ message: "Failed to confirm order" });
+    }
+};
+
+export const markCodPaymentCollected = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.payment_method !== "cod") {
+            return res.status(400).json({ message: "Only COD orders can be marked as paid from admin." });
+        }
+
+        if (order.payment_status === "cod_collected") {
+            return res.status(400).json({ message: "COD payment is already marked as collected." });
+        }
+
+        order.payment_status = "cod_collected";
+        order.status = "paid";
+        order.history.push({
+            status: "paid",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "COD payment collected",
+            timestamp: new Date(),
+        });
+        await order.save();
+
+        if (order.payment_id) {
+            await Payment.findByIdAndUpdate(order.payment_id, {
+                status: "cod_collected",
+                collected_at: new Date(),
+            });
+        }
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.REFUND_CONFIRMATION,
+                order.customer_details.email,
+                order._id,
+                {
+                    subjectPrefix: "Payment Received",
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    message: `We have received your Cash on Delivery payment for order ${order.order_id}. Thank you.`,
+                }
+            );
+        }
+
+        await AdminLogger.logAction(
+            req.admin._id,
+            "MARK_COD_PAID",
+            "order",
+            order.order_id,
+            { note: note || "COD payment collected by admin" },
+            req
+        );
+
+        res.json({
+            success: true,
+            data: order,
+            message: "COD payment marked as collected",
+        });
+    } catch (error) {
+        console.error("Mark COD Paid Error:", error);
+        res.status(500).json({ message: "Failed to mark COD payment as collected" });
     }
 };
 

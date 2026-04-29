@@ -2,8 +2,9 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Navbar } from '../components/common';
 import { Footer } from '../components/home';
 import { Button } from '../components/common';
-import { CheckCircle2, Package, ArrowRight, Copy, Check } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Copy, Check, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { getInvoiceDownloadUrl } from '../api/orders';
 
 export function OrderSuccessPage() {
     const [searchParams] = useSearchParams();
@@ -15,6 +16,7 @@ export function OrderSuccessPage() {
     const invoice = searchParams.get('invoice') || '';
     const [copied, setCopied] = useState(false);
     const [showContent, setShowContent] = useState(false);
+    const invoiceDownloadUrl = orderId ? getInvoiceDownloadUrl(orderId, invoice || null) : '';
 
     // Animate in after mount
     useEffect(() => {
@@ -63,7 +65,7 @@ export function OrderSuccessPage() {
                         </h1>
                         <p className="font-body text-charcoal/60 text-lg mb-10 max-w-md mx-auto">
                             {method === 'cod'
-                                ? 'Thank you for your purchase. Your Cash on Delivery order is confirmed and will move into processing shortly.'
+                                ? 'Thank you for your purchase. Your order is confirmed and payment will be collected on delivery.'
                                 : "Thank you for your purchase. Your order is being processed and you'll receive a confirmation email shortly."}
                         </p>
 
@@ -144,6 +146,17 @@ export function OrderSuccessPage() {
                                     </div>
                                 )}
 
+                                {method === 'cod' && (
+                                    <div className="flex items-center justify-between">
+                                        <span className="font-body text-sm text-charcoal/60">
+                                            Payment Status
+                                        </span>
+                                        <span className="font-body text-sm font-medium text-charcoal">
+                                            Payment on Delivery
+                                        </span>
+                                    </div>
+                                )}
+
                                 {invoice && (
                                     <div className="flex items-center justify-between">
                                         <span className="font-body text-sm text-charcoal/60">
@@ -179,35 +192,40 @@ export function OrderSuccessPage() {
                             </div>
                         </div>
 
-                        {/* Info Banner */}
-                        <div className="bg-primary-light/40 rounded-xl p-4 mb-8 text-left">
-                            <p className="font-body text-sm text-charcoal/60">
-                                A confirmation email with your invoice will be sent to your registered email address.
-                                If you don't receive it within 15 minutes, please check your spam folder.
-                            </p>
-                        </div>
-
                         {/* CTAs */}
-                        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto">
                             {orderId && (
-                                <Link to={`/track-order?orderId=${encodeURIComponent(orderId)}`}>
-                                    <Button variant="secondary" size="lg">
+                                <Link to={`/track-order?orderId=${encodeURIComponent(orderId)}`} className="w-full">
+                                    <Button variant="secondary" size="lg" className="w-full h-14 !py-0 !text-base !rounded-xl !font-semibold">
                                         Track Order
                                     </Button>
                                 </Link>
                             )}
-                            <Link to="/products">
+                            {invoiceDownloadUrl && (
+                                <Button
+                                    variant="accent"
+                                    size="lg"
+                                    icon={<Download className="w-5 h-5" />}
+                                    iconPosition="left"
+                                    className="w-full h-14 !py-0 !text-base !rounded-xl !font-semibold shadow-sm hover:shadow-md"
+                                    onClick={() => window.open(invoiceDownloadUrl, '_blank', 'noopener,noreferrer')}
+                                >
+                                    Download Invoice
+                                </Button>
+                            )}
+                            <Link to="/products" className="w-full">
                                 <Button
                                     variant="primary"
                                     size="lg"
                                     icon={<ArrowRight className="w-5 h-5" />}
                                     iconPosition="right"
+                                    className="w-full h-14 !py-0 !text-base !rounded-xl !font-semibold shadow-sm hover:shadow-md"
                                 >
                                     Continue Shopping
                                 </Button>
                             </Link>
-                            {!orderId && <Link to="/">
-                                <Button variant="secondary" size="lg">
+                            {!orderId && <Link to="/" className="w-full">
+                                <Button variant="secondary" size="lg" className="w-full h-14 !py-0 !text-base !rounded-xl !font-semibold">
                                     Back to Home
                                 </Button>
                             </Link>}

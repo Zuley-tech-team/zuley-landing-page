@@ -141,6 +141,20 @@ class AdminAPI {
         });
     }
 
+    async confirmOrder(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any; message?: string }>(`/orders/${orderId}/confirm`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
+    async markCodPaymentCollected(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any; message?: string }>(`/orders/${orderId}/mark-cod-paid`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
     async getOrderInvoice(orderId: string) {
         return this.request<{ success: boolean; data: any }>(`/orders/${orderId}/invoice`);
     }

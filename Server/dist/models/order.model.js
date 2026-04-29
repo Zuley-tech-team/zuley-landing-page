@@ -47,6 +47,7 @@ const orderSchema = new mongoose_1.default.Schema({
         type: String,
         enum: [
             "created",
+            "confirmed",
             "paid",
             "shipped",
             "delivered",

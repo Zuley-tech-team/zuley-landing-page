@@ -48,6 +48,8 @@ function getStatusConfig(status: string): StatusConfig {
     switch (status) {
         case 'paid':
             return { label: 'Paid', color: 'text-success', bg: 'bg-success/10', icon: <CheckCircle className="w-3.5 h-3.5" /> };
+        case 'confirmed':
+            return { label: 'Confirmed', color: 'text-emerald-700', bg: 'bg-emerald-100', icon: <CheckCircle className="w-3.5 h-3.5" /> };
         case 'shipped':
             return { label: 'Shipped', color: 'text-blue-600', bg: 'bg-blue-50', icon: <Truck className="w-3.5 h-3.5" /> };
         case 'delivered':
@@ -105,11 +107,25 @@ function OrderCard({ order }: { order: CustomerOrder }) {
             <div className="orders-items">
                 {order.items.slice(0, isExpanded ? order.items.length : 2).map((item, i) => (
                     <div key={`${item.sku}-${i}`} className="orders-item-row">
-                        <div className="orders-item-icon">
-                            <Package className="w-4 h-4 text-charcoal/40" />
-                        </div>
+                        {item.product_image ? (
+                            <img
+                                src={item.product_image}
+                                alt={item.name}
+                                className="orders-item-image"
+                                loading="lazy"
+                            />
+                        ) : (
+                            <div className="orders-item-icon">
+                                <Package className="w-4 h-4 text-charcoal/40" />
+                            </div>
+                        )}
                         <div className="orders-item-info">
-                            <p className="orders-item-name">{item.name}</p>
+                            <a
+                                href={`/products/${encodeURIComponent(item.product_sku || item.sku)}`}
+                                className="orders-item-name-link"
+                            >
+                                {item.name}
+                            </a>
                             {item.variant_info && (
                                 <p className="orders-item-variant">{item.variant_info}</p>
                             )}
@@ -159,10 +175,9 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                     </div>
                 )}
 
-                {/* CTA */}
+                {/* Zuley generates invoices immediately upon order creation, so we can show it for all active statuses */}
                 <div className="flex items-center gap-3">
-                    {/* Assuming order.status !== 'created' we can show the invoice. For now let's show it if it's shipped or delivered, or just always show it */}
-                    {['shipped', 'delivered', 'paid'].includes(order.status) && (
+                    {['created', 'confirmed', 'shipped', 'delivered', 'paid'].includes(order.status) && (
                         <button
                             onClick={handleDownloadInvoice}
                             disabled={isDownloading}

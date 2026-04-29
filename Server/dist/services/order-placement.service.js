@@ -14,11 +14,9 @@ const customer_model_1 = require("../models/customer.model");
 const order_model_1 = require("../models/order.model");
 const payment_model_1 = require("../models/payment.model");
 const product_model_1 = require("../models/product.model");
-const email_queue_model_1 = require("../models/email-queue.model");
 const inventory_service_1 = require("../modules/inventory/inventory.service");
 const orderIdGenerator_1 = require("../utils/orderIdGenerator");
 const invoice_service_1 = require("./invoice.service");
-const email_service_1 = require("./email.service");
 const normalizePhone = (phone) => {
     const digits = phone.replace(/\D/g, "");
     return digits.length > 10 && digits.startsWith("91") ? digits.slice(2) : digits;
@@ -148,20 +146,6 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
         let invoice = null;
         try {
             invoice = yield invoice_service_1.InvoiceService.createInvoice(order, customerDoc);
-            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.ORDER_CONFIRMATION, customerDoc.email, order._id, {
-                orderId: order.order_id,
-                customerName: customerDoc.full_name,
-                total: order.total_amount / 100,
-                paymentMethod: "Cash on Delivery",
-            });
-            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.INVOICE, customerDoc.email, order._id, {
-                orderId: order.order_id,
-                customerName: customerDoc.full_name,
-                invoiceNumber: invoice.invoiceNumber,
-                amount: invoice.totalAmount,
-                pdfPath: invoice.pdfPath,
-            });
-            invoice.status = "emailed";
             yield invoice.save();
         }
         catch (invoiceError) {

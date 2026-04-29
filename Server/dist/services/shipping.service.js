@@ -14,6 +14,7 @@ const shipping_model_1 = require("../models/shipping.model");
 const order_model_1 = require("../models/order.model");
 const payment_model_1 = require("../models/payment.model");
 const email_service_1 = require("./email.service");
+const email_queue_model_1 = require("../models/email-queue.model");
 class ShippingService {
     /**
      * Helper to generate tracking URL based on courier
@@ -47,7 +48,7 @@ class ShippingService {
             if (!order) {
                 throw new Error(`Order ${orderId} not found`);
             }
-            if (order.status !== 'paid' && order.status !== 'created') {
+            if (order.status !== 'paid' && order.status !== 'created' && order.status !== 'confirmed') {
                 // Allow 'created' just in case payment flow had minor sync issues, but ideally 'paid'
                 // If already shipped, throw error? 
                 if (order.status === 'shipped' || order.status === 'delivered') {
@@ -88,22 +89,14 @@ class ShippingService {
                 timestamp: new Date()
             });
             yield order.save();
-            // Send Email Notification
-            // Since EmailService might not have this method yet, we suppress error or assuming it exists
-            try {
-                // We need to fetch customer email. It's in order.customer_details.email
-                if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
-                    yield email_service_1.EmailService.addToQueue("shipping_confirmation", order.customer_details.email, order._id, {
-                        orderId: orderId,
-                        customerName: order.customer_details.name,
-                        courierName: courierName,
-                        trackingNumber: trackingNumber,
-                        trackingUrl: finalTrackingUrl
-                    });
-                }
-            }
-            catch (emailErr) {
-                console.error(`Failed to send shipping email for ${orderId}`, emailErr);
+            if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+                yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.SHIPPING_CONFIRMATION, order.customer_details.email, order._id, {
+                    orderId: order.order_id,
+                    customerName: order.customer_details.name,
+                    courierName,
+                    trackingNumber,
+                    trackingUrl: finalTrackingUrl,
+                });
             }
             return shipment;
         });
@@ -198,18 +191,11 @@ class ShippingService {
                 timestamp: new Date()
             });
             yield order.save();
-            // Send Delivery Email
-            try {
-                if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
-                    yield email_service_1.EmailService.addToQueue("delivery_confirmation", order.customer_details.email, // Use order's customer email
-                    order._id, {
-                        orderId: orderId,
-                        customerName: order.customer_details.name,
-                    });
-                }
-            }
-            catch (emailErr) {
-                console.error(`Failed to send delivery email for ${orderId}`, emailErr);
+            if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+                yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.DELIVERY_CONFIRMATION, order.customer_details.email, order._id, {
+                    orderId: order.order_id,
+                    customerName: order.customer_details.name,
+                });
             }
             return shipment;
         });
