@@ -52,7 +52,7 @@ export function CorporateSection() {
                 >
                     <div className="grid grid-cols-1 lg:grid-cols-2">
                         {/* Left - Content */}
-                        <div className="relative z-10 p-8 md:p-12 lg:p-16 bg-gradient-to-br from-slate-100 via-white to-slate-50 flex flex-col justify-center">
+                        <div className="order-2 lg:order-1 relative z-10 p-8 md:p-12 lg:p-16 bg-gradient-to-br from-slate-100 via-white to-slate-50 flex flex-col justify-center">
                             <span className="inline-flex items-center gap-2 px-4 py-1.5 mb-6 w-fit bg-charcoal/5 rounded-full font-body text-sm text-charcoal/70 uppercase tracking-wider">
                                 <Building2 className="w-4 h-4" />
                                 Corporate Solutions
@@ -88,14 +88,14 @@ export function CorporateSection() {
                             </div>
 
                             {/* CTAs */}
-                            <div className="flex flex-col sm:flex-row gap-4">
+                            <div className="flex flex-row flex-wrap gap-3">
                                 <Link to="/corporate">
-                                    <Button variant="primary" size="lg" icon={<ArrowRight className="w-5 h-5" />}>
-                                        Explore Corporate Gifting
+                                    <Button variant="primary" size="sm" icon={<ArrowRight className="w-4 h-4" />}>
+                                        Explore Corporate Gifts
                                     </Button>
                                 </Link>
                                 <Link to="/corporate#corporate-enquiry">
-                                    <Button variant="secondary" size="lg">
+                                    <Button variant="secondary" size="sm">
                                         Request Quote
                                     </Button>
                                 </Link>
@@ -103,7 +103,7 @@ export function CorporateSection() {
                         </div>
 
                         {/* Right - Image */}
-                        <div className="relative min-h-[300px] lg:min-h-[500px]">
+                        <div className="order-1 lg:order-2 relative min-h-[300px] lg:min-h-[500px]">
                             <img
                                 src={corporateHero}
                                 alt="Corporate gifting"

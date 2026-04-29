@@ -129,7 +129,7 @@ export function ProductSpotlight() {
                     className="relative mb-16 md:mb-20 rounded-3xl overflow-hidden"
                 >
                     {/* Main Image */}
-                    <div className="relative aspect-[16/9] md:aspect-[21/9]">
+                    <div className="relative aspect-square md:aspect-[21/9]">
                         <img
                             src={heroBelow}
                             alt="Signature silver pen"

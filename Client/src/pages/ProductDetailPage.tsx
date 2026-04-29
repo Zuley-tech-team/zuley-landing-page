@@ -418,12 +418,12 @@ export function ProductDetailPage() {
                                     value && (
                                         <div
                                             key={key}
-                                            className="flex justify-between py-3 px-4 bg-pearl rounded-xl"
+                                            className="flex justify-between items-start gap-4 py-3 px-4 bg-pearl rounded-xl"
                                         >
-                                            <span className="font-body text-charcoal/60 capitalize">
+                                            <span className="font-body text-charcoal/60 capitalize shrink-0">
                                                 {key.replace(/([A-Z])/g, ' $1').trim()}
                                             </span>
-                                            <span className="font-body font-medium text-charcoal">
+                                            <span className="font-body font-medium text-charcoal text-right break-words">
                                                 {value}
                                             </span>
                                         </div>

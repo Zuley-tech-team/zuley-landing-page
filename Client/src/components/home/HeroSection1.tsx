@@ -72,7 +72,7 @@ export function HeroSection1() {
                 {/* Hero card with rounded corners and shadow */}
                 <div className="hero-image-card relative overflow-hidden rounded-2xl md:rounded-3xl shadow-luxury">
                     {/* Background images with crossfade */}
-                    <div className="relative aspect-[16/10] sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
+                    <div className="relative aspect-square sm:aspect-[16/8] md:aspect-[16/7] lg:aspect-[16/6]">
                         {heroBackgrounds.map((bg, index) => (
                             <div
                                 key={bg.id}

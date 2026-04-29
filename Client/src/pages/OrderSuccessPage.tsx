@@ -169,11 +169,11 @@ export function OrderSuccessPage() {
                                 )}
 
                                 {productName && (
-                                    <div className="flex items-center justify-between">
-                                        <span className="font-body text-sm text-charcoal/60">
+                                    <div className="flex items-start justify-between gap-4">
+                                        <span className="font-body text-sm text-charcoal/60 shrink-0">
                                             Item
                                         </span>
-                                        <span className="font-body text-sm font-medium text-charcoal">
+                                        <span className="font-body text-sm font-medium text-charcoal text-right break-words">
                                             {decodeURIComponent(productName)}
                                         </span>
                                     </div>

@@ -36,8 +36,8 @@ const footerLinks = {
 };
 
 const socialLinks = [
-    { icon: Instagram, href: 'https://instagram.com', label: 'Instagram' },
-    { icon: Facebook, href: 'https://facebook.com', label: 'Facebook' },
+    { icon: Instagram, href: 'https://instagram.com/zuley.in', label: 'Instagram' },
+    { icon: Facebook, href: 'https://instagram.com/zuley.in', label: 'Facebook' },
 ];
 
 export function Footer() {
@@ -155,10 +155,10 @@ export function Footer() {
             </div>
 
             {/* Links Section */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 md:py-16">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12 md:py-16">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-x-8 gap-y-10 md:gap-12">
                     {/* Shop */}
-                    <div>
+                    <div className="col-start-1 row-start-1 md:col-auto md:row-auto">
                         <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-4 text-primary">Shop</h4>
                         <ul className="space-y-3">
                             {footerLinks.shop.map((link) => (
@@ -175,7 +175,7 @@ export function Footer() {
                     </div>
 
                     {/* About */}
-                    <div>
+                    <div className="col-start-1 row-start-2 md:col-auto md:row-auto">
                         <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-4 text-primary">About</h4>
                         <ul className="space-y-3">
                             {footerLinks.about.map((link) => (
@@ -192,7 +192,7 @@ export function Footer() {
                     </div>
 
                     {/* Support */}
-                    <div>
+                    <div className="col-start-2 row-start-1 row-span-2 md:col-auto md:row-auto">
                         <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-4 text-primary">Support</h4>
                         <ul className="space-y-3">
                             {footerLinks.support.map((link) => (
