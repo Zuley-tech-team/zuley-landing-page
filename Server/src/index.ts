@@ -51,11 +51,12 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api/v1", v1Routes);
 
 if (env.NODE_ENV === "production") {
-  const buildPath = path.join(__dirname, "..", "..", "Client", "dist");
-  app.use(express.static(buildPath));
-
-  app.get("*", (req, res) => {
-    res.sendFile(path.resolve(buildPath, "index.html"));
+  app.get("/", (req, res) => {
+    res.json({
+      success: true,
+      message: "Zuley API is running smoothly",
+      environment: "production"
+    });
   });
 }
 
