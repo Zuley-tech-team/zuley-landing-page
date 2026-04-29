@@ -42,7 +42,7 @@ app.use(express_1.default.json({
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use("/api/v1", index_1.default);
 if (env_config_1.env.NODE_ENV === "production") {
-    const buildPath = path_1.default.join(__dirname, "..", "..", "client", "dist");
+    const buildPath = path_1.default.join(__dirname, "..", "..", "Client", "dist");
     app.use(express_1.default.static(buildPath));
     app.get("*", (req, res) => {
         res.sendFile(path_1.default.resolve(buildPath, "index.html"));

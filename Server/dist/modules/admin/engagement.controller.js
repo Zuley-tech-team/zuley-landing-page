@@ -13,6 +13,7 @@ exports.getEngagementStats = exports.getNewsletterSubscribers = exports.updateCo
 const contact_inquiry_model_1 = require("../../models/contact-inquiry.model");
 const corporate_lead_model_1 = require("../../models/corporate-lead.model");
 const newsletter_subscriber_model_1 = require("../../models/newsletter-subscriber.model");
+const user_model_1 = require("../../models/user.model");
 const admin_logger_service_1 = require("../../services/admin-logger.service");
 const paginationOptions = (req) => {
     const page = Math.max(Number(req.query.page || 1), 1);
@@ -172,10 +173,11 @@ const getNewsletterSubscribers = (req, res) => __awaiter(void 0, void 0, void 0,
 exports.getNewsletterSubscribers = getNewsletterSubscribers;
 const getEngagementStats = (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const [newContacts, openCorporate, subscribers] = yield Promise.all([
+        const [newContacts, openCorporate, subscribers, totalUsers] = yield Promise.all([
             contact_inquiry_model_1.ContactInquiry.countDocuments({ status: { $ne: "resolved" } }),
             corporate_lead_model_1.CorporateLead.countDocuments({ status: { $ne: "closed" } }),
             newsletter_subscriber_model_1.NewsletterSubscriber.countDocuments({ status: "subscribed" }),
+            user_model_1.User.countDocuments(),
         ]);
         res.json({
             success: true,
@@ -183,6 +185,7 @@ const getEngagementStats = (_req, res) => __awaiter(void 0, void 0, void 0, func
                 openContactInquiries: newContacts,
                 openCorporateLeads: openCorporate,
                 activeSubscribers: subscribers,
+                totalUsers: totalUsers,
             },
         });
     }

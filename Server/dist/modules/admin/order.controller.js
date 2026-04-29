@@ -25,7 +25,7 @@ const payment_model_1 = require("../../models/payment.model");
 const fs_1 = __importDefault(require("fs"));
 const TERMINAL_STATUSES = new Set(["cancelled", "refunded"]);
 const triggerOrderStatusSideEffects = (order, oldStatus, newStatus, note) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     if (oldStatus === newStatus) {
         return;
     }
@@ -73,13 +73,21 @@ const triggerOrderStatusSideEffects = (order, oldStatus, newStatus, note) => __a
             order.shipping_details.shipped_at = new Date();
             yield order.save();
         }
+        let invoice = null;
         if (customerEmail) {
+            const customer = yield customer_model_1.Customer.findById((_d = order.customer_details) === null || _d === void 0 ? void 0 : _d.customer_id);
+            if (customer) {
+                const existingInvoice = yield invoice_model_1.Invoice.findOne({ orderId: order._id });
+                invoice = existingInvoice || (yield invoice_service_1.InvoiceService.createInvoice(order, customer));
+            }
             yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.SHIPPING_CONFIRMATION, customerEmail, order._id, {
                 orderId: order.order_id,
                 customerName,
-                courierName: ((_d = order.shipping_details) === null || _d === void 0 ? void 0 : _d.courier_name) || "Shipping Partner",
-                trackingNumber: ((_e = order.shipping_details) === null || _e === void 0 ? void 0 : _e.tracking_number) || "TBD",
-                trackingUrl: ((_f = order.shipping_details) === null || _f === void 0 ? void 0 : _f.tracking_url) || "",
+                courierName: ((_e = order.shipping_details) === null || _e === void 0 ? void 0 : _e.courier_name) || "Shipping Partner",
+                trackingNumber: ((_f = order.shipping_details) === null || _f === void 0 ? void 0 : _f.tracking_number) || "TBD",
+                trackingUrl: ((_g = order.shipping_details) === null || _g === void 0 ? void 0 : _g.tracking_url) || "",
+                invoiceNumber: invoice === null || invoice === void 0 ? void 0 : invoice.invoiceNumber,
+                invoicePdfPath: invoice === null || invoice === void 0 ? void 0 : invoice.pdfPath,
             });
         }
     }

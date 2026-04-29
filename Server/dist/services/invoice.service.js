@@ -163,8 +163,8 @@ class InvoiceService {
     /**
      * Generates PDF and saves to disk
      */
-    static generatePDF(invoice) {
-        return __awaiter(this, void 0, void 0, function* () {
+    static generatePDF(invoice_1) {
+        return __awaiter(this, arguments, void 0, function* (invoice, paymentMethod = 'online') {
             return new Promise((resolve, reject) => {
                 const doc = new pdfkit_1.default({ size: 'A4', margin: 50 });
                 const fileName = `${invoice.invoiceNumber}.pdf`;
@@ -176,63 +176,92 @@ class InvoiceService {
                 const filePath = path_1.default.join(dir, fileName);
                 const stream = fs_1.default.createWriteStream(filePath);
                 doc.pipe(stream);
-                // Header
-                doc.fontSize(20).text('TAX INVOICE', { align: 'center' });
-                doc.moveDown();
+                // Modern Header
+                doc.font('Helvetica-Bold').fontSize(28).fillColor('#1A1A1A').text('ZULEY', { align: 'left' });
+                doc.fontSize(10).fillColor('#666666').text('Premium Silver Crafted for You', { align: 'left' });
+                doc.moveDown(1);
+                doc.font('Helvetica-Bold').fontSize(16).fillColor('#1A1A1A').text('TAX INVOICE', { align: 'center' });
+                if (paymentMethod === 'cod') {
+                    doc.font('Helvetica-Bold').fontSize(10).fillColor('#D97706').text('PAYMENT DUE (CASH ON DELIVERY)', { align: 'center' });
+                }
+                doc.moveDown(2);
                 // Seller Details
-                doc.fontSize(10).text(`Sold By: ${invoice.sellerDetails.name}`);
+                doc.font('Helvetica-Bold').fontSize(10).fillColor('#1A1A1A').text('Sold By:', 50, doc.y);
+                doc.font('Helvetica').fillColor('#333333');
+                doc.text(invoice.sellerDetails.name);
                 doc.text(invoice.sellerDetails.address);
-                doc.text(`GSTIN: ${invoice.sellerDetails.gstin}`);
+                if (paymentMethod !== 'cod') {
+                    doc.text(`GSTIN: ${invoice.sellerDetails.gstin}`);
+                }
                 doc.text(`State: ${invoice.sellerDetails.state} (${invoice.sellerDetails.stateCode})`);
                 doc.moveDown();
-                // Buyer Details & Invoice Details (Side by Side roughly)
+                // Buyer Details & Invoice Details
                 const startY = doc.y;
-                doc.text(`Bill To: ${invoice.buyerDetails.name}`);
-                doc.text(invoice.buyerDetails.billingAddress);
-                doc.text(`State: ${invoice.buyerDetails.state}`);
-                doc.text(`State Code: ${invoice.buyerDetails.stateCode}`);
-                doc.text(`Invoice No: ${invoice.invoiceNumber}`, 300, startY);
-                doc.text(`Date: ${new Date(invoice.invoiceDate).toLocaleDateString()}`, 300, startY + 15);
-                doc.text(`Order ID: ${invoice.orderId}`, 300, startY + 30);
-                doc.moveDown(2);
-                // Table Header
+                doc.font('Helvetica-Bold').fillColor('#1A1A1A').text('Bill To:', 50, startY);
+                doc.font('Helvetica').fillColor('#333333');
+                doc.text(invoice.buyerDetails.name, 50, startY + 15);
+                doc.text(invoice.buyerDetails.billingAddress, 50, startY + 30, { width: 200 });
+                doc.text(`State: ${invoice.buyerDetails.state}`, 50, doc.y);
+                doc.text(`State Code: ${invoice.buyerDetails.stateCode}`, 50, doc.y);
+                doc.font('Helvetica-Bold').fillColor('#1A1A1A').text('Invoice Details:', 350, startY);
+                doc.font('Helvetica').fillColor('#333333');
+                doc.text(`Invoice No: ${invoice.invoiceNumber}`, 350, startY + 15);
+                doc.text(`Date: ${new Date(invoice.invoiceDate).toLocaleDateString()}`, 350, startY + 30);
+                doc.text(`Order ID: ${invoice.orderId}`, 350, startY + 45);
+                doc.moveDown(3);
+                // Table Header Background
                 const tableTop = doc.y;
-                doc.text('Item', 50, tableTop);
-                doc.text('HSN', 200, tableTop);
-                doc.text('Qty', 250, tableTop);
-                doc.text('Rate', 300, tableTop);
-                doc.text('Taxable', 350, tableTop);
-                doc.text('Total', 450, tableTop);
-                doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
-                let position = tableTop + 30;
+                doc.rect(50, tableTop - 5, 500, 20).fillColor('#F3F4F6').fill();
+                doc.font('Helvetica-Bold').fillColor('#1A1A1A').fontSize(9);
+                doc.text('Item', 60, tableTop);
+                doc.text('HSN', 210, tableTop);
+                doc.text('Qty', 260, tableTop);
+                doc.text('Rate', 310, tableTop);
+                doc.text('Taxable', 380, tableTop);
+                doc.text('Total', 480, tableTop);
+                let position = tableTop + 25;
                 // Table Rows
+                doc.font('Helvetica').fillColor('#333333').fontSize(9);
                 invoice.items.forEach(item => {
-                    doc.text(item.description, 50, position, { width: 140 });
-                    doc.text(item.hsnCode, 200, position);
-                    doc.text(item.quantity.toString(), 250, position);
-                    doc.text(item.unitPrice.toFixed(2), 300, position);
-                    doc.text(item.taxableValue.toFixed(2), 350, position);
-                    doc.text(item.totalAmount.toFixed(2), 450, position);
-                    position += 20;
+                    doc.text(item.description, 60, position, { width: 140 });
+                    doc.text(item.hsnCode, 210, position);
+                    doc.text(item.quantity.toString(), 260, position);
+                    doc.text(item.unitPrice.toFixed(2), 310, position);
+                    doc.text(item.taxableValue.toFixed(2), 380, position);
+                    doc.text(item.totalAmount.toFixed(2), 480, position);
+                    position += 25;
                 });
-                doc.moveTo(50, position + 5).lineTo(550, position + 5).stroke();
+                doc.moveTo(50, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
                 // Summary
                 position += 20;
-                doc.text(`Taxable Value: ${invoice.taxSummary.totalTaxableValue.toFixed(2)}`, 350, position);
+                doc.font('Helvetica').fontSize(9);
+                doc.text(`Taxable Value:`, 350, position);
+                doc.text(`${invoice.taxSummary.totalTaxableValue.toFixed(2)}`, 480, position);
                 position += 15;
                 if (invoice.taxSummary.totalIGST > 0) {
-                    doc.text(`IGST: ${invoice.taxSummary.totalIGST.toFixed(2)}`, 350, position);
+                    doc.text(`IGST:`, 350, position);
+                    doc.text(`${invoice.taxSummary.totalIGST.toFixed(2)}`, 480, position);
                     position += 15;
                 }
                 else {
-                    doc.text(`CGST: ${invoice.taxSummary.totalCGST.toFixed(2)}`, 350, position);
+                    doc.text(`CGST:`, 350, position);
+                    doc.text(`${invoice.taxSummary.totalCGST.toFixed(2)}`, 480, position);
                     position += 15;
-                    doc.text(`SGST: ${invoice.taxSummary.totalSGST.toFixed(2)}`, 350, position);
+                    doc.text(`SGST:`, 350, position);
+                    doc.text(`${invoice.taxSummary.totalSGST.toFixed(2)}`, 480, position);
                     position += 15;
                 }
-                doc.fontSize(12).text(`Grand Total: ${invoice.totalAmount.toFixed(2)}`, 350, position + 10);
+                doc.moveTo(350, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
+                position += 15;
+                doc.font('Helvetica-Bold').fontSize(11).fillColor('#1A1A1A');
+                doc.text(`Grand Total:`, 350, position);
+                doc.text(`INR ${invoice.totalAmount.toFixed(2)}`, 480, position);
                 // Amount in words
-                doc.fontSize(10).text(`Amount in Words: ${invoice.amountInWords}`, 50, position + 10);
+                doc.moveDown(3);
+                doc.font('Helvetica-Bold').fontSize(9).text('Amount in Words:');
+                doc.font('Helvetica').text(invoice.amountInWords);
+                doc.moveDown(4);
+                doc.font('Helvetica-Oblique').fontSize(8).fillColor('#9CA3AF').text('This is a computer generated invoice and does not require a physical signature.', { align: 'center' });
                 doc.end();
                 stream.on('finish', () => resolve(filePath));
                 stream.on('error', (err) => reject(err));
@@ -340,7 +369,7 @@ class InvoiceService {
             // 4. Save to DB (Status: generated)
             const invoice = new invoice_model_1.Invoice(invoiceData);
             // 5. Generate PDF
-            const pdfPath = yield this.generatePDF(invoice);
+            const pdfPath = yield this.generatePDF(invoice, order.payment_method);
             invoice.pdfPath = pdfPath;
             yield invoice.save();
             return invoice;

@@ -87,4 +87,8 @@ router.patch("/engagement/contact-inquiries/:id/status", engagementController.up
 router.get("/engagement/corporate-leads", engagementController.getCorporateLeads);
 router.patch("/engagement/corporate-leads/:id/status", engagementController.updateCorporateLeadStatus);
 router.get("/engagement/newsletter-subscribers", engagementController.getNewsletterSubscribers);
+// User/Lead Routes
+const usersController = __importStar(require("./users.controller"));
+router.get("/users", usersController.getUsers);
+router.get("/users/:id", usersController.getUserDetails);
 exports.default = router;

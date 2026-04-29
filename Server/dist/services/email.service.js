@@ -10,11 +10,79 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.EmailService = void 0;
+exports.sendOtpEmailDirect = sendOtpEmailDirect;
 const resend_1 = require("resend");
 const env_config_1 = require("../config/env.config");
 const email_queue_model_1 = require("../models/email-queue.model");
 // Initialize Resend with API Key only if present
 const resend = env_config_1.env.RESEND_API_KEY ? new resend_1.Resend(env_config_1.env.RESEND_API_KEY) : null;
+// OTP Email — sent directly, not via queue (time-critical)
+function sendOtpEmailDirect(email, otp, isNewUser) {
+    return __awaiter(this, void 0, void 0, function* () {
+        // Always log the OTP to console for debugging (development)
+        console.log(`\n🔐 [DEV] OTP for ${email}: ${otp} (expires in 10 min)\n`);
+        if (!resend) {
+            return;
+        }
+        const actionLabel = isNewUser ? "Create your Zuley account" : "Sign in to Zuley";
+        const greeting = isNewUser ? "Welcome to Zuley!" : "Welcome back!";
+        const html = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Your Zuley OTP</title>
+</head>
+<body style="margin:0;padding:0;background-color:#F5F0EB;font-family:'Segoe UI',Arial,sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="padding:40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="560" cellpadding="0" cellspacing="0" style="background:#ffffff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.08);">
+          <!-- Header -->
+          <tr>
+            <td style="background-color:#1C1C1E;padding:32px 40px;text-align:center;">
+              <h1 style="margin:0;color:#F5F0EB;font-size:28px;font-weight:700;letter-spacing:2px;">ZULEY</h1>
+              <p style="margin:6px 0 0;color:#F5F0EB;opacity:0.6;font-size:13px;letter-spacing:1px;">SILVER CRAFTSMANSHIP</p>
+            </td>
+          </tr>
+          <!-- Body -->
+          <tr>
+            <td style="padding:40px 40px 32px;">
+              <h2 style="margin:0 0 8px;color:#1C1C1E;font-size:22px;font-weight:600;">${greeting}</h2>
+              <p style="margin:0 0 24px;color:#6B6B6B;font-size:15px;line-height:1.6;">${actionLabel}. Use the OTP below to continue. It expires in <strong>10 minutes</strong>.</p>
+              <!-- OTP Box -->
+              <div style="background:#F5F0EB;border-radius:12px;padding:28px;text-align:center;margin:0 0 28px;">
+                <p style="margin:0 0 8px;color:#6B6B6B;font-size:13px;letter-spacing:1px;text-transform:uppercase;">Your One-Time Password</p>
+                <p style="margin:0;color:#1C1C1E;font-size:42px;font-weight:700;letter-spacing:12px;">${otp}</p>
+              </div>
+              <p style="margin:0;color:#6B6B6B;font-size:13px;line-height:1.6;">If you didn't request this, you can safely ignore this email. Your account is secure.</p>
+            </td>
+          </tr>
+          <!-- Footer -->
+          <tr>
+            <td style="background:#F5F0EB;padding:20px 40px;text-align:center;border-top:1px solid #E8E0D8;">
+              <p style="margin:0;color:#9B9B9B;font-size:12px;">© ${new Date().getFullYear()} Zuley. All rights reserved.</p>
+              <p style="margin:4px 0 0;color:#9B9B9B;font-size:12px;">zuley.in</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+        const result = yield resend.emails.send({
+            from: env_config_1.env.EMAIL_FROM,
+            to: email,
+            subject: `${otp} — Your Zuley Login OTP`,
+            html,
+        });
+        if (result.error) {
+            throw new Error(`Failed to send OTP email: ${result.error.message}`);
+        }
+    });
+}
 class EmailService {
     /**
      * Add an email job to the queue
@@ -140,8 +208,18 @@ class EmailService {
             <p><strong>Courier:</strong> ${payload.courierName}</p>
             <p><strong>Tracking Number:</strong> ${payload.trackingNumber}</p>
             <p><a href="${payload.trackingUrl}">Track your package</a></p>
+            <br />
+            ${payload.invoiceNumber ? `
+            <h3>📄 Your Invoice</h3>
+            <p>We've attached your invoice (<strong>${payload.invoiceNumber}</strong>) for your records.</p>
+            ` : ''}
+            <br />
             <p>— Team Zuley</p>
           `,
+                    attachments: payload.invoicePdfPath ? [{
+                            filename: `Invoice-${payload.invoiceNumber}.pdf`,
+                            path: payload.invoicePdfPath,
+                        }] : [],
                 };
             case email_queue_model_1.EmailType.DELIVERY_CONFIRMATION:
                 return {

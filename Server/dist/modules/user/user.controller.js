@@ -1,0 +1,258 @@
+"use strict";
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.downloadMyInvoice = exports.getMyOrders = exports.getMe = exports.logout = exports.completeProfile = exports.verifyOtp = exports.sendOtp = void 0;
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const crypto_1 = __importDefault(require("crypto"));
+const user_model_1 = require("../../models/user.model");
+const otp_model_1 = require("../../models/otp.model");
+const order_model_1 = require("../../models/order.model");
+const invoice_model_1 = require("../../models/invoice.model");
+const fs_1 = __importDefault(require("fs"));
+const env_config_1 = require("../../config/env.config");
+const email_service_1 = require("../../services/email.service");
+const OTP_EXPIRY_MINUTES = 10;
+const MAX_OTP_ATTEMPTS = 5;
+// Generate a secure 6-digit OTP
+function generateOtp() {
+    return crypto_1.default.randomInt(100000, 999999).toString();
+}
+/**
+ * POST /api/v1/user/send-otp
+ * Sends a 6-digit OTP to the provided email.
+ * Works for both signup and login (same flow).
+ */
+const sendOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email } = req.body;
+        if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
+            return res.status(400).json({ message: "A valid email address is required." });
+        }
+        const normalizedEmail = email.toLowerCase().trim();
+        // Invalidate any existing unused OTPs for this email
+        yield otp_model_1.Otp.deleteMany({ email: normalizedEmail, used: false });
+        const otp = generateOtp();
+        const expiresAt = new Date(Date.now() + OTP_EXPIRY_MINUTES * 60 * 1000);
+        yield otp_model_1.Otp.create({
+            email: normalizedEmail,
+            otp,
+            expires_at: expiresAt,
+        });
+        // Check if new user or existing
+        const existingUser = yield user_model_1.User.findOne({ email: normalizedEmail });
+        const isNewUser = !existingUser;
+        // Send OTP email via Resend
+        yield (0, email_service_1.sendOtpEmailDirect)(normalizedEmail, otp, isNewUser);
+        return res.json({
+            success: true,
+            is_new_user: isNewUser,
+            message: `OTP sent to ${normalizedEmail}`,
+        });
+    }
+    catch (error) {
+        console.error("[UserAuth] sendOtp error:", error);
+        return res.status(500).json({ message: error.message || "Failed to send OTP. Please try again." });
+    }
+});
+exports.sendOtp = sendOtp;
+/**
+ * POST /api/v1/user/verify-otp
+ * Verifies the OTP, creates/finds the user, issues JWT cookie.
+ */
+const verifyOtp = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, otp } = req.body;
+        if (!email || !otp) {
+            return res.status(400).json({ message: "Email and OTP are required." });
+        }
+        const normalizedEmail = email.toLowerCase().trim();
+        // Find latest valid OTP
+        const otpDoc = yield otp_model_1.Otp.findOne({
+            email: normalizedEmail,
+            used: false,
+            expires_at: { $gt: new Date() },
+        }).sort({ created_at: -1 });
+        if (!otpDoc) {
+            return res.status(400).json({ message: "OTP has expired. Please request a new one." });
+        }
+        // Increment attempt count
+        otpDoc.attempts += 1;
+        yield otpDoc.save();
+        if (otpDoc.attempts > MAX_OTP_ATTEMPTS) {
+            yield otpDoc.deleteOne();
+            return res.status(429).json({ message: "Too many attempts. Please request a new OTP." });
+        }
+        if (otpDoc.otp !== otp) {
+            const remaining = MAX_OTP_ATTEMPTS - otpDoc.attempts;
+            return res.status(400).json({
+                message: `Incorrect OTP. ${remaining} attempt(s) remaining.`,
+            });
+        }
+        // Mark OTP as used
+        otpDoc.used = true;
+        yield otpDoc.save();
+        // Find or create user
+        let user = yield user_model_1.User.findOne({ email: normalizedEmail });
+        const isNewUser = !user;
+        if (!user) {
+            user = yield user_model_1.User.create({ email: normalizedEmail });
+        }
+        const loginDate = new Date();
+        user.last_login = loginDate;
+        if (!user.login_history) {
+            user.login_history = [];
+        }
+        user.login_history.push(loginDate);
+        yield user.save();
+        // Issue JWT
+        const token = jsonwebtoken_1.default.sign({ id: user._id }, env_config_1.env.JWT_SECRET, {
+            expiresIn: "30d",
+        });
+        // Set cookie
+        res.cookie("user_token", token, {
+            httpOnly: true,
+            secure: env_config_1.env.NODE_ENV === "production",
+            sameSite: "strict",
+            maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+        });
+        return res.json({
+            success: true,
+            is_new_user: isNewUser,
+            needs_profile: !user.is_profile_complete,
+            token, // also send token for Bearer header support
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                is_profile_complete: user.is_profile_complete,
+            },
+        });
+    }
+    catch (error) {
+        console.error("[UserAuth] verifyOtp error:", error);
+        return res.status(500).json({ message: "Verification failed. Please try again." });
+    }
+});
+exports.verifyOtp = verifyOtp;
+/**
+ * POST /api/v1/user/complete-profile
+ * Updates name and phone for a newly registered user.
+ */
+const completeProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name, phone } = req.body;
+        if (!name || name.trim().length < 2) {
+            return res.status(400).json({ message: "Please enter your full name." });
+        }
+        if (!phone || !/^[6-9]\d{9}$/.test(phone)) {
+            return res.status(400).json({ message: "Please enter a valid 10-digit Indian mobile number." });
+        }
+        const user = req.user;
+        user.name = name.trim();
+        user.phone = phone.trim();
+        user.is_profile_complete = true;
+        yield user.save();
+        return res.json({
+            success: true,
+            user: {
+                id: user._id,
+                name: user.name,
+                email: user.email,
+                phone: user.phone,
+                is_profile_complete: user.is_profile_complete,
+            },
+        });
+    }
+    catch (error) {
+        console.error("[UserAuth] completeProfile error:", error);
+        return res.status(500).json({ message: "Failed to update profile. Please try again." });
+    }
+});
+exports.completeProfile = completeProfile;
+/**
+ * POST /api/v1/user/logout
+ * Clears the auth cookie.
+ */
+const logout = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    res.clearCookie("user_token");
+    return res.json({ success: true, message: "Logged out successfully." });
+});
+exports.logout = logout;
+/**
+ * GET /api/v1/user/me
+ * Returns the authenticated user's profile.
+ */
+const getMe = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    return res.json({
+        success: true,
+        user: {
+            id: user._id,
+            name: user.name,
+            email: user.email,
+            phone: user.phone,
+            is_profile_complete: user.is_profile_complete,
+        },
+    });
+});
+exports.getMe = getMe;
+/**
+ * GET /api/v1/user/orders
+ * Returns all orders linked to the authenticated user's email.
+ */
+const getMyOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const userEmail = req.user.email;
+        const orders = yield order_model_1.Order.find({
+            "customer_details.email": userEmail,
+        })
+            .sort({ createdAt: -1 })
+            .select("order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details")
+            .lean();
+        return res.json({
+            success: true,
+            orders,
+        });
+    }
+    catch (error) {
+        console.error("[UserAuth] getMyOrders error:", error);
+        return res.status(500).json({ message: "Failed to fetch orders." });
+    }
+});
+exports.getMyOrders = getMyOrders;
+/**
+ * GET /api/v1/user/orders/:id/invoice
+ * Downloads the invoice for a specific order.
+ */
+const downloadMyInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { id } = req.params;
+        const userEmail = req.user.email;
+        const order = yield order_model_1.Order.findOne({ order_id: id, "customer_details.email": userEmail });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found or unauthorized." });
+        }
+        const invoice = yield invoice_model_1.Invoice.findOne({ orderId: order._id });
+        if (!invoice || !invoice.pdfPath || !fs_1.default.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({ message: "Invoice PDF not available for this order." });
+        }
+        res.download(invoice.pdfPath, `Invoice-${invoice.invoiceNumber}.pdf`);
+    }
+    catch (error) {
+        console.error("[UserAuth] downloadMyInvoice error:", error);
+        return res.status(500).json({ message: "Failed to download invoice." });
+    }
+});
+exports.downloadMyInvoice = downloadMyInvoice;
