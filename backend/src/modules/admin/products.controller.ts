@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import type { Multer } from "multer";
 import { Product } from "../../models/product.model";
 import { Inventory } from "../../models/inventory.model";
 import { Order } from "../../models/order.model";
@@ -314,7 +315,7 @@ export const updateProduct = async (req: Request, res: Response) => {
 
 export const uploadProductImages = async (req: Request, res: Response) => {
     try {
-        const files = (req.files as Express.Multer.File[] | undefined) || [];
+        const files = (req.files as any[] | undefined) || [];
 
         if (files.length === 0) {
             return res.status(400).json({ message: "At least one image is required" });
