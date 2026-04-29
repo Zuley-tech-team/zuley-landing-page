@@ -2,8 +2,6 @@ import { Navbar } from '../components/common';
 import {
     ProductSpotlight,
     CategorySection,
-    PersonalizationSection,
-    CraftsmanshipSection,
     CorporateSection,
     TestimonialsSection,
     Footer,
@@ -18,8 +16,6 @@ export function HomePage() {
                 <HeroSection1 />
                 <ProductSpotlight />
                 <CategorySection />
-                <PersonalizationSection />
-                <CraftsmanshipSection />
                 <CorporateSection />
                 <TestimonialsSection />
                 <Footer />

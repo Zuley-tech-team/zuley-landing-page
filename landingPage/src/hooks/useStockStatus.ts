@@ -18,6 +18,13 @@ export function useStockStatus(sku: string) {
         let cancelled = false;
 
         async function fetchStock() {
+            if (!sku) {
+                if (!cancelled) {
+                    setStatus((prev) => ({ ...prev, sku, inStock: true, lowStock: false }));
+                    setIsLoading(false);
+                }
+                return;
+            }
             setIsLoading(true);
             const result = await checkStockAvailability(sku);
             if (!cancelled) {

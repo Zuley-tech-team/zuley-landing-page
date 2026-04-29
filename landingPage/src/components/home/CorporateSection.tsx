@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { Button } from '../common';
 import { Building2, Users, Package, ArrowRight, CheckCircle } from 'lucide-react';
+import corporateHero from '../../assets/corporate-hero.webp';
 
 const benefits = [
-    { icon: Building2, text: 'Custom Logo Engraving' },
-    { icon: Package, text: 'Bulk Pricing Available' },
-    { icon: Users, text: 'Dedicated Account Manager' },
+    { icon: Building2, text: 'Custom requests welcomed for bulk orders' },
+    { icon: Package, text: 'Bulk pricing available' },
+    { icon: Users, text: 'Dedicated account manager' },
 ];
 
 export function CorporateSection() {
@@ -82,47 +84,34 @@ export function CorporateSection() {
                             {/* Trust badge */}
                             <div className="flex items-center gap-2 mb-8 text-charcoal/60">
                                 <CheckCircle className="w-5 h-5 text-success" />
-                                <span className="font-body text-sm">Trusted by 100+ companies</span>
+                                <span className="font-body text-sm">Trusted by many companies</span>
                             </div>
 
                             {/* CTAs */}
                             <div className="flex flex-col sm:flex-row gap-4">
-                                <Button variant="primary" size="lg" icon={<ArrowRight className="w-5 h-5" />}>
-                                    Explore Corporate Gifting
-                                </Button>
-                                <Button variant="secondary" size="lg">
-                                    Request Quote
-                                </Button>
+                                <Link to="/corporate">
+                                    <Button variant="primary" size="lg" icon={<ArrowRight className="w-5 h-5" />}>
+                                        Explore Corporate Gifting
+                                    </Button>
+                                </Link>
+                                <Link to="/corporate#corporate-enquiry">
+                                    <Button variant="secondary" size="lg">
+                                        Request Quote
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
 
                         {/* Right - Image */}
                         <div className="relative min-h-[300px] lg:min-h-[500px]">
                             <img
-                                src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&q=80"
+                                src={corporateHero}
                                 alt="Corporate gifting"
                                 className="absolute inset-0 w-full h-full object-cover"
                             />
                             {/* Overlay */}
                             <div className="absolute inset-0 bg-gradient-to-r from-slate-100 via-transparent to-transparent lg:from-white/50" />
 
-                            {/* Floating badge */}
-                            <div className="absolute top-6 right-6 px-4 py-2 bg-pearl/95 backdrop-blur-sm rounded-full shadow-card">
-                                <span className="font-body text-sm font-medium text-charcoal">MOQ: 25 units</span>
-                            </div>
-
-                            {/* Bottom overlay content */}
-                            <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-charcoal/80 to-transparent">
-                                <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 rounded-lg bg-pearl/20 backdrop-blur-sm flex items-center justify-center">
-                                        <Building2 className="w-6 h-6 text-pearl" />
-                                    </div>
-                                    <div>
-                                        <p className="font-body text-sm text-pearl/70">Your Logo</p>
-                                        <p className="font-heading text-lg text-pearl font-semibold">Engraved on Premium Silver</p>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
                     </div>
                 </div>

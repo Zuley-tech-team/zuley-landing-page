@@ -5,10 +5,9 @@ import { Eye } from 'lucide-react';
 
 interface ProductCardProps {
     product: Product;
-    onQuickView?: (product: Product) => void;
 }
 
-export function ProductCard({ product, onQuickView }: ProductCardProps) {
+export function ProductCard({ product }: ProductCardProps) {
     const hasDiscount = product.originalPrice && product.originalPrice > product.price;
     const discountPercent = hasDiscount
         ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
@@ -96,7 +95,7 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
                 </div>
 
                 {/* CTA Buttons */}
-                <div className="grid grid-cols-2 gap-2">
+                <div>
                     <Link to={`/products/${product._id}`}>
                         <Button
                             variant="secondary"
@@ -108,14 +107,6 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
                             Details
                         </Button>
                     </Link>
-                    <Button
-                        variant="ghost"
-                        size="sm"
-                        fullWidth
-                        onClick={() => onQuickView?.(product)}
-                    >
-                        Quick View
-                    </Button>
                 </div>
             </div>
         </article>

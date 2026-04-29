@@ -275,7 +275,7 @@ export function AdminProductsPage() {
                             <tbody className="divide-y divide-gray-200">
                                 {products.map((product) => (
                                     <tr key={product._id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap">
+                                        <td className="px-6 py-4">
                                             <div className="flex items-center gap-3">
                                                 <img
                                                     src={product.image}
@@ -283,7 +283,7 @@ export function AdminProductsPage() {
                                                     className="w-12 h-12 rounded-lg object-cover"
                                                 />
                                                 <div>
-                                                    <p className="font-body font-medium text-gray-900">
+                                                    <p className="font-body font-medium text-gray-900 whitespace-normal break-words max-w-xs">
                                                         {product.name}
                                                     </p>
                                                     <p className="font-body text-sm text-gray-500">

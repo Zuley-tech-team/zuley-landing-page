@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Navbar } from '../components/common';
 import { Footer } from '../components/home';
-import { CategoryFilter, ProductsGrid, QuickViewModal } from '../components/products';
+import { CategoryFilter, ProductsGrid } from '../components/products';
 import { fetchProducts, type Product, type ProductCategory } from '../api/products';
 import { Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 
@@ -10,11 +10,6 @@ type SortOption = 'bestsellers' | 'newest' | 'priceLowToHigh' | 'priceHighToLow'
 type PriceRange = 'all' | 'under5000' | '5000to10000' | '10000to15000' | 'above15000';
 
 const PAGE_SIZE = 8;
-
-const isPersonalizable = (product: Product) => {
-    const searchableText = `${product.name} ${product.description} ${product.longDescription || ''}`.toLowerCase();
-    return searchableText.includes('engr') || searchableText.includes('personal');
-};
 
 const inPriceRange = (price: number, range: PriceRange) => {
     if (range === 'all') return true;
@@ -33,10 +28,7 @@ export function ProductsPage() {
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
     const [sortBy, setSortBy] = useState<SortOption>('bestsellers');
     const [priceRange, setPriceRange] = useState<PriceRange>('all');
-    const [personalizableOnly, setPersonalizableOnly] = useState(false);
     const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
-    const [showQuickView, setShowQuickView] = useState(false);
-    const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -70,7 +62,7 @@ export function ProductsPage() {
 
     useEffect(() => {
         setVisibleCount(PAGE_SIZE);
-    }, [categoryFilter, sortBy, priceRange, personalizableOnly]);
+    }, [categoryFilter, sortBy, priceRange]);
 
     const categoryCounts = useMemo(() => {
         const counts: Record<string, number> = { all: allProducts.length };
@@ -87,10 +79,6 @@ export function ProductsPage() {
             }
 
             if (!inPriceRange(product.price, priceRange)) {
-                return false;
-            }
-
-            if (personalizableOnly && !isPersonalizable(product)) {
                 return false;
             }
 
@@ -111,7 +99,7 @@ export function ProductsPage() {
         }
 
         return sorted;
-    }, [allProducts, categoryFilter, priceRange, personalizableOnly, sortBy]);
+    }, [allProducts, categoryFilter, priceRange, sortBy]);
 
     const visibleProducts = useMemo(
         () => filteredProducts.slice(0, visibleCount),
@@ -119,16 +107,6 @@ export function ProductsPage() {
     );
 
     const hasMoreProducts = visibleCount < filteredProducts.length;
-
-    const openQuickView = (product: Product) => {
-        setQuickViewProduct(product);
-        setShowQuickView(true);
-    };
-
-    const closeQuickView = () => {
-        setShowQuickView(false);
-        setQuickViewProduct(null);
-    };
 
     // Get page title based on filter
     const getTitle = () => {
@@ -151,9 +129,6 @@ export function ProductsPage() {
                 <section className="py-12 md:py-16 lg:py-10 bg-gradient-to-b from-primary-light/30 to-pearl">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
                         <div className="text-center mb-10">
-                            <span className="inline-block px-3 py-1 mb-3 bg-charcoal/5 rounded-full font-body text-xs text-charcoal/60 uppercase tracking-wider">
-                                Shop Now
-                            </span>
                             <h1 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-charcoal mb-4">
                                 {getTitle()}
                             </h1>
@@ -173,7 +148,7 @@ export function ProductsPage() {
                                 <SlidersHorizontal className="w-4 h-4" />
                                 <span className="font-body text-sm uppercase tracking-wider">Filter and Sort</span>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                                 <select
                                     value={sortBy}
                                     onChange={(event) => setSortBy(event.target.value as SortOption)}
@@ -198,15 +173,6 @@ export function ProductsPage() {
                                     <option value="above15000">Above Rs. 15,000</option>
                                 </select>
 
-                                <label className="md:col-span-2 rounded-xl border border-charcoal/20 px-3 py-2.5 bg-white flex items-center justify-between">
-                                    <span className="font-body text-sm text-charcoal">Personalizable Only</span>
-                                    <input
-                                        type="checkbox"
-                                        checked={personalizableOnly}
-                                        onChange={(event) => setPersonalizableOnly(event.target.checked)}
-                                        className="w-4 h-4 accent-charcoal"
-                                    />
-                                </label>
                             </div>
                         </div>
                     </div>
@@ -243,7 +209,6 @@ export function ProductsPage() {
                             <>
                                 <ProductsGrid
                                     products={visibleProducts}
-                                    onQuickView={openQuickView}
                                     emptyTitle={errorMessage ? 'Unable to Load Collection' : 'No Products Found'}
                                     emptyDescription={
                                         errorMessage
@@ -271,11 +236,6 @@ export function ProductsPage() {
 
                 <Footer />
 
-                <QuickViewModal
-                    product={quickViewProduct}
-                    isOpen={showQuickView}
-                    onClose={closeQuickView}
-                />
             </main>
         </>
     );

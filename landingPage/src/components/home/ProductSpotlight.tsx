@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { Button } from '../common';
 import { Award, PenTool, Gift, Package } from 'lucide-react';
+import heroBelow from '../../assets/hero-below.webp';
 
 const benefits = [
     {
@@ -11,8 +13,8 @@ const benefits = [
     },
     {
         icon: PenTool,
-        title: 'Personalized Engraving',
-        description: 'Your name, initials, or message engraved with laser precision',
+        title: 'Hand-Made',
+        description: 'Hand-finished by skilled artisans, with careful attention to every detail',
     },
     {
         icon: Gift,
@@ -129,8 +131,8 @@ export function ProductSpotlight() {
                     {/* Main Image */}
                     <div className="relative aspect-[16/9] md:aspect-[21/9]">
                         <img
-                            src="https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=1600&q=80"
-                            alt="Silver pen on elegant surface"
+                            src={heroBelow}
+                            alt="Signature silver pen"
                             className="w-full h-full object-cover"
                         />
 
@@ -197,9 +199,11 @@ export function ProductSpotlight() {
 
                 {/* CTA */}
                 <div className="text-center mt-12 md:mt-16">
-                    <Button variant="primary" size="lg" icon={<PenTool className="w-5 h-5" />}>
-                        Explore Silver Pens
-                    </Button>
+                    <Link to="/products?category=silver-pens">
+                        <Button variant="primary" size="lg" icon={<PenTool className="w-5 h-5" />}>
+                            Explore Silver Pens
+                        </Button>
+                    </Link>
                 </div>
             </div>
         </section>

@@ -8,19 +8,19 @@ import { submitContactInquiry } from '../api/engagement';
 const faqItems = [
     {
         q: 'How long does delivery take?',
-        a: 'Standard products take 5 to 7 business days, while personalized products usually take 7 to 9 business days.',
+        a: 'Standard products take 5 to 7 business days depending on your location.',
     },
     {
-        q: 'Can I edit engraving after placing an order?',
-        a: 'Changes are possible only in the early production window. Contact support immediately after ordering.',
+        q: 'Do you offer personalization or engraving?',
+        a: 'Not at the moment. We focus on handcrafted silver pieces and will announce personalization if it returns.',
     },
     {
         q: 'Do you support bulk corporate orders?',
         a: 'Yes. We provide branding support and tiered pricing for corporate and bulk gifting.',
     },
     {
-        q: 'Can I return personalized products?',
-        a: 'Personalized products are generally non-returnable unless there is a manufacturing defect or production error.',
+        q: 'What is your return policy?',
+        a: 'Returns are accepted for eligible items in unused condition. Contact support within 48 hours of delivery for help.',
     },
     {
         q: 'How can I track my shipped order?',
@@ -80,17 +80,17 @@ export function ContactPage() {
 
                 <section className="max-w-7xl mx-auto px-6 py-14 md:py-18">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        <a href="mailto:support@zuley.in" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
+                        <a href="mailto:zuley.tech@gmail.com" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Mail className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Email</h2>
-                            <p className="font-body text-charcoal/65 mt-2">support@zuley.in</p>
+                            <p className="font-body text-charcoal/65 mt-2">zuley.tech@gmail.com</p>
                         </a>
                         <div className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Clock className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Hours</h2>
                             <p className="font-body text-charcoal/65 mt-2">Mon-Sat, 10am-7pm IST</p>
                         </div>
-                        <a href="mailto:support@zuley.in?subject=WhatsApp%20support%20request" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
+                        <a href="mailto:zuley.tech@gmail.com?subject=WhatsApp%20support%20request" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <MessageCircle className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Priority Support</h2>
                             <p className="font-body text-charcoal/65 mt-2">Email us for urgent order help</p>
@@ -182,7 +182,7 @@ export function ContactPage() {
                         </article>
                         <article className="rounded-2xl bg-charcoal text-pearl p-7">
                             <h3 className="font-heading text-2xl font-semibold mb-4">Location</h3>
-                            <p className="font-body text-pearl/75">Zuley, Nawa City, Rajasthan, India</p>
+                            <p className="font-body text-pearl/75">Zuley, Jaipur, Rajasthan, India</p>
                             <p className="font-body text-pearl/60 mt-3">For corporate appointments and workshop meetings, contact us in advance.</p>
                         </article>
                     </div>

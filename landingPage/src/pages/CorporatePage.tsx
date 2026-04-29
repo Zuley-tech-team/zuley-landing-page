@@ -145,7 +145,7 @@ export function CorporatePage() {
                                 ))}
                             </ul>
                         </article>
-                        <article className="bg-charcoal text-pearl rounded-2xl p-8 shadow-soft">
+                        <article id="corporate-enquiry" className="bg-charcoal text-pearl rounded-2xl p-8 shadow-soft">
                             <h3 className="font-heading text-2xl font-semibold mb-4">Corporate Enquiry Snapshot</h3>
                             <div className="space-y-3 text-pearl/75 font-body">
                                 <p className="flex items-center gap-2"><Handshake className="w-4 h-4" /> MOQ starts at 10 units</p>

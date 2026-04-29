@@ -5,7 +5,7 @@ import { Footer } from '../components/home';
 import { ProductsGrid } from '../components/products';
 import { CheckoutModal } from '../components/checkout';
 import { fetchProductBySku, fetchRelatedProducts, type Product } from '../api/products';
-import { ChevronRight, Check, ShoppingCart, ArrowLeft, Loader2, Star, X, Sparkles } from 'lucide-react';
+import { ChevronRight, Check, ShoppingCart, ArrowLeft, Loader2, Star, X } from 'lucide-react';
 import { Button } from '../components/common';
 import { useStockStatus } from '../hooks/useStockStatus';
 import { useToast } from '../contexts/ToastContext';
@@ -34,11 +34,9 @@ export function ProductDetailPage() {
     const [relatedProducts, setRelatedProducts] = useState<Product[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [selectedImage, setSelectedImage] = useState(0);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const [showCheckout, setShowCheckout] = useState(false);
     const [showLightbox, setShowLightbox] = useState(false);
-    const [engravingText, setEngravingText] = useState('');
-    const [engravingFont, setEngravingFont] = useState('Classic Serif');
-    const [engravingPlacement, setEngravingPlacement] = useState('Main Body');
     const { inStock, lowStock } = useStockStatus(product?.sku || '');
     const { showToast } = useToast();
 
@@ -77,6 +75,10 @@ export function ProductDetailPage() {
         };
     }, [id]);
 
+    useEffect(() => {
+        window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }, [id]);
+
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-IN', {
             style: 'currency',
@@ -84,6 +86,39 @@ export function ProductDetailPage() {
             maximumFractionDigits: 0,
         }).format(price);
     };
+
+    const images = product?.images && product.images.length > 0
+        ? product.images
+        : product?.image
+            ? [product.image]
+            : [];
+    const averageRating = (staticReviews.reduce((acc, item) => acc + item.rating, 0) / staticReviews.length).toFixed(1);
+    const shortDescription = product?.description || product?.longDescription || '';
+
+    const handleSelectImage = (index: number, isManual = false) => {
+        setSelectedImage(index);
+        if (isManual) {
+            setIsAutoPlaying(false);
+        }
+    };
+
+    useEffect(() => {
+        if (!isAutoPlaying || images.length <= 1) {
+            return undefined;
+        }
+
+        const interval = setInterval(() => {
+            setSelectedImage((prev) => (prev + 1) % images.length);
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [images.length, isAutoPlaying]);
+
+    useEffect(() => {
+        if (images.length > 0 && selectedImage >= images.length) {
+            setSelectedImage(0);
+        }
+    }, [images.length, selectedImage]);
 
     if (isLoading) {
         return (
@@ -129,9 +164,6 @@ export function ProductDetailPage() {
     const discountPercent = hasDiscount
         ? Math.round(((product.originalPrice! - product.price) / product.originalPrice!) * 100)
         : 0;
-
-    const images = product.images && product.images.length > 0 ? product.images : [product.image];
-    const averageRating = (staticReviews.reduce((acc, item) => acc + item.rating, 0) / staticReviews.length).toFixed(1);
 
     return (
         <>
@@ -208,7 +240,7 @@ export function ProductDetailPage() {
                                         {images.map((img, index) => (
                                             <button
                                                 key={index}
-                                                onClick={() => setSelectedImage(index)}
+                                                onClick={() => handleSelectImage(index, true)}
                                                 className={`flex-shrink-0 w-20 h-20 rounded-xl overflow-hidden border-2 transition-all cursor-pointer ${selectedImage === index
                                                     ? 'border-charcoal shadow-soft'
                                                     : 'border-transparent hover:border-charcoal/30'
@@ -285,7 +317,7 @@ export function ProductDetailPage() {
 
                                 {/* Description */}
                                 <p className="font-body text-charcoal/70 leading-relaxed">
-                                    {product.longDescription || product.description}
+                                    {shortDescription}
                                 </p>
 
                                 {/* Features */}
@@ -357,75 +389,6 @@ export function ProductDetailPage() {
                     </div>
                 </section>
 
-                <section className="py-8 md:py-12 bg-white border-y border-charcoal/10">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                            <div>
-                                <h2 className="font-heading text-2xl font-bold text-charcoal mb-3">Make It Personal</h2>
-                                <p className="font-body text-charcoal/65 mb-6">
-                                    Add a name, initials, date, or short message. Preview settings before checkout.
-                                </p>
-
-                                <label className="block font-body text-sm text-charcoal/70 mb-2">Engraving text (max 20 chars)</label>
-                                <input
-                                    type="text"
-                                    value={engravingText}
-                                    maxLength={20}
-                                    onChange={(event) => setEngravingText(event.target.value)}
-                                    className="w-full rounded-xl border border-charcoal/20 px-4 py-3 mb-4 font-body"
-                                    placeholder="e.g. A. Sharma"
-                                />
-
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div>
-                                        <label className="block font-body text-sm text-charcoal/70 mb-2">Font style</label>
-                                        <select
-                                            value={engravingFont}
-                                            onChange={(event) => setEngravingFont(event.target.value)}
-                                            className="w-full rounded-xl border border-charcoal/20 px-3 py-3 font-body"
-                                        >
-                                            <option>Classic Serif</option>
-                                            <option>Modern Sans</option>
-                                            <option>Elegant Script</option>
-                                            <option>Monogram</option>
-                                        </select>
-                                    </div>
-                                    <div>
-                                        <label className="block font-body text-sm text-charcoal/70 mb-2">Placement</label>
-                                        <select
-                                            value={engravingPlacement}
-                                            onChange={(event) => setEngravingPlacement(event.target.value)}
-                                            className="w-full rounded-xl border border-charcoal/20 px-3 py-3 font-body"
-                                        >
-                                            <option>Main Body</option>
-                                            <option>Cap</option>
-                                            <option>Clip Side</option>
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="rounded-2xl bg-pearl p-6 border border-charcoal/10">
-                                <h3 className="font-heading text-xl font-semibold text-charcoal mb-3">Preview Snapshot</h3>
-                                <p className="font-body text-charcoal/65 mb-5">
-                                    This is a reference preview. Final engraving is laser-aligned on production.
-                                </p>
-                                <div className="rounded-xl bg-white border border-charcoal/10 p-5">
-                                    <p className="font-body text-xs uppercase tracking-wider text-charcoal/50 mb-3">
-                                        {engravingPlacement} · {engravingFont}
-                                    </p>
-                                    <p className="font-heading text-2xl text-charcoal italic">
-                                        {engravingText || 'Your Personal Text'}
-                                    </p>
-                                    <p className="font-body text-xs text-charcoal/50 mt-4 flex items-center gap-2">
-                                        <Sparkles className="w-4 h-4" />
-                                        Personalized products are final-sale unless defective.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </section>
 
                 {/* Specifications Section */}
                 {product.specifications && Object.keys(product.specifications).length > 0 && (
@@ -454,27 +417,6 @@ export function ProductDetailPage() {
                         </div>
                     </section>
                 )}
-
-                <section className="py-10 md:py-14">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-                        <article className="rounded-2xl bg-white p-6 border border-charcoal/10 shadow-soft lg:col-span-2">
-                            <h2 className="font-heading text-2xl font-bold text-charcoal mb-3">Product Story</h2>
-                            <p className="font-body text-charcoal/70 leading-relaxed">
-                                This piece is designed for milestone moments and everyday excellence. From boardroom signatures
-                                to thoughtful gifting, it combines utility with timeless silver craftsmanship.
-                            </p>
-                        </article>
-                        <article className="rounded-2xl bg-charcoal text-pearl p-6">
-                            <h3 className="font-heading text-xl font-semibold mb-3">Packaging and Care</h3>
-                            <ul className="space-y-2 font-body text-pearl/75 text-sm">
-                                <li>Luxury gift box included</li>
-                                <li>Hallmark authenticity support card</li>
-                                <li>Care cloth and storage guidance</li>
-                                <li>Dispatch timeline shared after checkout</li>
-                            </ul>
-                        </article>
-                    </div>
-                </section>
 
                 <section className="py-10 md:py-14 bg-white border-y border-charcoal/10">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">

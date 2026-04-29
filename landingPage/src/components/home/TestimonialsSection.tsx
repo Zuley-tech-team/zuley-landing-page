@@ -9,7 +9,7 @@ const testimonials = [
         location: 'Mumbai',
         product: 'Personalized Silver Pen',
         rating: 5,
-        image: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&q=80',
+        image: null,
     },
     {
         quote: "We ordered silver pens for our corporate event, each with our company logo. The quality exceeded our expectations, and our clients loved them. Professional service from start to finish.",
@@ -18,7 +18,7 @@ const testimonials = [
         location: 'Bangalore',
         product: 'Corporate Keychains',
         rating: 5,
-        image: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&q=80',
+        image: null,
     },
     {
         quote: "Bought this as an anniversary gift for my wife. The engraving of our wedding date was beautifully done. It's not just a phone cover—it's a daily reminder of our love story.",
@@ -26,7 +26,7 @@ const testimonials = [
         location: 'Bangalore',
         product: 'Engraved Phone Cover',
         rating: 5,
-        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&q=80',
+        image: null,
     },
     {
         quote: "The attention to detail is remarkable. I've purchased three pens now - for my graduation, my promotion, and my brother's wedding. Each one has been perfect.",
@@ -34,9 +34,18 @@ const testimonials = [
         location: 'Hyderabad',
         product: 'Silver Pen Collection',
         rating: 5,
-        image: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&q=80',
+        image: null,
     },
 ];
+
+const getInitials = (name: string) => {
+    return name
+        .split(' ')
+        .filter(Boolean)
+        .slice(0, 2)
+        .map((part) => part[0]?.toUpperCase())
+        .join('');
+};
 
 export function TestimonialsSection() {
     const sectionRef = useRef<HTMLElement>(null);
@@ -138,7 +147,7 @@ export function TestimonialsSection() {
                                 <Star key={star} className="w-5 h-5 text-amber-400" fill="currentColor" />
                             ))}
                         </div>
-                        <span className="font-body text-charcoal/70">4.9/5 from 500+ reviews</span>
+                        <span className="font-body text-charcoal/70">4.9/5 from 60+ reviews</span>
                     </div>
                 </div>
 
@@ -169,12 +178,18 @@ export function TestimonialsSection() {
                                         {/* Author info */}
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
                                             {/* Avatar with real image */}
-                                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/30 shadow-soft">
-                                                <img
-                                                    src={testimonial.image}
-                                                    alt={testimonial.name}
-                                                    className="w-full h-full object-cover"
-                                                />
+                                            <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-primary/30 shadow-soft bg-pearl flex items-center justify-center">
+                                                {testimonial.image ? (
+                                                    <img
+                                                        src={testimonial.image}
+                                                        alt={testimonial.name}
+                                                        className="w-full h-full object-cover"
+                                                    />
+                                                ) : (
+                                                    <span className="font-heading text-lg text-charcoal">
+                                                        {getInitials(testimonial.name)}
+                                                    </span>
+                                                )}
                                             </div>
 
                                             <div className="flex-1">

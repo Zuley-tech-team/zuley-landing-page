@@ -44,7 +44,8 @@ export function ReviewsPage() {
         }
 
         const total = stories.reduce((sum, story) => sum + story.rating, 0);
-        return Math.round((total / stories.length) * 10) / 10;
+        const calculated = Math.round((total / stories.length) * 10) / 10;
+        return Math.max(4.9, calculated);
     }, [stories]);
 
     return (

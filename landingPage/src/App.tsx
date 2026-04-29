@@ -1,5 +1,5 @@
-import { lazy, Suspense, type ReactElement } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { useEffect, lazy, Suspense, type ReactElement } from 'react';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
 import { PageMeta } from './components/common/PageMeta';
 
@@ -8,10 +8,8 @@ const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
 const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'));
-const CustomizePage = lazy(() => import('./pages/CustomizePage'));
 const CorporatePage = lazy(() => import('./pages/CorporatePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
-const CraftsmanshipPage = lazy(() => import('./pages/CraftsmanshipPage'));
 const ContactPage = lazy(() => import('./pages/ContactPage'));
 const ReviewsPage = lazy(() => import('./pages/ReviewsPage'));
 const PrivacyPolicyPage = lazy(() => import('./pages/legal/PrivacyPolicyPage'));
@@ -34,6 +32,27 @@ const RouteLoader = () => (
   </div>
 );
 
+const ScrollToTop = () => {
+  const location = useLocation();
+
+  useEffect(() => {
+    if (location.hash) {
+      const targetId = location.hash.replace('#', '');
+      const target = document.getElementById(targetId);
+      if (target) {
+        requestAnimationFrame(() => {
+          target.scrollIntoView({ behavior: 'auto', block: 'start' });
+        });
+        return;
+      }
+    }
+
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  }, [location.pathname, location.search, location.hash]);
+
+  return null;
+};
+
 const withMeta = (
   element: ReactElement,
   title: string,
@@ -49,6 +68,7 @@ function App() {
   return (
     <Router>
       <Suspense fallback={<RouteLoader />}>
+        <ScrollToTop />
         <Routes>
           <Route
             path="/"
@@ -78,15 +98,6 @@ function App() {
             )}
           />
           <Route
-            path="/customize"
-            element={withMeta(
-              <CustomizePage />,
-              'Customize Your Silver Gift',
-              'Personalize silver gifts with names, initials, dates, and custom engraving styles.',
-              '/customize'
-            )}
-          />
-          <Route
             path="/corporate"
             element={withMeta(
               <CorporatePage />,
@@ -102,15 +113,6 @@ function App() {
               'About Zuley',
               'Learn about Zuley, our silver craftsmanship philosophy, and our quality commitments.',
               '/about'
-            )}
-          />
-          <Route
-            path="/craftsmanship"
-            element={withMeta(
-              <CraftsmanshipPage />,
-              'Craftsmanship and Quality',
-              'Discover our 925 silver standards, production process, engraving quality, and care guidance.',
-              '/craftsmanship'
             )}
           />
           <Route

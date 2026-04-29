@@ -1,24 +1,27 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '../../lib/gsap';
 import { Button } from '../common';
-import { ArrowRight, Sparkles } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import hero1 from '../../assets/hero-1.webp';
+import hero2 from '../../assets/hero-2.webp';
+import hero3 from '../../assets/hero-3.webp';
 
 // Hero background images for subtle crossfade
 const heroBackgrounds = [
     {
         id: 1,
-        image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=1200&q=85',
-        alt: 'Personalized silver pen with elegant engraving',
+        image: hero1,
+        alt: 'Silver pen hero image 1',
     },
     {
         id: 2,
-        image: 'https://images.unsplash.com/photo-1622434641406-a158123450f9?w=1200&q=85',
-        alt: 'Luxury silver pen with personal message',
+        image: hero2,
+        alt: 'Silver pen hero image 2',
     },
     {
         id: 3,
-        image: 'https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=1200&q=85',
-        alt: 'Premium gift packaging with silver accessories',
+        image: hero3,
+        alt: 'Silver pen hero image 3',
     },
 ];
 
@@ -30,9 +33,6 @@ export function HeroSection1() {
         window.location.href = '/products?category=silver-pens';
     };
 
-    const goToCustomize = () => {
-        window.location.href = '/customize';
-    };
 
     // Background crossfade
     useEffect(() => {
@@ -124,16 +124,6 @@ export function HeroSection1() {
                                     onClick={goToShop}
                                 >
                                     Shop Silver Pens
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    size="md"
-                                    icon={<Sparkles className="w-4 h-4" />}
-                                    iconPosition="left"
-                                    className="text-pearl/90 border-pearl/30 hover:bg-white/10 text-sm"
-                                    onClick={goToCustomize}
-                                >
-                                    Customize Your Gift
                                 </Button>
                             </div>
                         </div>

@@ -4,6 +4,7 @@ import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { Button } from '../common';
 import { Pen, Smartphone, ArrowRight } from 'lucide-react';
 import { getCategorySlug } from '../../data/products';
+import { fetchProducts, type Product } from '../../api/products';
 
 const categories = [
     {
@@ -30,14 +31,28 @@ const categories = [
     },
 ];
 
+const fallbackImages: Record<string, string[]> = {
+    'silver-pens': [
+        'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=600&q=80',
+        'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&q=80',
+        'https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?w=600&q=80',
+    ],
+    'silver-phone-covers': [
+        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80',
+        'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80',
+        'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80',
+    ],
+};
+
 export function CategorySection() {
     const sectionRef = useRef<HTMLElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const cardsRef = useRef<HTMLDivElement>(null);
-    const [activeImages, setActiveImages] = useState<number[]>([0, 0, 0]);
+    const [activeImages, setActiveImages] = useState<number[]>(() => categories.map(() => 0));
+    const [categoryImages, setCategoryImages] = useState<Record<string, string[]>>(fallbackImages);
 
     // Store interval IDs in a ref to persist across re-renders
-    const hoverIntervalsRef = useRef<(ReturnType<typeof setInterval> | null)[]>([null, null, null]);
+    const hoverIntervalsRef = useRef<(ReturnType<typeof setInterval> | null)[]>(categories.map(() => null));
 
     // Cycle images on hover
     const handleMouseEnter = (cardIndex: number) => {
@@ -49,7 +64,11 @@ export function CategorySection() {
         const interval = setInterval(() => {
             setActiveImages((prev) => {
                 const newImages = [...prev];
-                newImages[cardIndex] = (newImages[cardIndex] + 1) % categories[cardIndex].images.length;
+                const currentImages = categoryImages[getCategorySlug(categories[cardIndex].title)]
+                    ?? categories[cardIndex].images;
+                if (currentImages.length > 0) {
+                    newImages[cardIndex] = (newImages[cardIndex] + 1) % currentImages.length;
+                }
                 return newImages;
             });
         }, 800);
@@ -68,6 +87,44 @@ export function CategorySection() {
             return newImages;
         });
     };
+
+    useEffect(() => {
+        let cancelled = false;
+
+        async function loadCategoryImages() {
+            try {
+                const categorySlugs = categories.map((category) => getCategorySlug(category.title));
+                const responses = await Promise.all(
+                    categorySlugs.map((slug) => fetchProducts({ category: slug, limit: 3 }))
+                );
+                if (cancelled) {
+                    return;
+                }
+
+                const nextImages: Record<string, string[]> = { ...fallbackImages };
+                responses.forEach((products, index) => {
+                    const slug = categorySlugs[index];
+                    const mainImages = products
+                        .map((product: Product) => product.image)
+                        .filter(Boolean)
+                        .slice(0, 3);
+                    if (mainImages.length > 0) {
+                        nextImages[slug] = mainImages;
+                    }
+                });
+
+                setCategoryImages(nextImages);
+            } catch (error) {
+                console.error('Failed to load category images:', error);
+            }
+        }
+
+        loadCategoryImages();
+
+        return () => {
+            cancelled = true;
+        };
+    }, []);
 
     useEffect(() => {
         ScrollTrigger.refresh();
@@ -142,6 +199,7 @@ export function CategorySection() {
                     {categories.map((category, index) => {
                         const IconComponent = category.icon;
                         const categorySlug = getCategorySlug(category.title);
+                        const images = categoryImages[categorySlug] ?? category.images;
 
                         return (
                             <Link
@@ -153,7 +211,7 @@ export function CategorySection() {
                             >
                                 {/* Image Area - Separate from background */}
                                 <div className="relative aspect-video overflow-hidden">
-                                    {category.images.map((img, imgIndex) => (
+                                    {images.map((img, imgIndex) => (
                                         <img
                                             key={imgIndex}
                                             src={img}
@@ -167,16 +225,9 @@ export function CategorySection() {
                                     {/* Subtle overlay on hover */}
                                     <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors duration-300" />
 
-                                    {/* Badge */}
-                                    <div className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm shadow-sm">
-                                        <span className="font-body text-[10px] uppercase tracking-wider font-medium text-charcoal/70">
-                                            Personalizable
-                                        </span>
-                                    </div>
-
                                     {/* Image indicators */}
                                     <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {category.images.map((_, imgIndex) => (
+                                        {images.map((_, imgIndex) => (
                                             <span
                                                 key={imgIndex}
                                                 className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${imgIndex === activeImages[index]

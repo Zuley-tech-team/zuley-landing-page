@@ -123,7 +123,7 @@ export function ShippingPolicyPage() {
                         <section>
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">9. Damaged, Missing, or Incorrect Items</h2>
                             <ul className="list-disc pl-6 mb-4 space-y-2">
-                                <li>If you receive a damaged, defective, or incorrect product, please contact <strong>support@zuley.in</strong> within <strong>48 hours of delivery</strong>.</li>
+                                <li>If you receive a damaged, defective, or incorrect product, please contact <strong>zuley.tech@gmail.com</strong> within <strong>48 hours of delivery</strong>.</li>
                                 <li>Supporting evidence such as photos or videos may be required for verification.</li>
                                 <li>Claims raised after the specified timeframe may not be accepted.</li>
                             </ul>
@@ -163,8 +163,8 @@ export function ShippingPolicyPage() {
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">13. Contact Information</h2>
                             <p className="mb-4">For shipping-related queries, please contact:</p>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
-                                <p><strong>Email:</strong> support@zuley.in</p>
-                                <p><strong>Address:</strong> Balaji Ka Chowk, Sunaro Ka Mohalla, Lunwa Village, Nawa City, Didwana Kuchaman District, Rajasthan – 341509</p>
+                                <p><strong>Email:</strong> zuley.tech@gmail.com</p>
+                                <p><strong>Address:</strong> Nawa City, Didwana Kuchaman District, Rajasthan – 341509</p>
                             </div>
                         </section>
                     </div>

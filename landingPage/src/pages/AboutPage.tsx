@@ -23,16 +23,15 @@ const values = [
 const milestones = [
     'Founded with a vision to bring silver into everyday essentials',
     'Launched signature silver pen collection',
-    'Introduced custom personalization and logo engraving',
     'Expanded into corporate and bulk gifting',
     'Delivered products across major Indian cities',
 ];
 
 const impactStats = [
-    { label: 'Happy customers', value: '10,000+' },
+    { label: 'Happy customers', value: '100+' },
     { label: 'Average rating', value: '4.9/5' },
-    { label: 'Cities served', value: '50+' },
-    { label: 'Would recommend', value: '95%' },
+    { label: 'Cities served', value: '12+' },
+    { label: 'Would recommend', value: '100%' },
 ];
 
 export function AboutPage() {

@@ -4,14 +4,12 @@ import { PackageX } from 'lucide-react';
 
 interface ProductsGridProps {
     products: Product[];
-    onQuickView?: (product: Product) => void;
     emptyTitle?: string;
     emptyDescription?: string;
 }
 
 export function ProductsGrid({
     products,
-    onQuickView,
     emptyTitle = 'No Products Found',
     emptyDescription = "We couldn't find any products matching your filter. Try adjusting your filters.",
 }: ProductsGridProps) {
@@ -34,7 +32,7 @@ export function ProductsGrid({
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {products.map((product) => (
-                <ProductCard key={product.sku} product={product} onQuickView={onQuickView} />
+                <ProductCard key={product.sku} product={product} />
             ))}
         </div>
     );

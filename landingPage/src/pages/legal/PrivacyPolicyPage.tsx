@@ -165,7 +165,7 @@ export function PrivacyPolicyPage() {
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2 mb-4">
                                 <p><strong>Name:</strong> Vinay Kumar Soni</p>
                                 <p><strong>Email:</strong> vinay.ofz@gmail.com</p>
-                                <p><strong>Address:</strong> Balaji Ka Chowk, Sunaro Ka Mohalla, Lunwa Village, Nawa City, Didwana Kuchaman District, Rajasthan - 341509.</p>
+                                <p><strong>Address:</strong> Nawa City, Didwana Kuchaman District, Rajasthan - 341509 .</p>
                             </div>
                             <p>We will address grievances within the time prescribed by law.</p>
                         </section>
@@ -183,8 +183,8 @@ export function PrivacyPolicyPage() {
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">13. Contact Us</h2>
                             <p className="mb-4">For questions or concerns regarding this Privacy Policy:</p>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
-                                <p><strong>Email:</strong> support@zuley.in</p>
-                                <p><strong>Address:</strong> Balaji Ka Chowk, Sunaro Ka Mohalla, Lunwa Village, Nawa City, Didwana Kuchaman District, Rajasthan – 341509.</p>
+                                <p><strong>Email:</strong> zuley.tech@gmail.com</p>
+                                <p><strong>Address:</strong> Nawa City, Didwana Kuchaman District, Rajasthan – 341509.</p>
                             </div>
                         </section>
                     </div>

@@ -11,7 +11,7 @@ By placing an order on our Website, you agree to this Policy.
 ### a) Before Shipment
 
 - Orders may be cancelled **before they are shipped**.
-- Cancellation requests must be raised by contacting **support@zuley.in**.
+- Cancellation requests must be raised by contacting **zuley.tech@gmail.com**.
 - If the order has not been dispatched, a **full refund** will be processed.
 
 ### b) After Shipment
@@ -120,7 +120,7 @@ In such cases, a **full refund** will be issued.
 
 All requests must be raised via:
 
-**Email:** support@zuley.in
+**Email:** zuley.tech@gmail.com
 
 Please include:
 

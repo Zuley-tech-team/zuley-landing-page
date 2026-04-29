@@ -18,18 +18,10 @@ const footerLinks = {
     shop: [
         { label: 'Silver Pens', href: '/products?category=silver-pens' },
         { label: 'Phone Covers', href: '/products?category=silver-phone-covers' },
-        { label: 'Personalized Gifts', href: '/customize' },
         { label: 'All Products', href: '/products' },
-    ],
-    customize: [
-        { label: 'Personalization Guide', href: '/customize' },
-        { label: 'Craftsmanship', href: '/craftsmanship' },
-        { label: 'Corporate Gifting', href: '/corporate' },
-        { label: 'Bulk Orders', href: '/corporate' },
     ],
     about: [
         { label: 'Our Story', href: '/about' },
-        { label: 'Craftsmanship', href: '/craftsmanship' },
         { label: 'Quality Promise', href: '/about' },
         { label: 'Reviews', href: '/reviews' },
     ],
@@ -107,7 +99,7 @@ export function Footer() {
                                 <div>
                                     <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Visit Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        Nawa City, Rajasthan<br />India
+                                        Jaipur, Rajasthan<br />India
                                     </p>
                                 </div>
                             </div>
@@ -118,7 +110,7 @@ export function Footer() {
                                 <div>
                                     <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Email Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        support@zuley.in<br />
+                                        zuley.tech@gmail.com<br />
                                         Mon-Sat, 10am-7pm
                                     </p>
                                 </div>
@@ -169,29 +161,12 @@ export function Footer() {
 
             {/* Links Section */}
             <div className="max-w-7xl mx-auto px-6 py-12 md:py-16">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-8 md:gap-12">
                     {/* Shop */}
                     <div>
                         <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-4 text-primary">Shop</h4>
                         <ul className="space-y-3">
                             {footerLinks.shop.map((link) => (
-                                <li key={link.label}>
-                                    <a
-                                        href={link.href}
-                                        className="font-body text-sm text-pearl/60 hover:text-pearl transition-colors"
-                                    >
-                                        {link.label}
-                                    </a>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-
-                    {/* Customize */}
-                    <div>
-                        <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-4 text-primary">Customize</h4>
-                        <ul className="space-y-3">
-                            {footerLinks.customize.map((link) => (
                                 <li key={link.label}>
                                     <a
                                         href={link.href}
