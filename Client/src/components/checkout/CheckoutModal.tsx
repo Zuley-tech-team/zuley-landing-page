@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { X, Truck, CreditCard, Loader2, AlertCircle } from 'lucide-react';
 import { Button } from '../common';
 import type { Product } from '../../api/products';
-import { useRazorpay, type CustomerInfo, type ShippingAddress } from '../../hooks/useRazorpay';
+import type { CustomerInfo, ShippingAddress } from '../../hooks/useRazorpay';
 import { useAuth } from '../../contexts/AuthContext';
 import { placeCodOrder } from '../../api/orders';
 import './CheckoutModal.css';
@@ -53,12 +53,8 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
 
     // Validation
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-    const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('cod');
     const [codError, setCodError] = useState<string | null>(null);
     const [isPlacingCodOrder, setIsPlacingCodOrder] = useState(false);
-
-    const { initiatePayment, isLoading, error: paymentError, clearError } = useRazorpay();
-    const onlinePaymentsEnabled = String(import.meta.env.VITE_ENABLE_ONLINE_PAYMENTS).toLowerCase() === 'true';
 
     // Close on Escape key
     useEffect(() => {
@@ -84,12 +80,10 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     // Reset on open
     useEffect(() => {
         if (isOpen) {
-            clearError();
             setCodError(null);
             setFormErrors({});
-            setPaymentMethod('cod');
         }
-    }, [isOpen, clearError]);
+    }, [isOpen]);
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('en-IN', {
@@ -131,62 +125,36 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             pincode: pincode.trim(),
         };
 
-        if (paymentMethod === 'cod') {
-            setIsPlacingCodOrder(true);
-            setCodError(null);
+        setIsPlacingCodOrder(true);
+        setCodError(null);
 
-            try {
-                const response = await placeCodOrder({
-                    items: items.map(item => ({ sku: item.product.sku, quantity: item.quantity })),
-                    customer: customerInfo,
-                    shipping_address: {
-                        ...shippingAddress,
-                        country: 'India',
-                    },
-                });
+        try {
+            const response = await placeCodOrder({
+                items: items.map(item => ({ sku: item.product.sku, quantity: item.quantity })),
+                customer: customerInfo,
+                shipping_address: {
+                    ...shippingAddress,
+                    country: 'India',
+                },
+            });
 
-                onClose();
-                if (onSuccess) onSuccess();
-                const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
-                const params = new URLSearchParams({
-                    order_id: response.data.order_id,
-                    product: productName,
-                    amount: String(response.data.total_amount / 100),
-                    method: 'cod',
-                    invoice: response.data.invoice_number || '',
-                });
-                navigate(`/order-success?${params.toString()}`);
-            } catch (error) {
-                const message = error instanceof Error ? error.message : 'Unable to place COD order.';
-                setCodError(message);
-            } finally {
-                setIsPlacingCodOrder(false);
-            }
-            return;
+            onClose();
+            if (onSuccess) onSuccess();
+            const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
+            const params = new URLSearchParams({
+                order_id: response.data.order_id,
+                product: productName,
+                amount: String(response.data.total_amount / 100),
+                method: 'cod',
+                invoice: response.data.invoice_number || '',
+            });
+            navigate(`/order-success?${params.toString()}`);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unable to place COD order.';
+            setCodError(message);
+        } finally {
+            setIsPlacingCodOrder(false);
         }
-
-        initiatePayment({
-            items,
-            customerInfo,
-            shippingAddress,
-            onSuccess: (response) => {
-                onClose();
-                if (onSuccess) onSuccess();
-                const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
-                const params = new URLSearchParams({
-                    order_id: response.zuley_order_id || '',
-                    payment_id: response.razorpay_payment_id || '',
-                    product: productName,
-                    amount: String(items.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0)),
-                    method: 'online',
-                    invoice: response.zuley_invoice || ''
-                });
-                navigate(`/order-success?${params.toString()}`);
-            },
-            onFailure: () => {
-                // Error is handled via paymentError state from the hook
-            },
-        });
     };
 
     if (!isOpen || items.length === 0) return null;
@@ -235,47 +203,12 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     {/* Form Fields */}
                     <div className="px-6 py-5 space-y-5 overflow-y-auto checkout-form-scroll">
                         {/* Error Banner */}
-                        {(paymentError || codError) && (
+                        {codError && (
                             <div className="flex items-start gap-3 p-3 bg-error/10 border border-error/20 rounded-xl">
                                 <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-                                <p className="font-body text-sm text-error">{paymentError || codError}</p>
+                                <p className="font-body text-sm text-error">{codError}</p>
                             </div>
                         )}
-
-                        <fieldset className="space-y-3">
-                            <legend className="font-heading text-sm font-semibold text-charcoal mb-1">
-                                Payment Method
-                            </legend>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setPaymentMethod('cod')}
-                                    className={`text-left rounded-xl border px-4 py-3 transition-colors ${paymentMethod === 'cod'
-                                        ? 'border-charcoal bg-charcoal text-white'
-                                        : 'border-charcoal/15 bg-white text-charcoal hover:bg-charcoal/5'
-                                        }`}
-                                >
-                                    <span className="block font-body text-sm font-semibold">Cash on Delivery</span>
-                                    <span className={`block font-body text-xs mt-1 ${paymentMethod === 'cod' ? 'text-white/70' : 'text-charcoal/50'}`}>
-                                        Pay when your order is delivered
-                                    </span>
-                                </button>
-                                <button
-                                    type="button"
-                                    disabled={!onlinePaymentsEnabled}
-                                    onClick={() => onlinePaymentsEnabled && setPaymentMethod('online')}
-                                    className={`text-left rounded-xl border px-4 py-3 transition-colors disabled:cursor-not-allowed ${paymentMethod === 'online'
-                                        ? 'border-charcoal bg-charcoal text-white'
-                                        : 'border-charcoal/15 bg-white text-charcoal hover:bg-charcoal/5 disabled:opacity-50'
-                                        }`}
-                                >
-                                    <span className="block font-body text-sm font-semibold">Online Payment</span>
-                                    <span className={`block font-body text-xs mt-1 ${paymentMethod === 'online' ? 'text-white/70' : 'text-charcoal/50'}`}>
-                                        {onlinePaymentsEnabled ? 'Pay securely with Razorpay' : 'Coming soon after Razorpay approval'}
-                                    </span>
-                                </button>
-                            </div>
-                        </fieldset>
 
                         {/* Customer Info */}
                         <fieldset className="space-y-3">
@@ -414,28 +347,14 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                             variant="primary"
                             size="lg"
                             fullWidth
-                            disabled={isLoading || isPlacingCodOrder}
-                            icon={
-                                isLoading || isPlacingCodOrder ? (
-                                    <Loader2 className="w-5 h-5 animate-spin" />
-                                ) : paymentMethod === 'cod' ? (
-                                    <Truck className="w-5 h-5" />
-                                ) : (
-                                    <CreditCard className="w-5 h-5" />
-                                )
-                            }
+                            disabled={isPlacingCodOrder}
+                            icon={isPlacingCodOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
                             iconPosition="left"
                         >
-                            {isLoading || isPlacingCodOrder
-                                ? 'Processing...'
-                                : paymentMethod === 'cod'
-                                    ? `Place COD Order ${formatPrice(totalPrice)}`
-                                    : `Pay ${formatPrice(totalPrice)}`}
+                            {isPlacingCodOrder ? 'Processing...' : `Place COD Order ${formatPrice(totalPrice)}`}
                         </Button>
                         <p className="font-body text-xs text-charcoal/40 text-center mt-2">
-                            {paymentMethod === 'cod'
-                                ? 'No online payment required today'
-                                : 'Secured by Razorpay · 256-bit SSL Encryption'}
+                            Cash on delivery only for now.
                         </p>
                     </div>
                 </form>

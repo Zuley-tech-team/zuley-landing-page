@@ -6,7 +6,6 @@ import {
     Mail,
     Instagram,
     Facebook,
-    CreditCard,
     Shield,
     Truck,
     Send,
@@ -224,10 +223,6 @@ export function Footer() {
                             <div className="flex items-center gap-2 text-pearl/50">
                                 <Shield className="w-5 h-5" />
                                 <span className="font-body text-sm">Secure Checkout</span>
-                            </div>
-                            <div className="flex items-center gap-2 text-pearl/50">
-                                <CreditCard className="w-5 h-5" />
-                                <span className="font-body text-sm">All Cards Accepted</span>
                             </div>
                             <div className="flex items-center gap-2 text-pearl/50">
                                 <Truck className="w-5 h-5" />
