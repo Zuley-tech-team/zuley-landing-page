@@ -5,6 +5,7 @@ import { Button } from '../common';
 import type { Product } from '../../api/products';
 import type { CustomerInfo, ShippingAddress } from '../../hooks/useRazorpay';
 import { useAuth } from '../../contexts/AuthContext';
+import { completeProfile } from '../../api/auth';
 import { placeCodOrder } from '../../api/orders';
 import './CheckoutModal.css';
 
@@ -28,7 +29,7 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const navigate = useNavigate();
     const modalRef = useRef<HTMLDivElement>(null);
 
-    const { user } = useAuth();
+    const { user, login } = useAuth();
 
     // Customer info
     const [name, setName] = useState('');
@@ -50,6 +51,8 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const [city, setCity] = useState('');
     const [state, setState] = useState('');
     const [pincode, setPincode] = useState('');
+    const [isPincodeLookupLoading, setIsPincodeLookupLoading] = useState(false);
+    const [pincodeLookupMessage, setPincodeLookupMessage] = useState<string | null>(null);
 
     // Validation
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -82,8 +85,67 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
         if (isOpen) {
             setCodError(null);
             setFormErrors({});
+            setPincodeLookupMessage(null);
+            setIsPincodeLookupLoading(false);
         }
     }, [isOpen]);
+
+    useEffect(() => {
+        const normalizedPincode = pincode.trim();
+
+        if (normalizedPincode.length !== 6) {
+            setIsPincodeLookupLoading(false);
+            setPincodeLookupMessage(null);
+            return;
+        }
+
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(async () => {
+            setIsPincodeLookupLoading(true);
+            setPincodeLookupMessage(null);
+
+            try {
+                const response = await fetch(`https://api.postalpincode.in/pincode/${normalizedPincode}`, {
+                    signal: controller.signal,
+                });
+
+                if (!response.ok) {
+                    throw new Error('Unable to fetch address details.');
+                }
+
+                const data = await response.json();
+                const result = Array.isArray(data) ? data[0] : null;
+                const postOffice = result?.PostOffice?.[0];
+
+                if (result?.Status !== 'Success' || !postOffice) {
+                    throw new Error('No address details found for this pincode.');
+                }
+
+                const resolvedCity = postOffice.District || postOffice.Block || postOffice.Name || '';
+                const resolvedState = postOffice.State || '';
+
+                if (resolvedCity) {
+                    setCity(resolvedCity);
+                }
+
+                if (resolvedState) {
+                    setState(resolvedState);
+                }
+            } catch (error) {
+                if (controller.signal.aborted) return;
+                setPincodeLookupMessage('Could not auto-fill city and state for this pincode.');
+            } finally {
+                if (!controller.signal.aborted) {
+                    setIsPincodeLookupLoading(false);
+                }
+            }
+        }, 500);
+
+        return () => {
+            controller.abort();
+            window.clearTimeout(timeoutId);
+        };
+    }, [pincode]);
 
     const formatPrice = (price: number) =>
         new Intl.NumberFormat('en-IN', {
@@ -137,6 +199,17 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     country: 'India',
                 },
             });
+
+            if (user && (!user.name || !user.phone)) {
+                const profileResponse = await completeProfile(
+                    user.name || customerInfo.name,
+                    user.phone || customerInfo.phone
+                );
+
+                if (profileResponse.success && profileResponse.user) {
+                    login(profileResponse.user);
+                }
+            }
 
             onClose();
             if (onSuccess) onSuccess();
@@ -292,6 +365,25 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                                 <div>
                                     <input
                                         type="text"
+                                        placeholder="Pincode *"
+                                        value={pincode}
+                                        onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                        className={`checkout-input ${formErrors.pincode ? 'checkout-input-error' : ''}`}
+                                        id="checkout-pincode"
+                                    />
+                                    {isPincodeLookupLoading && (
+                                        <p className="mt-1 font-body text-xs text-charcoal/50">
+                                            Fetching city and state...
+                                        </p>
+                                    )}
+                                    {pincodeLookupMessage && (
+                                        <p className="checkout-field-error">{pincodeLookupMessage}</p>
+                                    )}
+                                    {formErrors.pincode && <p className="checkout-field-error">{formErrors.pincode}</p>}
+                                </div>
+                                <div>
+                                    <input
+                                        type="text"
                                         placeholder="City *"
                                         value={city}
                                         onChange={(e) => setCity(e.target.value)}
@@ -299,17 +391,6 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                                         id="checkout-city"
                                     />
                                     {formErrors.city && <p className="checkout-field-error">{formErrors.city}</p>}
-                                </div>
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="Pincode *"
-                                        value={pincode}
-                                        onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                        className={`checkout-input ${formErrors.pincode ? 'checkout-input-error' : ''}`}
-                                        id="checkout-pincode"
-                                    />
-                                    {formErrors.pincode && <p className="checkout-field-error">{formErrors.pincode}</p>}
                                 </div>
                             </div>
 

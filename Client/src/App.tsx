@@ -80,7 +80,7 @@ function App() {
             path="/"
             element={withMeta(
               <HomePage />,
-              'Personalized Silver Gifts in India',
+              'Zuley',
               'Shop premium personalized silver pens and accessories for milestone gifting and everyday elegance.',
               '/'
             )}

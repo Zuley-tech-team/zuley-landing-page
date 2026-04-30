@@ -209,7 +209,7 @@ export function AuthModal() {
                         <h2 className="auth-modal-title">Sign in to Zuley</h2>
                         <p className="auth-modal-subtitle">
                             Enter your email and we'll send you a one-time password.
-                            No account needed — we'll create one automatically.
+                            No account needed - we'll create one automatically.
                         </p>
                         <div className="auth-field">
                             <label htmlFor="auth-email" className="auth-field-label">Email address</label>

@@ -154,7 +154,7 @@ export function CraftsmanshipSection() {
                         <span className="text-primary">Built to Last.</span>
                     </h2>
                     <p className="font-body text-lg md:text-xl text-pearl/70 max-w-3xl mx-auto">
-                        Every piece begins with 925 sterling silver—the highest standard of purity.
+                        Every piece begins with 925 sterling silver - the highest standard of purity.
                         Our artisans combine traditional craftsmanship with modern precision.
                     </p>
                 </div>

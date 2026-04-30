@@ -21,7 +21,7 @@ const testimonials = [
         image: null,
     },
     {
-        quote: "Bought this as an anniversary gift for my wife. The engraving of our wedding date was beautifully done. It's not just a phone cover—it's a daily reminder of our love story.",
+        quote: "Bought this as an anniversary gift for my wife. The engraving of our wedding date was beautifully done. It's not just a phone cover- it's a daily reminder of our love story.",
         name: 'Amit Patel',
         location: 'Bangalore',
         product: 'Engraved Phone Cover',

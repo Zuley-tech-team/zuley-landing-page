@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import { Loader2, AlertCircle } from 'lucide-react';
@@ -10,6 +10,24 @@ export function AdminLoginPage() {
     const [isLoading, setIsLoading] = useState(false);
     const { login } = useAdmin();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+        const previousHref = favicon?.href || '/favicon.svg';
+
+        document.title = 'ADMIN | Zuley';
+
+        if (favicon) {
+            favicon.href = '/admin-favicon.svg';
+        }
+
+        return () => {
+            document.title = 'Zuley';
+            if (favicon) {
+                favicon.href = previousHref;
+            }
+        };
+    }, []);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();

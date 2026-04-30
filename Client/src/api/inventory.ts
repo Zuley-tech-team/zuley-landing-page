@@ -25,7 +25,7 @@ export async function checkStockAvailability(
         const data = await response.json();
         return data.data;
     } catch {
-        // Network error — default to "in stock"
+        // Network error - default to "in stock"
         return { sku, inStock: true, lowStock: false };
     }
 }

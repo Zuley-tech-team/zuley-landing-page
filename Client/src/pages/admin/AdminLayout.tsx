@@ -11,7 +11,7 @@ import {
     X,
     Loader2
 } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const navItems = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -25,6 +25,23 @@ export function AdminLayout() {
     const { admin, logout, isLoading } = useAdmin();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    useEffect(() => {
+        const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
+        const previousHref = favicon?.href || '/favicon.svg';
+
+        document.title = 'ADMIN | Zuley';
+
+        if (favicon) {
+            favicon.href = '/admin-favicon.svg';
+        }
+
+        return () => {
+            if (favicon) {
+                favicon.href = previousHref;
+            }
+        };
+    }, []);
 
     const handleLogout = async () => {
         await logout();

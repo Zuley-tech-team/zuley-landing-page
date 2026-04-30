@@ -14,8 +14,8 @@ export function HomePage() {
             <Navbar />
             <main className="min-h-screen bg-pearl overflow-x-hidden">
                 <HeroSection1 />
-                <ProductSpotlight />
                 <CategorySection />
+                <ProductSpotlight />
                 <CorporateSection />
                 <TestimonialsSection />
                 <Footer />

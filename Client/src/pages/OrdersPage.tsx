@@ -152,7 +152,7 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                 <div className="orders-address">
                     <MapPin className="w-3.5 h-3.5 text-charcoal/40 flex-shrink-0 mt-0.5" />
                     <span className="orders-address-text">
-                        {order.shipping_address.city}, {order.shipping_address.state} — {order.shipping_address.pincode}
+                        {order.shipping_address.city}, {order.shipping_address.state} - {order.shipping_address.pincode}
                     </span>
                 </div>
 

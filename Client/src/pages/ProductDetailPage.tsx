@@ -320,7 +320,7 @@ export function ProductDetailPage() {
                                     ) : lowStock ? (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-warning/10 text-warning text-sm font-medium">
                                             <span className="w-2 h-2 rounded-full bg-warning" />
-                                            Low Stock — Order Soon
+                                            Low Stock - Order Soon
                                         </span>
                                     ) : (
                                         <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-success/10 text-success text-sm font-medium">

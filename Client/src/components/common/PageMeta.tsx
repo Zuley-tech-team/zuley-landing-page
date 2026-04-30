@@ -21,14 +21,15 @@ export function PageMeta({ title, description, path, children }: PageMetaProps) 
   useEffect(() => {
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
     const canonicalUrl = `${SITE_URL}${normalizedPath}`;
+    const pageTitle = title === SITE_NAME ? SITE_NAME : `${title} | ${SITE_NAME}`;
 
-    document.title = `${title} | ${SITE_NAME}`;
+    document.title = pageTitle;
 
     setMetaBySelector('meta[name="description"]', description);
-    setMetaBySelector('meta[property="og:title"]', `${title} | ${SITE_NAME}`);
+    setMetaBySelector('meta[property="og:title"]', pageTitle);
     setMetaBySelector('meta[property="og:description"]', description);
     setMetaBySelector('meta[property="og:url"]', canonicalUrl);
-    setMetaBySelector('meta[name="twitter:title"]', `${title} | ${SITE_NAME}`);
+    setMetaBySelector('meta[name="twitter:title"]', pageTitle);
     setMetaBySelector('meta[name="twitter:description"]', description);
 
     let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;

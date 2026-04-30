@@ -20,7 +20,7 @@ interface AuthContextType {
     isLoading: boolean;
     login: (user: AuthUser) => void;
     logout: () => Promise<void>;
-    // Modal control — any component can trigger the login modal
+    // Modal control - any component can trigger the login modal
     authModalOpen: boolean;
     authModalMode: AuthModalMode;
     openAuthModal: (mode?: AuthModalMode) => void;
@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [authModalMode, setAuthModalMode] = useState<AuthModalMode>('signin');
     const [postLoginCallback, setPostLoginCallback] = useState<(() => void) | null>(null);
 
-    // On mount — try to restore session from token
+    // On mount - try to restore session from token
     useEffect(() => {
         const restore = async () => {
             try {
@@ -59,7 +59,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const login = useCallback((userData: AuthUser) => {
         setUser(userData);
-        setAuthModalOpen(false);
     }, []);
 
     const logout = useCallback(async () => {

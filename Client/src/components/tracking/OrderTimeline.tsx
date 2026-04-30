@@ -34,7 +34,7 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
 };
 
 export function OrderTimeline({ currentStatus, paymentMethod, history }: OrderTimelineProps) {
-    // For cancelled/refunded/failed — show a special state
+    // For cancelled/refunded/failed - show a special state
     const isTerminal = ['cancelled', 'refunded', 'failed'].includes(currentStatus);
     const isCod = paymentMethod === 'cod';
     const statusOrder = isCod ? COD_STATUS_ORDER : ONLINE_STATUS_ORDER;
