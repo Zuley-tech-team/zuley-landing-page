@@ -164,7 +164,7 @@ export function ShippingPolicyPage() {
                             <p className="mb-4">For shipping-related queries, please contact:</p>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
                                 <p><strong>Email:</strong> zuley.tech@gmail.com</p>
-                                <p><strong>Address:</strong> Nawa City, Didwana Kuchaman District, Rajasthan – 341509</p>
+                                <p><strong>Address:</strong> Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509</p>
                             </div>
                         </section>
                     </div>

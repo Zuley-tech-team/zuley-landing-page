@@ -182,7 +182,7 @@ export function ContactPage() {
                         </article>
                         <article className="rounded-2xl bg-charcoal text-pearl p-7">
                             <h3 className="font-heading text-2xl font-semibold mb-4">Location</h3>
-                            <p className="font-body text-pearl/75">Zuley, Jaipur, Rajasthan, India</p>
+                            <p className="font-body text-pearl/75">Zuley, Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509</p>
                             <p className="font-body text-pearl/60 mt-3">For corporate appointments and workshop meetings, contact us in advance.</p>
                         </article>
                     </div>

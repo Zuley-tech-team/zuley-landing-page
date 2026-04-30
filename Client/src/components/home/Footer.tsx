@@ -93,7 +93,7 @@ export function Footer() {
                                 <div>
                                     <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Visit Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        Jaipur, Rajasthan<br />India
+                                        Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509
                                     </p>
                                 </div>
                             </div>
