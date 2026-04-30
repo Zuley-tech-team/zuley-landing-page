@@ -219,7 +219,7 @@ export function TermsConditionsPage() {
                         <section>
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">16. Contact Information</h2>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
-                                <p><strong>Email:</strong> zuley.tech@gmail.com</p>
+                                <p><strong>Email:</strong> support@zuley.in</p>
                                 <p><strong>Address:</strong> Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509</p>
                             </div>
                         </section>

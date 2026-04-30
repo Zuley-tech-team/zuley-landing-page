@@ -183,7 +183,7 @@ export function PrivacyPolicyPage() {
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">13. Contact Us</h2>
                             <p className="mb-4">For questions or concerns regarding this Privacy Policy:</p>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
-                                <p><strong>Email:</strong> zuley.tech@gmail.com</p>
+                                <p><strong>Email:</strong> support@zuley.in</p>
                                 <p><strong>Address:</strong> Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509.</p>
                             </div>
                         </section>

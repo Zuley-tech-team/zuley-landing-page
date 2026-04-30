@@ -104,7 +104,8 @@ export function Footer() {
                                 <div>
                                     <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Email Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
-                                        zuley.tech@gmail.com<br />
+                                        support@zuley.in
+                                    <br />
                                         Mon-Sat, 10am-7pm
                                     </p>
                                 </div>

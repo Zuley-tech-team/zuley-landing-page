@@ -80,17 +80,17 @@ export function ContactPage() {
 
                 <section className="max-w-7xl mx-auto px-6 py-14 md:py-18">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
-                        <a href="mailto:zuley.tech@gmail.com" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
+                        <a href="mailto:support@zuley.in" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Mail className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Email</h2>
-                            <p className="font-body text-charcoal/65 mt-2">zuley.tech@gmail.com</p>
+                            <p className="font-body text-charcoal/65 mt-2">support@zuley.in</p>
                         </a>
                         <div className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Clock className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Hours</h2>
                             <p className="font-body text-charcoal/65 mt-2">Mon-Sat, 10am-7pm IST</p>
                         </div>
-                        <a href="mailto:zuley.tech@gmail.com?subject=WhatsApp%20support%20request" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
+                        <a href="mailto:support@zuley.in?subject=WhatsApp%20support%20request" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <MessageCircle className="w-6 h-6 text-charcoal mb-3" />
                             <h2 className="font-heading text-xl text-charcoal font-semibold">Priority Support</h2>
                             <p className="font-body text-charcoal/65 mt-2">Email us for urgent order help</p>

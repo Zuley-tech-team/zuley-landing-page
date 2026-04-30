@@ -28,7 +28,7 @@ export function RefundPolicyPage() {
                             <h3 className="font-semibold text-charcoal mb-2">a) Before Shipment</h3>
                             <ul className="list-disc pl-6 mb-6 space-y-1">
                                 <li>Orders may be cancelled <strong>before they are shipped</strong>.</li>
-                                <li>Cancellation requests must be raised by contacting <strong>zuley.tech@gmail.com</strong>.</li>
+                                <li>Cancellation requests must be raised by contacting <strong>support@zuley.in</strong>.</li>
                                 <li>If the order has not been dispatched, a <strong>full refund</strong> will be processed.</li>
                             </ul>
 
@@ -158,7 +158,7 @@ export function RefundPolicyPage() {
                         <section>
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">9. Contact for Returns & Refunds</h2>
                             <p className="mb-2">All requests must be raised via:</p>
-                            <p className="mb-4"><strong>Email:</strong> zuley.tech@gmail.com</p>
+                            <p className="mb-4"><strong>Email:</strong> support@zuley.in</p>
                             <p className="mb-2">Please include:</p>
                             <ul className="list-disc pl-6 space-y-1">
                                 <li>Order ID</li>
