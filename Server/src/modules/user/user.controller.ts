@@ -1,3 +1,4 @@
+/// <reference types="multer" />
 import { Request, Response } from "express";
 import "multer";
 import jwt from "jsonwebtoken";
@@ -322,7 +323,7 @@ export const submitOrderReview = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "A review has already been submitted for this product." });
         }
 
-        const files = (req.files as Express.Multer.File[]) || [];
+        const files = (req.files as any[]) || [];
         let uploadedImages: Array<{ url: string; public_id: string }> = [];
 
         if (files.length > 0) {
