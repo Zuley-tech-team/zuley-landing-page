@@ -1,6 +1,4 @@
-/// <reference types="multer" />
 import { Request, Response } from "express";
-import "multer";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { User } from "../../models/user.model";

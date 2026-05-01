@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import type { Multer } from "multer";
 import { Product } from "../../models/product.model";
 import { Inventory } from "../../models/inventory.model";
 import { Order } from "../../models/order.model";
