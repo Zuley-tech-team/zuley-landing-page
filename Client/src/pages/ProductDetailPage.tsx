@@ -119,6 +119,8 @@ export function ProductDetailPage() {
         return () => clearInterval(interval);
     }, [images.length, isAutoPlaying]);
 
+
+
     useEffect(() => {
         if (images.length > 0 && selectedImage >= images.length) {
             setSelectedImage(0);

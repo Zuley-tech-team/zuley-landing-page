@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.submitReturnRequest = exports.downloadMyInvoice = exports.submitOrderReview = exports.getMyOrders = exports.getMe = exports.logout = exports.completeProfile = exports.verifyOtp = exports.sendOtp = void 0;
+require("multer");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const user_model_1 = require("../../models/user.model");
