@@ -1,8 +1,19 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { Quote, Star, ChevronLeft, ChevronRight } from 'lucide-react';
+import { fetchReviews } from '../../api/reviews';
 
-const testimonials = [
+interface Testimonial {
+    quote: string;
+    name: string;
+    location: string;
+    product: string;
+    rating: number;
+    image: string | null;
+    title?: string;
+}
+
+const testimonials: Testimonial[] = [
     {
         quote: "The silver pen I ordered for my father's retirement was absolutely perfect. The engraving was flawless, and the packaging made it feel so special. He was moved to tears. Thank you for helping me create such a meaningful gift.",
         name: 'Priya Sharma',
@@ -53,6 +64,7 @@ export function TestimonialsSection() {
     const sliderRef = useRef<HTMLDivElement>(null);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isAnimating, setIsAnimating] = useState(false);
+    const [liveTestimonials, setLiveTestimonials] = useState<Testimonial[]>([]);
 
     useEffect(() => {
         ScrollTrigger.refresh();
@@ -96,6 +108,48 @@ export function TestimonialsSection() {
         return () => ctx.revert();
     }, []);
 
+    useEffect(() => {
+        let active = true;
+
+        const loadReviews = async () => {
+            try {
+                const response = await fetchReviews({ limit: 6 });
+                const reviews = response.data || [];
+                if (!active) return;
+
+                if (reviews.length > 0) {
+                    const mapped = reviews.map((review) => ({
+                        quote: review.comment,
+                        name: review.customer_name,
+                        location: review.customer_city || 'India',
+                        product: review.product_name,
+                        rating: review.rating,
+                        image: review.images?.[0]?.url || null,
+                        title: undefined,
+                    }));
+                    setLiveTestimonials(mapped);
+                } else {
+                    setLiveTestimonials([]);
+                }
+            } catch (error) {
+                if (active) {
+                    setLiveTestimonials([]);
+                }
+            }
+        };
+
+        loadReviews();
+
+        return () => {
+            active = false;
+        };
+    }, []);
+
+    const displayTestimonials = liveTestimonials.length > 0 ? liveTestimonials : testimonials;
+    const averageRating = liveTestimonials.length > 0
+        ? (liveTestimonials.reduce((sum, item) => sum + item.rating, 0) / liveTestimonials.length).toFixed(1)
+        : '4.9';
+
     // Auto-rotate testimonials
     useEffect(() => {
         const interval = setInterval(() => {
@@ -107,17 +161,23 @@ export function TestimonialsSection() {
         return () => clearInterval(interval);
     }, [currentIndex, isAnimating]);
 
+    useEffect(() => {
+        if (currentIndex >= displayTestimonials.length) {
+            setCurrentIndex(0);
+        }
+    }, [displayTestimonials.length, currentIndex]);
+
     const handlePrev = () => {
         if (isAnimating) return;
         setIsAnimating(true);
-        setCurrentIndex((prev) => (prev === 0 ? testimonials.length - 1 : prev - 1));
+        setCurrentIndex((prev) => (prev === 0 ? displayTestimonials.length - 1 : prev - 1));
         setTimeout(() => setIsAnimating(false), 500);
     };
 
     const handleNext = () => {
         if (isAnimating) return;
         setIsAnimating(true);
-        setCurrentIndex((prev) => (prev === testimonials.length - 1 ? 0 : prev + 1));
+        setCurrentIndex((prev) => (prev === displayTestimonials.length - 1 ? 0 : prev + 1));
         setTimeout(() => setIsAnimating(false), 500);
     };
 
@@ -147,7 +207,7 @@ export function TestimonialsSection() {
                                 <Star key={star} className="w-5 h-5 text-amber-400" fill="currentColor" />
                             ))}
                         </div>
-                        <span className="font-body text-charcoal/70">4.9/5 from 60+ reviews</span>
+                        <span className="font-body text-charcoal/70">{averageRating}/5 from {displayTestimonials.length}+ reviews</span>
                     </div>
                 </div>
 
@@ -159,7 +219,7 @@ export function TestimonialsSection() {
                             className="flex transition-transform duration-500 ease-out"
                             style={{ transform: `translateX(-${currentIndex * 100}%)` }}
                         >
-                            {testimonials.map((testimonial, index) => (
+                            {displayTestimonials.map((testimonial, index) => (
                                 <div
                                     key={index}
                                     className="w-full flex-shrink-0 p-4 md:p-8"
@@ -171,9 +231,11 @@ export function TestimonialsSection() {
                                         </div>
 
                                         {/* Quote text */}
-                                        <blockquote className="font-body text-lg md:text-xl text-charcoal/80 leading-relaxed mb-8 mt-4 italic">
-                                            "{testimonial.quote}"
-                                        </blockquote>
+                                        <div className="min-h-[100px] md:min-h-[120px]">
+                                            <blockquote className="font-body text-lg md:text-xl text-charcoal/80 leading-relaxed mb-8 mt-4 italic line-clamp-3">
+                                                "{testimonial.quote}"
+                                            </blockquote>
+                                        </div>
 
                                         {/* Author info */}
                                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
@@ -208,8 +270,10 @@ export function TestimonialsSection() {
                                             </div>
 
                                             {/* Product tag */}
-                                            <div className="px-4 py-2 bg-charcoal/5 rounded-full">
-                                                <span className="font-body text-sm text-charcoal/70">{testimonial.product}</span>
+                                            <div className="px-3 py-1.5 bg-charcoal/5 rounded-lg flex-shrink-0 sm:flex-shrink">
+                                                <span className="font-body text-[10px] sm:text-sm text-charcoal/70 font-medium">
+                                                    {testimonial.product}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
@@ -230,7 +294,7 @@ export function TestimonialsSection() {
 
                         {/* Dots */}
                         <div className="flex gap-2">
-                            {testimonials.map((_, index) => (
+                            {displayTestimonials.map((_, index) => (
                                 <button
                                     key={index}
                                     onClick={() => {

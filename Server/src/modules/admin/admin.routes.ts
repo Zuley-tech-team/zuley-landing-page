@@ -43,6 +43,10 @@ router.get("/orders/:id/invoice/download", orderController.downloadOrderInvoice)
 router.post("/orders/:id/confirm", orderController.confirmOrder);
 router.post("/orders/:id/mark-cod-paid", orderController.markCodPaymentCollected);
 router.put("/orders/:id/status", orderController.updateOrderStatus);
+router.post("/orders/:id/return/accept", orderController.acceptReturnRequest);
+router.post("/orders/:id/return/reject", orderController.rejectReturnRequest);
+router.post("/orders/:id/return/refunded", orderController.markReturnRefunded);
+router.post("/orders/:id/return/replaced", orderController.markReturnReplaced);
 
 // Inventory Routes
 import * as inventoryController from "./inventory.controller";
@@ -66,5 +70,11 @@ router.get("/engagement/newsletter-subscribers", engagementController.getNewslet
 import * as usersController from "./users.controller";
 router.get("/users", usersController.getUsers);
 router.get("/users/:id", usersController.getUserDetails);
+
+// Review Routes
+import * as reviewController from "./review.controller";
+router.get("/reviews", reviewController.getReviews);
+router.patch("/reviews/:id/approve", reviewController.approveReview);
+router.patch("/reviews/:id/reject", reviewController.rejectReview);
 
 export default router;

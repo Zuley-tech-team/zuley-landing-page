@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Star } from 'lucide-react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { fetchTestimonials, type TestimonialItem } from '../api/engagement';
+import { fetchReviews, type ReviewItem } from '../api/reviews';
 
 export function ReviewsPage() {
     const [stories, setStories] = useState<TestimonialItem[]>([]);
+    const [reviews, setReviews] = useState<ReviewItem[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -16,9 +18,21 @@ export function ReviewsPage() {
             try {
                 setIsLoading(true);
                 setErrorMessage(null);
+                const reviewResponse = await fetchReviews({ limit: 30 });
+                const reviewData = reviewResponse.data || [];
+
+                if (reviewData.length > 0) {
+                    if (mounted) {
+                        setReviews(reviewData);
+                        setStories([]);
+                    }
+                    return;
+                }
+
                 const data = await fetchTestimonials();
                 if (mounted) {
                     setStories(data);
+                    setReviews([]);
                 }
             } catch (error) {
                 if (mounted) {
@@ -39,14 +53,19 @@ export function ReviewsPage() {
     }, []);
 
     const averageRating = useMemo(() => {
-        if (stories.length === 0) {
+        if (reviews.length === 0 && stories.length === 0) {
             return 4.9;
+        }
+
+        if (reviews.length > 0) {
+            const total = reviews.reduce((sum, review) => sum + review.rating, 0);
+            return Math.round((total / reviews.length) * 10) / 10;
         }
 
         const total = stories.reduce((sum, story) => sum + story.rating, 0);
         const calculated = Math.round((total / stories.length) * 10) / 10;
         return Math.max(4.9, calculated);
-    }, [stories]);
+    }, [stories, reviews]);
 
     return (
         <>
@@ -78,7 +97,33 @@ export function ReviewsPage() {
                         </div>
                     )}
 
-                    {!isLoading && !errorMessage && (
+                    {!isLoading && !errorMessage && reviews.length > 0 && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            {reviews.map((review) => (
+                                <article key={review._id} className="bg-white rounded-2xl p-7 border border-charcoal/10 shadow-soft">
+                                    <div className="flex gap-1 mb-3">
+                                        {[1, 2, 3, 4, 5].map((index) => (
+                                            <Star key={index} className={`w-4 h-4 ${index <= review.rating ? 'text-amber-500' : 'text-charcoal/20'}`} fill={index <= review.rating ? 'currentColor' : 'none'} />
+                                        ))}
+                                    </div>
+                                    <p className="font-body text-charcoal/75 leading-relaxed">"{review.comment}"</p>
+                                    {review.images?.length > 0 && (
+                                        <div className="mt-4 grid grid-cols-3 gap-2">
+                                            {review.images.slice(0, 3).map((image) => (
+                                                <img key={image.public_id} src={image.url} alt={review.product_name} className="h-20 w-full rounded-lg object-cover" />
+                                            ))}
+                                        </div>
+                                    )}
+                                    <p className="font-heading text-charcoal font-semibold mt-5">
+                                        {review.customer_name}{review.customer_city ? `, ${review.customer_city}` : ''}
+                                    </p>
+                                    <p className="font-body text-xs text-charcoal/50 mt-1">{review.product_name}</p>
+                                </article>
+                            ))}
+                        </div>
+                    )}
+
+                    {!isLoading && !errorMessage && reviews.length === 0 && (
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {stories.map((story) => (
                                 <article key={`${story.name}-${story.city || 'unknown'}`} className="bg-white rounded-2xl p-7 border border-charcoal/10 shadow-soft">

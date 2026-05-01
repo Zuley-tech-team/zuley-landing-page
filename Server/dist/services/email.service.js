@@ -403,6 +403,77 @@ class EmailService {
                         ctaUrl: getTrackingUrl(payload.orderId),
                     }),
                 };
+            case email_queue_model_1.EmailType.RETURN_REQUESTED:
+                return {
+                    subject: `Return Requested | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "Return request received",
+                        subtitle: "We have received your return request and our team will review it shortly.",
+                        customerName: payload.customerName,
+                        contentHtml: `
+      <p style="margin:0 0 8px;"><strong>Order ID:</strong> ${escapeHtml(payload.orderId)}</p>
+      <p style="margin:0 0 8px;"><strong>Request Type:</strong> ${escapeHtml(payload.type)}</p>
+      <p style="margin:0;"><strong>Reason:</strong> ${escapeHtml(payload.reason)}</p>`,
+                        ctaLabel: "Track your order",
+                        ctaUrl: getTrackingUrl(payload.orderId),
+                    }),
+                };
+            case email_queue_model_1.EmailType.RETURN_ACCEPTED:
+                return {
+                    subject: `Return Accepted | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "Return approved",
+                        subtitle: "Your return request has been approved and is now in progress.",
+                        customerName: payload.customerName,
+                        contentHtml: `
+      <p style="margin:0 0 8px;"><strong>Order ID:</strong> ${escapeHtml(payload.orderId)}</p>
+      <p style="margin:0;"><strong>Request Type:</strong> ${escapeHtml(payload.type)}</p>`,
+                        ctaLabel: "Track your order",
+                        ctaUrl: getTrackingUrl(payload.orderId),
+                    }),
+                };
+            case email_queue_model_1.EmailType.RETURN_REJECTED:
+                return {
+                    subject: `Return Rejected | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "Return request rejected",
+                        subtitle: "We are unable to approve your return request at this time.",
+                        customerName: payload.customerName,
+                        contentHtml: `
+      <p style="margin:0 0 8px;"><strong>Order ID:</strong> ${escapeHtml(payload.orderId)}</p>
+      <p style="margin:0;">${escapeHtml(payload.note || "Please contact support if you need further help.")}</p>`,
+                        ctaLabel: "Contact support",
+                        ctaUrl: "mailto:support@zuley.in",
+                    }),
+                };
+            case email_queue_model_1.EmailType.RETURN_REFUNDED:
+                return {
+                    subject: `Refund Processed | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "Refund processed",
+                        subtitle: "Your return has been completed and the refund is being processed.",
+                        customerName: payload.customerName,
+                        contentHtml: `
+      <p style="margin:0 0 8px;"><strong>Order ID:</strong> ${escapeHtml(payload.orderId)}</p>
+      <p style="margin:0;">${escapeHtml(payload.note || "Your refund will reflect based on your payment method timeline.")}</p>`,
+                        ctaLabel: "Track your order",
+                        ctaUrl: getTrackingUrl(payload.orderId),
+                    }),
+                };
+            case email_queue_model_1.EmailType.RETURN_REPLACED:
+                return {
+                    subject: `Replacement In Progress | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "Replacement in progress",
+                        subtitle: "Your replacement request has been processed and we are arranging shipment.",
+                        customerName: payload.customerName,
+                        contentHtml: `
+      <p style="margin:0 0 8px;"><strong>Order ID:</strong> ${escapeHtml(payload.orderId)}</p>
+      <p style="margin:0;">${escapeHtml(payload.note || "We will share shipping details shortly.")}</p>`,
+                        ctaLabel: "Track your order",
+                        ctaUrl: getTrackingUrl(payload.orderId),
+                    }),
+                };
             default:
                 return {
                     subject: "Notification from Zuley",
@@ -419,4 +490,9 @@ EmailService.ENABLED_EMAIL_TYPES = new Set([
     email_queue_model_1.EmailType.SHIPPING_CONFIRMATION,
     email_queue_model_1.EmailType.DELIVERY_CONFIRMATION,
     email_queue_model_1.EmailType.REFUND_CONFIRMATION,
+    email_queue_model_1.EmailType.RETURN_REQUESTED,
+    email_queue_model_1.EmailType.RETURN_ACCEPTED,
+    email_queue_model_1.EmailType.RETURN_REJECTED,
+    email_queue_model_1.EmailType.RETURN_REFUNDED,
+    email_queue_model_1.EmailType.RETURN_REPLACED,
 ]);

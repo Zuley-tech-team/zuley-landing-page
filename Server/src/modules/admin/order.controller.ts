@@ -167,10 +167,21 @@ export const getOrders = async (req: Request, res: Response) => {
             ];
         }
 
-        const orders = await Order.find(query)
-            .sort({ createdAt: -1 })
-            .skip((Number(page) - 1) * Number(limit))
-            .limit(Number(limit));
+        const skip = (Number(page) - 1) * Number(limit);
+
+        const orders = await Order.aggregate([
+            { $match: query },
+            {
+                $addFields: {
+                    returnPriority: {
+                        $cond: [{ $eq: ["$status", "return_requested"] }, 0, 1],
+                    },
+                },
+            },
+            { $sort: { returnPriority: 1, createdAt: -1 } },
+            { $skip: skip },
+            { $limit: Number(limit) },
+        ]);
 
         const total = await Order.countDocuments(query);
 
@@ -199,12 +210,18 @@ export const getOrderById = async (req: Request, res: Response) => {
         }
 
         const invoice = await Invoice.findOne({ orderId: order._id }).select("invoiceNumber invoiceDate totalAmount status pdfPath");
+        const replacementOrders = await Order.find({ replacement_of: order._id }).sort({ createdAt: -1 }).lean();
+        const replacementOriginal = order.replacement_of
+            ? await Order.findById(order.replacement_of).lean()
+            : null;
 
         res.json({
             success: true,
             data: {
                 ...order.toObject(),
                 invoice,
+                replacement_orders: replacementOrders,
+                replacement_original: replacementOriginal,
             },
         });
     } catch (error) {
@@ -219,7 +236,19 @@ export const updateOrderStatus = async (req: Request, res: Response) => {
         const { status, note } = req.body;
 
         // Validate Status transition (simplified for now)
-        const validStatuses = ['created', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'];
+        const validStatuses = [
+            'created',
+            'confirmed',
+            'paid',
+            'shipped',
+            'delivered',
+            'return_requested',
+            'return_in_progress',
+            'return_rejected',
+            'replaced',
+            'cancelled',
+            'refunded',
+        ];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
@@ -393,6 +422,223 @@ export const markCodPaymentCollected = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("Mark COD Paid Error:", error);
         res.status(500).json({ message: "Failed to mark COD payment as collected" });
+    }
+};
+
+export const acceptReturnRequest = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.status !== "return_requested") {
+            return res.status(400).json({ message: "Return request is not pending for this order." });
+        }
+
+        order.status = "return_in_progress";
+        if (!order.return_request) {
+            order.return_request = {} as any;
+        }
+        order.return_request.status = "accepted";
+        order.return_request.decided_at = new Date();
+        order.return_request.decision_note = note || "Return request accepted";
+        order.return_request.decided_by = req.admin._id;
+
+        order.history.push({
+            status: "return_in_progress",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return request accepted",
+            timestamp: new Date(),
+        });
+
+        await order.save();
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.RETURN_ACCEPTED,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    type: order.return_request?.type || "refund",
+                }
+            );
+        }
+
+        return res.json({ success: true, data: order });
+    } catch (error) {
+        console.error("Accept Return Request Error:", error);
+        return res.status(500).json({ message: "Failed to accept return request" });
+    }
+};
+
+export const rejectReturnRequest = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.status !== "return_requested") {
+            return res.status(400).json({ message: "Return request is not pending for this order." });
+        }
+
+        order.status = "return_rejected";
+        if (!order.return_request) {
+            order.return_request = {} as any;
+        }
+        order.return_request.status = "rejected";
+        order.return_request.decided_at = new Date();
+        order.return_request.decision_note = note || "Return request rejected";
+        order.return_request.decided_by = req.admin._id;
+
+        order.history.push({
+            status: "return_rejected",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return request rejected",
+            timestamp: new Date(),
+        });
+
+        await order.save();
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.RETURN_REJECTED,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    note: note || "Return request rejected",
+                }
+            );
+        }
+
+        return res.json({ success: true, data: order });
+    } catch (error) {
+        console.error("Reject Return Request Error:", error);
+        return res.status(500).json({ message: "Failed to reject return request" });
+    }
+};
+
+export const markReturnRefunded = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.status !== "return_in_progress") {
+            return res.status(400).json({ message: "Return is not in progress for this order." });
+        }
+
+        order.status = "refunded";
+        order.payment_status = "refunded";
+        if (!order.return_request) {
+            order.return_request = {} as any;
+        }
+        order.return_request.status = "refunded";
+        order.return_request.resolved_at = new Date();
+        order.return_request.decision_note = note || order.return_request.decision_note;
+
+        order.history.push({
+            status: "refunded",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return refunded",
+            timestamp: new Date(),
+        });
+
+        await order.save();
+
+        if (order.payment_id) {
+            await Payment.findByIdAndUpdate(order.payment_id, {
+                status: "refunded",
+            });
+        }
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.RETURN_REFUNDED,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    note: note || "Return refunded",
+                }
+            );
+        }
+
+        return res.json({ success: true, data: order });
+    } catch (error) {
+        console.error("Mark Return Refunded Error:", error);
+        return res.status(500).json({ message: "Failed to mark return as refunded" });
+    }
+};
+
+export const markReturnReplaced = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+
+        const order = await Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+
+        if (order.status !== "return_in_progress") {
+            return res.status(400).json({ message: "Return is not in progress for this order." });
+        }
+
+        if (order.return_request?.type && order.return_request.type !== "replace") {
+            return res.status(400).json({ message: "Return request is not marked for replacement." });
+        }
+
+        order.status = "replaced";
+        if (!order.return_request) {
+            order.return_request = {} as any;
+        }
+        order.return_request.status = "replaced";
+        order.return_request.resolved_at = new Date();
+        order.return_request.decision_note = note || order.return_request.decision_note;
+
+        order.history.push({
+            status: "replaced",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return replaced",
+            timestamp: new Date(),
+        });
+
+        await order.save();
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.RETURN_REPLACED,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    note: note || "Replacement in progress",
+                }
+            );
+        }
+
+        return res.json({ success: true, data: order });
+    } catch (error) {
+        console.error("Mark Return Replaced Error:", error);
+        return res.status(500).json({ message: "Failed to mark return as replaced" });
     }
 };
 

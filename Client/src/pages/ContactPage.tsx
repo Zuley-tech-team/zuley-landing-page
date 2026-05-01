@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Mail, Clock, MessageCircle, Building2 } from 'lucide-react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { useToast } from '../contexts/ToastContext';
 import { submitContactInquiry } from '../api/engagement';

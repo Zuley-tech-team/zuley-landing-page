@@ -12,16 +12,22 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadMyInvoice = exports.getMyOrders = exports.getMe = exports.logout = exports.completeProfile = exports.verifyOtp = exports.sendOtp = void 0;
+exports.submitReturnRequest = exports.downloadMyInvoice = exports.submitOrderReview = exports.getMyOrders = exports.getMe = exports.logout = exports.completeProfile = exports.verifyOtp = exports.sendOtp = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const crypto_1 = __importDefault(require("crypto"));
 const user_model_1 = require("../../models/user.model");
 const otp_model_1 = require("../../models/otp.model");
 const order_model_1 = require("../../models/order.model");
+const review_model_1 = require("../../models/review.model");
+const product_model_1 = require("../../models/product.model");
 const invoice_model_1 = require("../../models/invoice.model");
 const fs_1 = __importDefault(require("fs"));
 const env_config_1 = require("../../config/env.config");
 const email_service_1 = require("../../services/email.service");
+const email_service_2 = require("../../services/email.service");
+const email_queue_model_1 = require("../../models/email-queue.model");
+const cloudinary_service_1 = require("../../services/cloudinary.service");
+const cloudinary_config_1 = require("../../config/cloudinary.config");
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 5;
 // Generate a secure 6-digit OTP
@@ -219,13 +225,24 @@ const getMyOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             "customer_details.email": userEmail,
         })
             .sort({ createdAt: -1 })
-            .select("order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details")
+            .select("order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details return_request")
             .populate({
             path: "items.product_id",
             select: "sku image",
         })
             .lean();
-        const enrichedOrders = orders.map((order) => (Object.assign(Object.assign({}, order), { items: (order.items || []).map((item) => {
+        const orderIds = orders.map((order) => order.order_id);
+        const existingReviews = yield review_model_1.Review.find({ order_id: { $in: orderIds } })
+            .select("order_id product_sku status")
+            .lean();
+        const reviewedMap = existingReviews.reduce((acc, review) => {
+            if (!acc[review.order_id]) {
+                acc[review.order_id] = [];
+            }
+            acc[review.order_id].push(review.product_sku);
+            return acc;
+        }, {});
+        const enrichedOrders = orders.map((order) => (Object.assign(Object.assign({}, order), { reviewed_items: reviewedMap[order.order_id] || [], items: (order.items || []).map((item) => {
                 var _a, _b;
                 return (Object.assign(Object.assign({}, item), { product_image: ((_a = item.product_id) === null || _a === void 0 ? void 0 : _a.image) || "", product_sku: ((_b = item.product_id) === null || _b === void 0 ? void 0 : _b.sku) || item.sku }));
             }) })));
@@ -240,6 +257,80 @@ const getMyOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.getMyOrders = getMyOrders;
+/**
+ * POST /api/v1/user/reviews
+ * Submit a product review (delivered orders only).
+ */
+const submitOrderReview = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const userEmail = req.user.email;
+        const { order_id, product_sku, rating, comment } = req.body || {};
+        if (!order_id || !product_sku) {
+            return res.status(400).json({ message: "Order ID and product are required." });
+        }
+        const numericRating = Number(rating);
+        if (!numericRating || numericRating < 1 || numericRating > 5) {
+            return res.status(400).json({ message: "Rating must be between 1 and 5." });
+        }
+        if (!comment || !String(comment).trim()) {
+            return res.status(400).json({ message: "Review text is required." });
+        }
+        const order = yield order_model_1.Order.findOne({ order_id, "customer_details.email": userEmail }).lean();
+        if (!order) {
+            return res.status(404).json({ message: "Order not found or unauthorized." });
+        }
+        if (order.status !== "delivered") {
+            return res.status(400).json({ message: "Reviews can be submitted only after delivery." });
+        }
+        const matchingItem = (order.items || []).find((item) => item.sku === product_sku);
+        if (!matchingItem) {
+            return res.status(400).json({ message: "Product not found in this order." });
+        }
+        const existingReview = yield review_model_1.Review.findOne({ order_id, product_sku });
+        if (existingReview) {
+            return res.status(400).json({ message: "A review has already been submitted for this product." });
+        }
+        const files = req.files || [];
+        let uploadedImages = [];
+        if (files.length > 0) {
+            if (!(0, cloudinary_config_1.isCloudinaryConfigured)()) {
+                return res.status(400).json({ message: "Image uploads are unavailable. Please submit without photos." });
+            }
+            const uploadResults = yield Promise.all(files.map((file) => (0, cloudinary_service_1.uploadImageBuffer)(file.buffer, {
+                folder: "zuley/reviews",
+            })));
+            uploadedImages = uploadResults.map(res => ({
+                url: res.secure_url,
+                public_id: res.public_id
+            }));
+        }
+        const productDoc = yield product_model_1.Product.findOne({ sku: product_sku }).select("name image").lean();
+        const review = yield review_model_1.Review.create({
+            order_id,
+            order_ref: order._id,
+            product_sku,
+            product_name: (productDoc === null || productDoc === void 0 ? void 0 : productDoc.name) || matchingItem.name,
+            product_image: (productDoc === null || productDoc === void 0 ? void 0 : productDoc.image) || "",
+            customer_name: ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.name) || "Customer",
+            customer_email: userEmail,
+            customer_city: ((_b = order.shipping_address) === null || _b === void 0 ? void 0 : _b.city) || "",
+            rating: numericRating,
+            comment: String(comment).trim(),
+            images: uploadedImages,
+            status: "pending",
+        });
+        return res.status(201).json({ success: true, data: review });
+    }
+    catch (error) {
+        console.error("[UserAuth] submitOrderReview error:", error);
+        if ((error === null || error === void 0 ? void 0 : error.code) === 11000) {
+            return res.status(400).json({ message: "A review has already been submitted for this product." });
+        }
+        return res.status(500).json({ message: (error === null || error === void 0 ? void 0 : error.message) || "Failed to submit review." });
+    }
+});
+exports.submitOrderReview = submitOrderReview;
 /**
  * GET /api/v1/user/orders/:id/invoice
  * Downloads the invoice for a specific order.
@@ -264,3 +355,71 @@ const downloadMyInvoice = (req, res) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.downloadMyInvoice = downloadMyInvoice;
+/**
+ * POST /api/v1/user/orders/:id/return-request
+ * Submit a return/refund request within 48 hours of delivery.
+ */
+const submitReturnRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c, _d;
+    try {
+        const { id } = req.params;
+        const { type, reason, note } = req.body || {};
+        const userEmail = req.user.email;
+        if (!type || !['refund', 'replace'].includes(type)) {
+            return res.status(400).json({ message: "Return type must be refund or replace." });
+        }
+        if (!reason || !String(reason).trim()) {
+            return res.status(400).json({ message: "Return reason is required." });
+        }
+        if (!note || !String(note).trim()) {
+            return res.status(400).json({ message: "A note is required for the return request." });
+        }
+        const order = yield order_model_1.Order.findOne({ order_id: id, "customer_details.email": userEmail });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found or unauthorized." });
+        }
+        if (order.status !== "delivered") {
+            return res.status(400).json({ message: "Returns are available only after delivery." });
+        }
+        const deliveredAt = (_a = order.shipping_details) === null || _a === void 0 ? void 0 : _a.delivered_at;
+        if (!deliveredAt) {
+            return res.status(400).json({ message: "Delivery time not available for this order." });
+        }
+        const cutoff = new Date(deliveredAt.getTime() + 48 * 60 * 60 * 1000);
+        if (new Date() > cutoff) {
+            return res.status(400).json({ message: "Return window expired. Requests are valid for 48 hours after delivery." });
+        }
+        if (((_b = order.return_request) === null || _b === void 0 ? void 0 : _b.status) && order.return_request.status !== "rejected") {
+            return res.status(400).json({ message: "A return request is already in progress for this order." });
+        }
+        order.return_request = {
+            type,
+            reason: String(reason).trim(),
+            note: String(note).trim(),
+            status: "requested",
+            requested_at: new Date(),
+        };
+        order.status = "return_requested";
+        order.history.push({
+            status: "return_requested",
+            changed_by: "customer",
+            reason: `${type} requested: ${String(reason).trim()}`,
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if ((_c = order.customer_details) === null || _c === void 0 ? void 0 : _c.email) {
+            yield email_service_2.EmailService.addToQueue(email_queue_model_1.EmailType.RETURN_REQUESTED, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_d = order.customer_details) === null || _d === void 0 ? void 0 : _d.name) || "Customer",
+                type,
+                reason: String(reason).trim(),
+            });
+        }
+        return res.json({ success: true, data: order });
+    }
+    catch (error) {
+        console.error("[UserAuth] submitReturnRequest error:", error);
+        return res.status(500).json({ message: "Failed to submit return request." });
+    }
+});
+exports.submitReturnRequest = submitReturnRequest;

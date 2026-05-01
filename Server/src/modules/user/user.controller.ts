@@ -4,10 +4,16 @@ import crypto from "crypto";
 import { User } from "../../models/user.model";
 import { Otp } from "../../models/otp.model";
 import { Order } from "../../models/order.model";
+import { Review } from "../../models/review.model";
+import { Product } from "../../models/product.model";
 import { Invoice } from "../../models/invoice.model";
 import fs from "fs";
 import { env } from "../../config/env.config";
 import { sendOtpEmailDirect } from "../../services/email.service";
+import { EmailService } from "../../services/email.service";
+import { EmailType } from "../../models/email-queue.model";
+import { uploadImageBuffer } from "../../services/cloudinary.service";
+import { isCloudinaryConfigured } from "../../config/cloudinary.config";
 
 const OTP_EXPIRY_MINUTES = 10;
 const MAX_OTP_ATTEMPTS = 5;
@@ -233,7 +239,7 @@ export const getMyOrders = async (req: Request, res: Response) => {
         })
             .sort({ createdAt: -1 })
             .select(
-                "order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details"
+                "order_id status payment_status payment_method total_amount items_count items shipping_address shipping_details createdAt customer_details return_request"
             )
             .populate({
                 path: "items.product_id",
@@ -241,8 +247,22 @@ export const getMyOrders = async (req: Request, res: Response) => {
             })
             .lean();
 
+        const orderIds = orders.map((order: any) => order.order_id);
+        const existingReviews = await Review.find({ order_id: { $in: orderIds } })
+            .select("order_id product_sku status")
+            .lean();
+
+        const reviewedMap = existingReviews.reduce<Record<string, string[]>>((acc, review) => {
+            if (!acc[review.order_id]) {
+                acc[review.order_id] = [];
+            }
+            acc[review.order_id].push(review.product_sku);
+            return acc;
+        }, {});
+
         const enrichedOrders = orders.map((order: any) => ({
             ...order,
+            reviewed_items: reviewedMap[order.order_id] || [],
             items: (order.items || []).map((item: any) => ({
                 ...item,
                 product_image: item.product_id?.image || "",
@@ -257,6 +277,95 @@ export const getMyOrders = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("[UserAuth] getMyOrders error:", error);
         return res.status(500).json({ message: "Failed to fetch orders." });
+    }
+};
+
+/**
+ * POST /api/v1/user/reviews
+ * Submit a product review (delivered orders only).
+ */
+export const submitOrderReview = async (req: Request, res: Response) => {
+    try {
+        const userEmail = req.user.email;
+        const { order_id, product_sku, rating, comment } = req.body || {};
+
+        if (!order_id || !product_sku) {
+            return res.status(400).json({ message: "Order ID and product are required." });
+        }
+
+        const numericRating = Number(rating);
+        if (!numericRating || numericRating < 1 || numericRating > 5) {
+            return res.status(400).json({ message: "Rating must be between 1 and 5." });
+        }
+
+        if (!comment || !String(comment).trim()) {
+            return res.status(400).json({ message: "Review text is required." });
+        }
+
+        const order = await Order.findOne({ order_id, "customer_details.email": userEmail }).lean();
+        if (!order) {
+            return res.status(404).json({ message: "Order not found or unauthorized." });
+        }
+
+        if (order.status !== "delivered") {
+            return res.status(400).json({ message: "Reviews can be submitted only after delivery." });
+        }
+
+        const matchingItem = (order.items || []).find((item: any) => item.sku === product_sku);
+        if (!matchingItem) {
+            return res.status(400).json({ message: "Product not found in this order." });
+        }
+
+        const existingReview = await Review.findOne({ order_id, product_sku });
+        if (existingReview) {
+            return res.status(400).json({ message: "A review has already been submitted for this product." });
+        }
+
+        const files = (req.files as Express.Multer.File[]) || [];
+        let uploadedImages: Array<{ url: string; public_id: string }> = [];
+
+        if (files.length > 0) {
+            if (!isCloudinaryConfigured()) {
+                return res.status(400).json({ message: "Image uploads are unavailable. Please submit without photos." });
+            }
+
+            const uploadResults = await Promise.all(
+                files.map((file) =>
+                    uploadImageBuffer(file.buffer, {
+                        folder: "zuley/reviews",
+                    })
+                )
+            );
+            uploadedImages = uploadResults.map(res => ({
+                url: res.secure_url,
+                public_id: res.public_id
+            }));
+        }
+
+        const productDoc = await Product.findOne({ sku: product_sku }).select("name image").lean();
+
+        const review = await Review.create({
+            order_id,
+            order_ref: order._id,
+            product_sku,
+            product_name: productDoc?.name || matchingItem.name,
+            product_image: productDoc?.image || "",
+            customer_name: order.customer_details?.name || "Customer",
+            customer_email: userEmail,
+            customer_city: order.shipping_address?.city || "",
+            rating: numericRating,
+            comment: String(comment).trim(),
+            images: uploadedImages,
+            status: "pending",
+        });
+
+        return res.status(201).json({ success: true, data: review });
+    } catch (error: any) {
+        console.error("[UserAuth] submitOrderReview error:", error);
+        if (error?.code === 11000) {
+            return res.status(400).json({ message: "A review has already been submitted for this product." });
+        }
+        return res.status(500).json({ message: error?.message || "Failed to submit review." });
     }
 };
 
@@ -283,5 +392,89 @@ export const downloadMyInvoice = async (req: Request, res: Response) => {
     } catch (error) {
         console.error("[UserAuth] downloadMyInvoice error:", error);
         return res.status(500).json({ message: "Failed to download invoice." });
+    }
+};
+
+/**
+ * POST /api/v1/user/orders/:id/return-request
+ * Submit a return/refund request within 48 hours of delivery.
+ */
+export const submitReturnRequest = async (req: Request, res: Response) => {
+    try {
+        const { id } = req.params;
+        const { type, reason, note } = req.body || {};
+        const userEmail = req.user.email;
+
+        if (!type || !['refund', 'replace'].includes(type)) {
+            return res.status(400).json({ message: "Return type must be refund or replace." });
+        }
+
+        if (!reason || !String(reason).trim()) {
+            return res.status(400).json({ message: "Return reason is required." });
+        }
+
+        if (!note || !String(note).trim()) {
+            return res.status(400).json({ message: "A note is required for the return request." });
+        }
+
+        const order = await Order.findOne({ order_id: id, "customer_details.email": userEmail });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found or unauthorized." });
+        }
+
+        if (order.status !== "delivered") {
+            return res.status(400).json({ message: "Returns are available only after delivery." });
+        }
+
+        const deliveredAt = order.shipping_details?.delivered_at;
+        if (!deliveredAt) {
+            return res.status(400).json({ message: "Delivery time not available for this order." });
+        }
+
+        const cutoff = new Date(deliveredAt.getTime() + 48 * 60 * 60 * 1000);
+        if (new Date() > cutoff) {
+            return res.status(400).json({ message: "Return window expired. Requests are valid for 48 hours after delivery." });
+        }
+
+        if (order.return_request?.status && order.return_request.status !== "rejected") {
+            return res.status(400).json({ message: "A return request is already in progress for this order." });
+        }
+
+        order.return_request = {
+            type,
+            reason: String(reason).trim(),
+            note: String(note).trim(),
+            status: "requested",
+            requested_at: new Date(),
+        } as any;
+
+        order.status = "return_requested";
+        order.history.push({
+            status: "return_requested",
+            changed_by: "customer",
+            reason: `${type} requested: ${String(reason).trim()}`,
+            timestamp: new Date(),
+        });
+
+        await order.save();
+
+        if (order.customer_details?.email) {
+            await EmailService.addToQueue(
+                EmailType.RETURN_REQUESTED,
+                order.customer_details.email,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name || "Customer",
+                    type,
+                    reason: String(reason).trim(),
+                }
+            );
+        }
+
+        return res.json({ success: true, data: order });
+    } catch (error) {
+        console.error("[UserAuth] submitReturnRequest error:", error);
+        return res.status(500).json({ message: "Failed to submit return request." });
     }
 };

@@ -1,4 +1,4 @@
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import {
     ProductSpotlight,
     CategorySection,

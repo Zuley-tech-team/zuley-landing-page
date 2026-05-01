@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Truck, CreditCard, Loader2, AlertCircle } from 'lucide-react';
+import { X, Truck, CreditCard, Loader2, AlertCircle, Minus, Plus } from 'lucide-react';
 import { Button } from '../common';
 import type { Product } from '../../api/products';
 import type { CustomerInfo, ShippingAddress } from '../../hooks/useRazorpay';
@@ -8,6 +8,19 @@ import { useAuth } from '../../contexts/AuthContext';
 import { completeProfile } from '../../api/auth';
 import { placeCodOrder } from '../../api/orders';
 import './CheckoutModal.css';
+
+const PHONE_MODEL_OPTIONS = [
+    {
+        company: 'Samsung',
+        models: ['S22 Ultra', 'S23 Ultra', 'S24', 'S24 Ultra', 'S25', 'S25 Ultra', 'S26', 'S26 Ultra'],
+    },
+    {
+        company: 'iPhone',
+        models: ['13', '14', '15', '15 Pro', '15 Pro Max', '16', '16 Pro', '16 Pro Max', '17', '17 Pro', '17 Pro Max'],
+    },
+] as const;
+
+const isPhoneCoverProduct = (product: Product) => product.category === 'silver-phone-covers';
 
 const INDIAN_STATES = [
     'Andhra Pradesh', 'Arunachal Pradesh', 'Assam', 'Bihar', 'Chhattisgarh',
@@ -24,6 +37,15 @@ interface CheckoutModalProps {
     onClose: () => void;
     onSuccess?: () => void;
 }
+type CheckoutItem = {
+    product: Product;
+    quantity: number;
+};
+
+type RemoveCandidate = {
+    sku: string;
+    name: string;
+};
 
 export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutModalProps) {
     const navigate = useNavigate();
@@ -53,6 +75,9 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const [pincode, setPincode] = useState('');
     const [isPincodeLookupLoading, setIsPincodeLookupLoading] = useState(false);
     const [pincodeLookupMessage, setPincodeLookupMessage] = useState<string | null>(null);
+    const [variantSelections, setVariantSelections] = useState<Record<string, string>>({});
+    const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>(items);
+    const [removeCandidate, setRemoveCandidate] = useState<RemoveCandidate | null>(null);
 
     // Validation
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -87,6 +112,17 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             setFormErrors({});
             setPincodeLookupMessage(null);
             setIsPincodeLookupLoading(false);
+            setCheckoutItems(items);
+            setRemoveCandidate(null);
+            setVariantSelections(
+                items.reduce<Record<string, string>>((acc, item) => {
+                    if (isPhoneCoverProduct(item.product)) {
+                        acc[item.product.sku] = '';
+                    }
+
+                    return acc;
+                }, {})
+            );
         }
     }, [isOpen]);
 
@@ -170,9 +206,57 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
         if (!pincode.trim()) errors.pincode = 'Pincode is required';
         else if (!/^\d{6}$/.test(pincode)) errors.pincode = 'Enter 6-digit pincode';
 
+        checkoutItems.forEach((item) => {
+            if (!isPhoneCoverProduct(item.product)) {
+                return;
+            }
+
+            if (!variantSelections[item.product.sku]) {
+                errors[`variant_${item.product.sku}`] = 'Select a phone model';
+            }
+        });
+
         setFormErrors(errors);
         return Object.keys(errors).length === 0;
     };
+
+    const handleQuantityChange = (sku: string, nextQuantity: number) => {
+        const safeQuantity = Math.max(1, nextQuantity);
+
+        setCheckoutItems((currentItems) =>
+            currentItems
+                .map((item) => (
+                    item.product.sku === sku
+                        ? { ...item, quantity: safeQuantity }
+                        : item
+                ))
+        );
+    };
+
+    const handleRemoveItem = (sku: string, productName: string) => {
+        setRemoveCandidate({ sku, name: productName });
+    };
+
+    const confirmRemoveItem = () => {
+        if (!removeCandidate) {
+            return;
+        }
+
+        setCheckoutItems((currentItems) =>
+            currentItems.filter((item) => item.product.sku !== removeCandidate.sku)
+        );
+        setRemoveCandidate(null);
+    };
+
+    const cancelRemoveItem = () => {
+        setRemoveCandidate(null);
+    };
+
+    useEffect(() => {
+        if (isOpen && checkoutItems.length === 0) {
+            onClose();
+        }
+    }, [checkoutItems.length, isOpen, onClose]);
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -192,7 +276,11 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
 
         try {
             const response = await placeCodOrder({
-                items: items.map(item => ({ sku: item.product.sku, quantity: item.quantity })),
+                items: checkoutItems.map(item => ({
+                    sku: item.product.sku,
+                    quantity: item.quantity,
+                    variant_info: isPhoneCoverProduct(item.product) ? variantSelections[item.product.sku] : undefined,
+                })),
                 customer: customerInfo,
                 shipping_address: {
                     ...shippingAddress,
@@ -213,14 +301,28 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
 
             onClose();
             if (onSuccess) onSuccess();
-            const productName = items.length === 1 ? items[0].product.name : 'Multiple Items';
+            const productName = checkoutItems.length === 1 ? checkoutItems[0].product.name : 'Multiple Items';
+            const itemsSummary = checkoutItems
+                .map((item) => `${item.product.name}${item.quantity > 1 ? ` x${item.quantity}` : ''}`)
+                .join(', ');
+            const selectedModels = checkoutItems
+                .filter((item) => isPhoneCoverProduct(item.product))
+                .map((item) => variantSelections[item.product.sku])
+                .filter(Boolean)
+                .join(', ');
             const params = new URLSearchParams({
                 order_id: response.data.order_id,
                 product: productName,
+                items: itemsSummary,
                 amount: String(response.data.total_amount / 100),
                 method: 'cod',
                 invoice: response.data.invoice_number || '',
             });
+
+            if (selectedModels) {
+                params.set('model', selectedModels);
+            }
+
             navigate(`/order-success?${params.toString()}`);
         } catch (error) {
             const message = error instanceof Error ? error.message : 'Unable to place COD order.';
@@ -230,9 +332,9 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
         }
     };
 
-    if (!isOpen || items.length === 0) return null;
+    if (!isOpen || checkoutItems.length === 0) return null;
 
-    const totalPrice = items.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0);
+    const totalPrice = checkoutItems.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0);
 
     return (
         <div className="checkout-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
@@ -256,14 +358,81 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     {/* Order Summary */}
                     <div className="px-6 py-4 bg-pearl/80 border-b border-charcoal/10">
                         <div className="flex flex-col gap-4">
-                            {items.map((item) => (
+                            {checkoutItems.map((item) => (
                                 <div key={item.product.sku} className="flex gap-4">
                                     <div className="w-16 h-16 rounded-xl bg-white border border-charcoal/10 overflow-hidden flex-shrink-0">
                                         <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="flex-1 min-w-0">
+                                    <div className="flex-1 min-w-0 space-y-2">
                                         <h3 className="font-heading font-semibold text-charcoal truncate">{item.product.name}</h3>
-                                        <p className="font-body text-sm text-charcoal/60 mt-1">Qty: {item.quantity}</p>
+                                        <div className="flex items-center justify-between gap-3">
+                                            <p className="font-body text-sm text-charcoal/60">Qty: {item.quantity}</p>
+                                            <div className="flex items-center gap-2">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        if (item.quantity <= 1) {
+                                                            handleRemoveItem(item.product.sku, item.product.name);
+                                                            return;
+                                                        }
+
+                                                        handleQuantityChange(item.product.sku, item.quantity - 1);
+                                                    }}
+                                                    className="checkout-qty-btn"
+                                                    aria-label={`Decrease quantity for ${item.product.name}`}
+                                                >
+                                                    <Minus className="w-3.5 h-3.5" />
+                                                </button>
+                                                <span className="checkout-qty-value">{item.quantity}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleQuantityChange(item.product.sku, item.quantity + 1)}
+                                                    className="checkout-qty-btn"
+                                                    aria-label={`Increase quantity for ${item.product.name}`}
+                                                >
+                                                    <Plus className="w-3.5 h-3.5" />
+                                                </button>
+                                            </div>
+                                        </div>
+                                        {isPhoneCoverProduct(item.product) && (
+                                            <div>
+                                                <select
+                                                    value={variantSelections[item.product.sku] || ''}
+                                                    onChange={(event) => {
+                                                        const value = event.target.value;
+                                                        setVariantSelections((prev) => ({
+                                                            ...prev,
+                                                            [item.product.sku]: value,
+                                                        }));
+                                                        setFormErrors((prev) => {
+                                                            const next = { ...prev };
+                                                            delete next[`variant_${item.product.sku}`];
+                                                            return next;
+                                                        });
+                                                    }}
+                                                    className={`checkout-input ${formErrors[`variant_${item.product.sku}`] ? 'checkout-input-error' : ''}`}
+                                                    id={`checkout-variant-${item.product.sku}`}
+                                                >
+                                                    <option value="">Select phone model *</option>
+                                                    {PHONE_MODEL_OPTIONS.map(({ company, models }) => (
+                                                        <optgroup key={company} label={company}>
+                                                            {models.map((model) => {
+                                                                const optionValue = `${company} ${model}`;
+
+                                                                return (
+                                                                    <option key={optionValue} value={optionValue}>
+                                                                        {optionValue}
+                                                                    </option>
+                                                                );
+                                                            })}
+                                                        </optgroup>
+                                                    ))}
+                                                </select>
+                                                {formErrors[`variant_${item.product.sku}`] && (
+                                                    <p className="checkout-field-error">{formErrors[`variant_${item.product.sku}`]}</p>
+                                                )}
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="text-right">
                                         <p className="font-heading font-semibold text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
@@ -274,7 +443,7 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     </div>
 
                     {/* Form Fields */}
-                    <div className="px-6 py-5 space-y-5 overflow-y-auto checkout-form-scroll">
+                    <div className="px-6 py-5 space-y-5">
                         {/* Error Banner */}
                         {codError && (
                             <div className="flex items-start gap-3 p-3 bg-error/10 border border-error/20 rounded-xl">
@@ -439,6 +608,33 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                         </p>
                     </div>
                 </form>
+
+                {removeCandidate && (
+                    <div className="checkout-confirm-overlay" role="dialog" aria-modal="true">
+                        <div className="checkout-confirm-card">
+                            <h3 className="checkout-confirm-title">Remove item?</h3>
+                            <p className="checkout-confirm-text">
+                                Remove {removeCandidate.name} from your checkout?
+                            </p>
+                            <div className="checkout-confirm-actions">
+                                <button
+                                    type="button"
+                                    className="checkout-confirm-cancel"
+                                    onClick={cancelRemoveItem}
+                                >
+                                    Keep
+                                </button>
+                                <button
+                                    type="button"
+                                    className="checkout-confirm-remove"
+                                    onClick={confirmRemoveItem}
+                                >
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

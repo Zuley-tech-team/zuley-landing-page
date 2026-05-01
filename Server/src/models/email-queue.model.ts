@@ -6,6 +6,11 @@ export enum EmailType {
     SHIPPING_CONFIRMATION = "shipping_confirmation",
     DELIVERY_CONFIRMATION = "delivery_confirmation",
     REFUND_CONFIRMATION = "refund_confirmation",
+    RETURN_REQUESTED = "return_requested",
+    RETURN_ACCEPTED = "return_accepted",
+    RETURN_REJECTED = "return_rejected",
+    RETURN_REFUNDED = "return_refunded",
+    RETURN_REPLACED = "return_replaced",
 }
 
 export enum EmailStatus {

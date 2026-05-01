@@ -4,6 +4,7 @@ import {
     LayoutDashboard,
     Package,
     ShoppingCart,
+    Star,
     Warehouse,
     Inbox,
     LogOut,
@@ -17,6 +18,7 @@ const navItems = [
     { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
     { to: '/admin/products', icon: Package, label: 'Products' },
     { to: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
+    { to: '/admin/reviews', icon: Star, label: 'Reviews' },
     { to: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
     { to: '/admin/leads', icon: Inbox, label: 'Leads' },
 ];

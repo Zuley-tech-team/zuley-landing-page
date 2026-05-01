@@ -74,6 +74,10 @@ router.get("/orders/:id/invoice/download", orderController.downloadOrderInvoice)
 router.post("/orders/:id/confirm", orderController.confirmOrder);
 router.post("/orders/:id/mark-cod-paid", orderController.markCodPaymentCollected);
 router.put("/orders/:id/status", orderController.updateOrderStatus);
+router.post("/orders/:id/return/accept", orderController.acceptReturnRequest);
+router.post("/orders/:id/return/reject", orderController.rejectReturnRequest);
+router.post("/orders/:id/return/refunded", orderController.markReturnRefunded);
+router.post("/orders/:id/return/replaced", orderController.markReturnReplaced);
 // Inventory Routes
 const inventoryController = __importStar(require("./inventory.controller"));
 router.get("/inventory", inventoryController.getInventory);
@@ -93,4 +97,9 @@ router.get("/engagement/newsletter-subscribers", engagementController.getNewslet
 const usersController = __importStar(require("./users.controller"));
 router.get("/users", usersController.getUsers);
 router.get("/users/:id", usersController.getUserDetails);
+// Review Routes
+const reviewController = __importStar(require("./review.controller"));
+router.get("/reviews", reviewController.getReviews);
+router.patch("/reviews/:id/approve", reviewController.approveReview);
+router.patch("/reviews/:id/reject", reviewController.rejectReview);
 exports.default = router;

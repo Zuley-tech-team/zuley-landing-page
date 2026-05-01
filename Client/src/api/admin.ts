@@ -141,6 +141,34 @@ class AdminAPI {
         });
     }
 
+    async acceptReturnRequest(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any }>(`/orders/${orderId}/return/accept`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
+    async rejectReturnRequest(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any }>(`/orders/${orderId}/return/reject`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
+    async markReturnRefunded(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any }>(`/orders/${orderId}/return/refunded`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
+    async markReturnReplaced(orderId: string, note?: string) {
+        return this.request<{ success: boolean; data: any }>(`/orders/${orderId}/return/replaced`, {
+            method: 'POST',
+            body: JSON.stringify({ note }),
+        });
+    }
+
     async confirmOrder(orderId: string, note?: string) {
         return this.request<{ success: boolean; data: any; message?: string }>(`/orders/${orderId}/confirm`, {
             method: 'POST',
@@ -224,6 +252,30 @@ class AdminAPI {
         }
 
         return data as { status: boolean; data: any };
+    }
+
+    // Reviews
+    async getReviews(params?: { page?: number; limit?: number; status?: string; search?: string }) {
+        const searchParams = new URLSearchParams();
+        if (params?.page) searchParams.set('page', String(params.page));
+        if (params?.limit) searchParams.set('limit', String(params.limit));
+        if (params?.status) searchParams.set('status', params.status);
+        if (params?.search) searchParams.set('search', params.search);
+
+        const query = searchParams.toString();
+        return this.request<{ success: boolean; data: any[]; pagination: Pagination }>(`/reviews${query ? `?${query}` : ''}`);
+    }
+
+    async approveReview(reviewId: string) {
+        return this.request<{ success: boolean; data: any }>(`/reviews/${reviewId}/approve`, {
+            method: 'PATCH',
+        });
+    }
+
+    async rejectReview(reviewId: string) {
+        return this.request<{ success: boolean; data: any }>(`/reviews/${reviewId}/reject`, {
+            method: 'PATCH',
+        });
     }
 
     // Inventory

@@ -1,8 +1,8 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
-import { Button } from '../components/common';
+import { Button } from '../components/common/Button';
 import { OrderTimeline } from '../components/tracking';
 import { ShippingCard } from '../components/tracking';
 import { getOrderTracking, type OrderTrackingData } from '../api/orders';
@@ -132,9 +132,13 @@ export function TrackOrderPage() {
                                                     ? 'bg-warning/10 text-warning'
                                                     : orderData.status === 'paid'
                                                         ? 'bg-accent/10 text-accent-dark'
-                                                        : orderData.status === 'cancelled' || orderData.status === 'refunded'
-                                                            ? 'bg-error/10 text-error'
-                                                            : 'bg-charcoal/10 text-charcoal/60'
+                                                        : ['return_requested', 'return_in_progress'].includes(orderData.status)
+                                                            ? 'bg-amber-100 text-amber-700'
+                                                            : orderData.status === 'replaced'
+                                                                ? 'bg-emerald-100 text-emerald-700'
+                                                                : ['return_rejected', 'cancelled', 'refunded'].includes(orderData.status)
+                                                                    ? 'bg-error/10 text-error'
+                                                                    : 'bg-charcoal/10 text-charcoal/60'
                                             }`}
                                     >
                                         {orderData.status}
@@ -150,6 +154,11 @@ export function TrackOrderPage() {
                                                 <p className="font-body text-xs text-charcoal/50">
                                                     Qty: {item.quantity}
                                                 </p>
+                                                {item.variant_info && (
+                                                    <p className="font-body text-xs text-charcoal/60 mt-1">
+                                                        Phone model: {item.variant_info}
+                                                    </p>
+                                                )}
                                             </div>
                                             <p className="font-body text-sm font-medium text-charcoal">
                                                 {formatPrice(item.price * item.quantity)}

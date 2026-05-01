@@ -135,13 +135,16 @@ class InvoiceService {
                 igstAmount = totalTax;
             }
             const itemTotal = grossItemTotal;
+            const description = item.variant_info
+                ? `${item.name} (${item.variant_info})`
+                : item.name;
             totalTaxableValue += taxableValue;
             totalCGST += cgstAmount;
             totalSGST += sgstAmount;
             totalIGST += igstAmount;
             grandTotal += itemTotal;
             return {
-                description: item.name,
+                description,
                 hsnCode: '711311', // Default for Silver Jewellery, should ideally come from Product model
                 quantity: item.quantity,
                 unitPrice: grossUnitPrice,
@@ -228,13 +231,16 @@ class InvoiceService {
                 // Table Rows
                 doc.font('Helvetica').fillColor('#333333').fontSize(9);
                 invoice.items.forEach(item => {
-                    doc.text(item.description, 60, position, { width: 140 });
+                    const description = item.description || '';
+                    const descriptionHeight = doc.heightOfString(description, { width: 140 });
+                    const rowHeight = Math.max(22, descriptionHeight + 6);
+                    doc.text(description, 60, position, { width: 140 });
                     doc.text(item.hsnCode, 210, position);
                     doc.text(item.quantity.toString(), 260, position);
                     doc.text(formatInvoiceMoney(item.unitPrice), 310, position);
                     doc.text(formatInvoiceMoney(item.taxableValue), 380, position);
                     doc.text(formatInvoiceMoney(item.totalAmount), 480, position);
-                    position += 25;
+                    position += rowHeight;
                 });
                 doc.moveTo(50, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
                 // Summary

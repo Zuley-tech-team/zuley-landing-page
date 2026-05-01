@@ -1,5 +1,5 @@
 import { BadgeCheck, FlaskConical, Factory, Sparkles, Shield } from 'lucide-react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 
 const process = [

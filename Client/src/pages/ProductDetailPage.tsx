@@ -1,34 +1,17 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { ProductsGrid } from '../components/products';
 import { useCart } from '../contexts/CartContext';
 import { useAuth } from '../contexts/AuthContext';
-import { CheckoutModal } from '../components/checkout';
+import { CheckoutModal } from '../components/checkout/CheckoutModal';
 import { fetchProductBySku, fetchRelatedProducts, type Product } from '../api/products';
-import { ChevronRight, Check, ShoppingCart, ArrowLeft, Loader2, Star, X } from 'lucide-react';
-import { Button } from '../components/common';
+import { fetchReviews, type ReviewItem } from '../api/reviews';
+import { ChevronRight, ChevronLeft, Check, ShoppingCart, ArrowLeft, Loader2, Star, X, RotateCcw, Award, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import { Button } from '../components/common/Button';
 import { useStockStatus } from '../hooks/useStockStatus';
 import { useToast } from '../contexts/ToastContext';
-
-const staticReviews = [
-    {
-        name: 'Priya Sharma',
-        rating: 5,
-        comment: 'Exceptional finishing and smooth daily use. Engraving looked premium and precise.',
-    },
-    {
-        name: 'Amit Verma',
-        rating: 5,
-        comment: 'Gifted this for an anniversary and it felt truly meaningful. Packaging was impressive.',
-    },
-    {
-        name: 'Ritika Mehta',
-        rating: 4,
-        comment: 'Elegant design and good weight balance. Would definitely recommend for corporate gifting.',
-    },
-];
 
 export function ProductDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -40,6 +23,11 @@ export function ProductDetailPage() {
     const [showCheckout, setShowCheckout] = useState(false);
     const [showLightbox, setShowLightbox] = useState(false);
     const [quantity] = useState(1);
+    const [productReviews, setProductReviews] = useState<ReviewItem[]>([]);
+    const [isReviewLoading, setIsReviewLoading] = useState(false);
+    const [reviewIndex, setReviewIndex] = useState(0);
+    const [isReviewAutoPlaying, setIsReviewAutoPlaying] = useState(true);
+    const [reviewLightboxImage, setReviewLightboxImage] = useState<string | null>(null);
     const { inStock, lowStock } = useStockStatus(product?.sku || '');
     const { showToast } = useToast();
     const { addToCart } = useCart();
@@ -107,8 +95,10 @@ export function ProductDetailPage() {
         : product?.image
             ? [product.image]
             : [];
-    const averageRating = (staticReviews.reduce((acc, item) => acc + item.rating, 0) / staticReviews.length).toFixed(1);
-    const shortDescription = product?.description || product?.longDescription || '';
+
+    const averageRating = productReviews.length
+        ? (productReviews.reduce((acc, item) => acc + item.rating, 0) / productReviews.length).toFixed(1)
+        : null;
 
     const handleSelectImage = (index: number, isManual = false) => {
         setSelectedImage(index);
@@ -134,6 +124,68 @@ export function ProductDetailPage() {
             setSelectedImage(0);
         }
     }, [images.length, selectedImage]);
+
+    useEffect(() => {
+        if (!product?.sku) {
+            setProductReviews([]);
+            return;
+        }
+
+        let active = true;
+        const loadReviews = async () => {
+            try {
+                setIsReviewLoading(true);
+                const response = await fetchReviews({ product_sku: product.sku, limit: 10 });
+                if (active) {
+                    setProductReviews(response.data || []);
+                }
+            } catch (error) {
+                if (active) {
+                    setProductReviews([]);
+                }
+            } finally {
+                if (active) {
+                    setIsReviewLoading(false);
+                }
+            }
+        };
+
+        loadReviews();
+
+        return () => {
+            active = false;
+        };
+    }, [product?.sku]);
+
+    useEffect(() => {
+        if (!isReviewAutoPlaying || productReviews.length <= (window.innerWidth >= 768 ? 2 : 1)) {
+            return undefined;
+        }
+
+        const interval = setInterval(() => {
+            setReviewIndex((prev) => {
+                const visibleCount = window.innerWidth >= 768 ? 2 : 1;
+                const maxIndex = Math.max(0, productReviews.length - visibleCount);
+                return prev >= maxIndex ? 0 : prev + 1;
+            });
+        }, 3000);
+
+        return () => clearInterval(interval);
+    }, [productReviews.length, isReviewAutoPlaying]);
+
+    const handlePrevReview = () => {
+        setIsReviewAutoPlaying(false);
+        setReviewIndex((prev) => Math.max(0, prev - 1));
+    };
+
+    const handleNextReview = () => {
+        setIsReviewAutoPlaying(false);
+        setReviewIndex((prev) => {
+            const visibleCount = window.innerWidth >= 768 ? 2 : 1;
+            const maxIndex = Math.max(0, productReviews.length - visibleCount);
+            return prev >= maxIndex ? 0 : prev + 1;
+        });
+    };
 
     if (isLoading) {
         return (
@@ -217,12 +269,16 @@ export function ProductDetailPage() {
                             {/* Image Gallery */}
                             <div className="space-y-4">
                                 {/* Main Image */}
-                                <div className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-soft">
+                                <div className="relative aspect-square rounded-2xl overflow-hidden bg-white shadow-soft product-gallery-frame">
                                     <img
+                                        key={selectedImage}
                                         src={images[selectedImage]}
                                         alt={product.name}
-                                        className="w-full h-full object-cover cursor-zoom-in"
-                                        onClick={() => setShowLightbox(true)}
+                                        className="w-full h-full object-cover cursor-zoom-in product-gallery-image"
+                                        onClick={() => {
+                                            setIsAutoPlaying(false);
+                                            setShowLightbox(true);
+                                        }}
                                     />
                                     {/* Badge */}
                                     {product.badge && (
@@ -281,11 +337,20 @@ export function ProductDetailPage() {
 
                                 <div className="flex items-center gap-2">
                                     <div className="flex items-center gap-1">
-                                        {[1, 2, 3, 4, 5].map((index) => (
-                                            <Star key={index} className="w-4 h-4 text-amber-500" fill="currentColor" />
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <Star 
+                                                key={star} 
+                                                className={`w-4 h-4 ${averageRating && star > Math.round(Number(averageRating)) ? 'text-charcoal/20' : 'text-amber-500'}`} 
+                                                fill={averageRating && star > Math.round(Number(averageRating)) ? 'none' : 'currentColor'} 
+                                            />
                                         ))}
                                     </div>
-                                    <span className="font-body text-sm text-charcoal/60">{averageRating}/5 ({staticReviews.length * 37}+ reviews)</span>
+                                    <span className="font-body text-sm text-charcoal/60">
+                                        {averageRating ? `${averageRating}/5` : 'No reviews yet'}
+                                        {productReviews.length > 0
+                                            ? ` (${productReviews.length} review${productReviews.length !== 1 ? 's' : ''})`
+                                            : ''}
+                                    </span>
                                 </div>
 
                                 {/* Title */}
@@ -330,10 +395,52 @@ export function ProductDetailPage() {
                                     )}
                                 </div>
 
-                                {/* Description */}
-                                <p className="font-body text-charcoal/70 leading-relaxed">
-                                    {shortDescription}
-                                </p>
+                                {/* Product Highlights Grid */}
+                                <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-6 border-y border-charcoal/10">
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-10 h-10 rounded-full bg-charcoal/5 flex items-center justify-center flex-shrink-0">
+                                            <RotateCcw className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} />
+                                         </div>
+                                         <div className="flex flex-col">
+                                             <span className="font-heading text-sm font-bold text-charcoal">Easy Returns</span>
+                                             <span className="font-body text-[11px] text-charcoal/60 leading-tight">48 Hours Window</span>
+                                         </div>
+                                     </div>
+                                     
+                                     <div className="flex items-center gap-3">
+                                         <div className="w-10 h-10 rounded-full bg-charcoal/5 flex items-center justify-center flex-shrink-0">
+                                             <Award className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} />
+                                         </div>
+                                         <div className="flex flex-col">
+                                             <span className="font-heading text-sm font-bold text-charcoal">Pure 925 Silver</span>
+                                             <span className="font-body text-[11px] text-charcoal/60 leading-tight">Certified Quality</span>
+                                         </div>
+                                     </div>
+
+                                     <div className="flex items-center gap-3">
+                                         <div className="w-10 h-10 rounded-full bg-charcoal/5 flex items-center justify-center flex-shrink-0">
+                                             {product.category === 'silver-phone-covers' ? <Sparkles className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} /> : <ShieldCheck className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} />}
+                                         </div>
+                                         <div className="flex flex-col">
+                                             <span className="font-heading text-sm font-bold text-charcoal">
+                                                 {product.category === 'silver-phone-covers' ? '3D Engraving' : '1 Year Warranty'}
+                                             </span>
+                                             <span className="font-body text-[11px] text-charcoal/60 leading-tight">
+                                                 {product.category === 'silver-phone-covers' ? 'Premium Detail' : 'Full Protection'}
+                                             </span>
+                                         </div>
+                                     </div>
+
+                                     <div className="flex items-center gap-3">
+                                         <div className="w-10 h-10 rounded-full bg-charcoal/5 flex items-center justify-center flex-shrink-0">
+                                             <Truck className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} />
+                                         </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-heading text-sm font-bold text-charcoal">Free Shipping</span>
+                                            <span className="font-body text-[11px] text-charcoal/60 leading-tight">All Over India</span>
+                                        </div>
+                                    </div>
+                                </div>
 
                                 {/* Features */}
                                 {product.features && product.features.length > 0 && (
@@ -379,27 +486,7 @@ export function ProductDetailPage() {
                                     </Button>
                                 </div>
 
-                                {/* Trust Badges */}
-                                <div className="flex flex-wrap gap-4 pt-4 border-t border-charcoal/10">
-                                    <div className="flex items-center gap-2 text-sm text-charcoal/60">
-                                        <span className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
-                                            <Check className="w-4 h-4 text-success" />
-                                        </span>
-                                        Free Shipping
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-charcoal/60">
-                                        <span className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
-                                            <Check className="w-4 h-4 text-success" />
-                                        </span>
-                                        Hallmark Certified
-                                    </div>
-                                    <div className="flex items-center gap-2 text-sm text-charcoal/60">
-                                        <span className="w-8 h-8 rounded-full bg-success/10 flex items-center justify-center">
-                                            <Check className="w-4 h-4 text-success" />
-                                        </span>
-                                        Secure Payment
-                                    </div>
-                                </div>
+
                             </div>
                         </div>
                     </div>
@@ -436,24 +523,121 @@ export function ProductDetailPage() {
 
                 <section className="py-10 md:py-14 bg-white border-y border-charcoal/10">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6">
-                        <h2 className="font-heading text-2xl md:text-3xl font-bold text-charcoal mb-6">Customer Reviews</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {staticReviews.map((review) => (
-                                <article key={review.name} className="rounded-xl bg-pearl p-5 border border-charcoal/10">
-                                    <div className="flex items-center gap-1 mb-3">
-                                        {[1, 2, 3, 4, 5].map((index) => (
-                                            <Star
-                                                key={index}
-                                                className={`w-4 h-4 ${index <= review.rating ? 'text-amber-500' : 'text-charcoal/20'}`}
-                                                fill={index <= review.rating ? 'currentColor' : 'none'}
-                                            />
+                        <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+                            <div>
+                                <h2 className="font-heading text-2xl md:text-3xl font-bold text-charcoal">Customer Reviews</h2>
+                                {averageRating && (
+                                    <div className="flex items-center gap-2 mt-2">
+                                        <div className="flex gap-1">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <Star
+                                                    key={star}
+                                                    className={`w-4 h-4 ${star <= Math.round(Number(averageRating)) ? 'text-amber-500' : 'text-charcoal/20'}`}
+                                                    fill={star <= Math.round(Number(averageRating)) ? 'currentColor' : 'none'}
+                                                />
+                                            ))}
+                                        </div>
+                                        <span className="font-body text-sm text-charcoal/70">
+                                            {averageRating} out of 5 ({productReviews.length} review{productReviews.length !== 1 ? 's' : ''})
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {isReviewLoading && (
+                            <p className="font-body text-sm text-charcoal/60">Loading reviews...</p>
+                        )}
+
+                        {!isReviewLoading && productReviews.length === 0 && (
+                            <div className="rounded-xl bg-pearl p-6 border border-charcoal/10">
+                                <p className="font-body text-charcoal/70">No reviews yet. Be the first to review this product after delivery.</p>
+                            </div>
+                        )}
+
+                        {!isReviewLoading && productReviews.length > 0 && (
+                            <div className="relative group/reviews">
+                                <div className="overflow-hidden mx-[-8px] md:mx-[-12px]">
+                                    <div 
+                                        className="flex transition-transform duration-500 ease-out"
+                                        style={{ transform: `translateX(-${reviewIndex * (window.innerWidth >= 768 ? 50 : 100)}%)` }}
+                                        onMouseEnter={() => setIsReviewAutoPlaying(false)}
+                                        onMouseLeave={() => setIsReviewAutoPlaying(true)}
+                                        onTouchStart={() => setIsReviewAutoPlaying(false)}
+                                    >
+                                        {productReviews.map((review) => (
+                                            <div 
+                                                key={review._id} 
+                                                className="flex-shrink-0 w-full md:w-1/2 px-2 md:px-3"
+                                            >
+                                                <article className="h-full rounded-xl bg-pearl p-5 border border-charcoal/10 shadow-sm">
+                                                    <div className="flex items-center gap-1 mb-3">
+                                                        {[1, 2, 3, 4, 5].map((index) => (
+                                                            <Star
+                                                                key={index}
+                                                                className={`w-4 h-4 ${index <= review.rating ? 'text-amber-500' : 'text-charcoal/20'}`}
+                                                                fill={index <= review.rating ? 'currentColor' : 'none'}
+                                                            />
+                                                        ))}
+                                                    </div>
+                                                    <p className="font-body text-charcoal/70 text-sm leading-relaxed min-h-[3rem]">{review.comment}</p>
+                                                    {review.images?.length > 0 && (
+                                                        <div className="mt-4 grid grid-cols-3 gap-2">
+                                                            {review.images.slice(0, 3).map((image) => (
+                                                                <img
+                                                                    key={image.public_id}
+                                                                    src={image.url}
+                                                                    alt={review.product_name}
+                                                                    className="h-20 w-full rounded-lg object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                                                                    loading="lazy"
+                                                                    onClick={() => setReviewLightboxImage(image.url)}
+                                                                />
+                                                            ))}
+                                                        </div>
+                                                    )}
+                                                    <p className="font-heading text-charcoal text-sm font-semibold mt-4">
+                                                        {review.customer_name}{review.customer_city ? `, ${review.customer_city}` : ''}
+                                                    </p>
+                                                </article>
+                                            </div>
                                         ))}
                                     </div>
-                                    <p className="font-body text-charcoal/70 text-sm leading-relaxed">{review.comment}</p>
-                                    <p className="font-heading text-charcoal text-sm font-semibold mt-4">{review.name}</p>
-                                </article>
-                            ))}
-                        </div>
+                                </div>
+
+                                {productReviews.length > (window.innerWidth >= 768 ? 2 : 1) && (
+                                    <>
+                                        <button
+                                            onClick={handlePrevReview}
+                                            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-2 md:-translate-x-4 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white shadow-card flex items-center justify-center text-charcoal hover:bg-pearl transition-colors z-10 disabled:opacity-0"
+                                            disabled={reviewIndex === 0}
+                                        >
+                                            <ChevronLeft className="w-4 h-4 md:w-5 md:h-5" />
+                                        </button>
+                                        <button
+                                            onClick={handleNextReview}
+                                            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2 md:translate-x-4 w-8 h-8 md:w-10 md:h-10 rounded-full bg-white shadow-card flex items-center justify-center text-charcoal hover:bg-pearl transition-colors z-10 disabled:opacity-0"
+                                            disabled={reviewIndex >= productReviews.length - (window.innerWidth >= 768 ? 2 : 1)}
+                                        >
+                                            <ChevronRight className="w-4 h-4 md:w-5 md:h-5" />
+                                        </button>
+                                        
+                                        {/* Dots for mobile */}
+                                        <div className="flex justify-center gap-2 mt-6 md:hidden">
+                                            {Array.from({ length: productReviews.length }).map((_, i) => (
+                                                <button
+                                                    key={i}
+                                                    onClick={() => {
+                                                        setIsReviewAutoPlaying(false);
+                                                        setReviewIndex(i);
+                                                    }}
+                                                    className={`h-1.5 rounded-full transition-all duration-300 ${i === reviewIndex ? 'bg-charcoal w-6' : 'bg-charcoal/20 w-1.5'}`}
+                                                />
+                                            ))}
+                                        </div>
+                                    </>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </section>
 
@@ -501,6 +685,24 @@ export function ProductDetailPage() {
                             src={images[selectedImage]}
                             alt={`${product.name} enlarged view`}
                             className="max-w-full max-h-full object-contain rounded-xl"
+                        />
+                    </div>
+                )}
+                {reviewLightboxImage && (
+                    <div className="fixed inset-0 z-[80] bg-charcoal/90 p-4 flex items-center justify-center" onClick={() => setReviewLightboxImage(null)}>
+                        <button
+                            type="button"
+                            onClick={() => setReviewLightboxImage(null)}
+                            className="absolute top-4 right-4 w-10 h-10 rounded-full bg-white/10 text-pearl hover:bg-white/20 flex items-center justify-center"
+                            aria-label="Close review image preview"
+                        >
+                            <X className="w-5 h-5" />
+                        </button>
+                        <img
+                            src={reviewLightboxImage}
+                            alt="Review image enlarged"
+                            className="max-w-full max-h-full object-contain rounded-xl"
+                            onClick={(e) => e.stopPropagation()}
                         />
                     </div>
                 )}

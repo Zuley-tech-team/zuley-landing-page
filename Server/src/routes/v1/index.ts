@@ -6,6 +6,7 @@ import orderRoutes from "./order.routes";
 import inventoryPublicRoutes from "./inventory.routes";
 import productsRoutes from "./products.routes";
 import engagementRoutes from "./engagement.routes";
+import reviewsRoutes from "./reviews.routes";
 import userRoutes from "../../modules/user/user.routes";
 
 const router = express.Router();
@@ -17,6 +18,7 @@ router.use("/orders", orderRoutes);
 router.use("/inventory", inventoryPublicRoutes);
 router.use("/products", productsRoutes);
 router.use("/engagement", engagementRoutes);
+router.use("/reviews", reviewsRoutes);
 router.use("/user", userRoutes);
 
 export default router;

@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.downloadOrderInvoice = exports.getOrderInvoice = exports.markCodPaymentCollected = exports.confirmOrder = exports.updateOrderStatus = exports.getOrderById = exports.getOrders = void 0;
+exports.downloadOrderInvoice = exports.getOrderInvoice = exports.markReturnReplaced = exports.markReturnRefunded = exports.rejectReturnRequest = exports.acceptReturnRequest = exports.markCodPaymentCollected = exports.confirmOrder = exports.updateOrderStatus = exports.getOrderById = exports.getOrders = void 0;
 const order_model_1 = require("../../models/order.model");
 const admin_logger_service_1 = require("../../services/admin-logger.service");
 const customer_model_1 = require("../../models/customer.model");
@@ -130,10 +130,20 @@ const getOrders = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
                 { "customer_details.phone": searchRegex },
             ];
         }
-        const orders = yield order_model_1.Order.find(query)
-            .sort({ createdAt: -1 })
-            .skip((Number(page) - 1) * Number(limit))
-            .limit(Number(limit));
+        const skip = (Number(page) - 1) * Number(limit);
+        const orders = yield order_model_1.Order.aggregate([
+            { $match: query },
+            {
+                $addFields: {
+                    returnPriority: {
+                        $cond: [{ $eq: ["$status", "return_requested"] }, 0, 1],
+                    },
+                },
+            },
+            { $sort: { returnPriority: 1, createdAt: -1 } },
+            { $skip: skip },
+            { $limit: Number(limit) },
+        ]);
         const total = yield order_model_1.Order.countDocuments(query);
         res.json({
             success: true,
@@ -159,9 +169,13 @@ const getOrderById = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             return res.status(404).json({ message: "Order not found" });
         }
         const invoice = yield invoice_model_1.Invoice.findOne({ orderId: order._id }).select("invoiceNumber invoiceDate totalAmount status pdfPath");
+        const replacementOrders = yield order_model_1.Order.find({ replacement_of: order._id }).sort({ createdAt: -1 }).lean();
+        const replacementOriginal = order.replacement_of
+            ? yield order_model_1.Order.findById(order.replacement_of).lean()
+            : null;
         res.json({
             success: true,
-            data: Object.assign(Object.assign({}, order.toObject()), { invoice }),
+            data: Object.assign(Object.assign({}, order.toObject()), { invoice, replacement_orders: replacementOrders, replacement_original: replacementOriginal }),
         });
     }
     catch (error) {
@@ -175,7 +189,19 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         const { id } = req.params;
         const { status, note } = req.body;
         // Validate Status transition (simplified for now)
-        const validStatuses = ['created', 'confirmed', 'shipped', 'delivered', 'cancelled', 'refunded'];
+        const validStatuses = [
+            'created',
+            'confirmed',
+            'paid',
+            'shipped',
+            'delivered',
+            'return_requested',
+            'return_in_progress',
+            'return_rejected',
+            'replaced',
+            'cancelled',
+            'refunded',
+        ];
         if (!validStatuses.includes(status)) {
             return res.status(400).json({ message: "Invalid status" });
         }
@@ -304,6 +330,181 @@ const markCodPaymentCollected = (req, res) => __awaiter(void 0, void 0, void 0, 
     }
 });
 exports.markCodPaymentCollected = markCodPaymentCollected;
+const acceptReturnRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.status !== "return_requested") {
+            return res.status(400).json({ message: "Return request is not pending for this order." });
+        }
+        order.status = "return_in_progress";
+        if (!order.return_request) {
+            order.return_request = {};
+        }
+        order.return_request.status = "accepted";
+        order.return_request.decided_at = new Date();
+        order.return_request.decision_note = note || "Return request accepted";
+        order.return_request.decided_by = req.admin._id;
+        order.history.push({
+            status: "return_in_progress",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return request accepted",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.RETURN_ACCEPTED, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer",
+                type: ((_c = order.return_request) === null || _c === void 0 ? void 0 : _c.type) || "refund",
+            });
+        }
+        return res.json({ success: true, data: order });
+    }
+    catch (error) {
+        console.error("Accept Return Request Error:", error);
+        return res.status(500).json({ message: "Failed to accept return request" });
+    }
+});
+exports.acceptReturnRequest = acceptReturnRequest;
+const rejectReturnRequest = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.status !== "return_requested") {
+            return res.status(400).json({ message: "Return request is not pending for this order." });
+        }
+        order.status = "return_rejected";
+        if (!order.return_request) {
+            order.return_request = {};
+        }
+        order.return_request.status = "rejected";
+        order.return_request.decided_at = new Date();
+        order.return_request.decision_note = note || "Return request rejected";
+        order.return_request.decided_by = req.admin._id;
+        order.history.push({
+            status: "return_rejected",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return request rejected",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.RETURN_REJECTED, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer",
+                note: note || "Return request rejected",
+            });
+        }
+        return res.json({ success: true, data: order });
+    }
+    catch (error) {
+        console.error("Reject Return Request Error:", error);
+        return res.status(500).json({ message: "Failed to reject return request" });
+    }
+});
+exports.rejectReturnRequest = rejectReturnRequest;
+const markReturnRefunded = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.status !== "return_in_progress") {
+            return res.status(400).json({ message: "Return is not in progress for this order." });
+        }
+        order.status = "refunded";
+        order.payment_status = "refunded";
+        if (!order.return_request) {
+            order.return_request = {};
+        }
+        order.return_request.status = "refunded";
+        order.return_request.resolved_at = new Date();
+        order.return_request.decision_note = note || order.return_request.decision_note;
+        order.history.push({
+            status: "refunded",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return refunded",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if (order.payment_id) {
+            yield payment_model_1.Payment.findByIdAndUpdate(order.payment_id, {
+                status: "refunded",
+            });
+        }
+        if ((_a = order.customer_details) === null || _a === void 0 ? void 0 : _a.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.RETURN_REFUNDED, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.name) || "Customer",
+                note: note || "Return refunded",
+            });
+        }
+        return res.json({ success: true, data: order });
+    }
+    catch (error) {
+        console.error("Mark Return Refunded Error:", error);
+        return res.status(500).json({ message: "Failed to mark return as refunded" });
+    }
+});
+exports.markReturnRefunded = markReturnRefunded;
+const markReturnReplaced = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b, _c;
+    try {
+        const { id } = req.params;
+        const { note } = req.body || {};
+        const order = yield order_model_1.Order.findOne({ order_id: id });
+        if (!order) {
+            return res.status(404).json({ message: "Order not found" });
+        }
+        if (order.status !== "return_in_progress") {
+            return res.status(400).json({ message: "Return is not in progress for this order." });
+        }
+        if (((_a = order.return_request) === null || _a === void 0 ? void 0 : _a.type) && order.return_request.type !== "replace") {
+            return res.status(400).json({ message: "Return request is not marked for replacement." });
+        }
+        order.status = "replaced";
+        if (!order.return_request) {
+            order.return_request = {};
+        }
+        order.return_request.status = "replaced";
+        order.return_request.resolved_at = new Date();
+        order.return_request.decision_note = note || order.return_request.decision_note;
+        order.history.push({
+            status: "replaced",
+            changed_by: `admin:${req.admin.email}`,
+            reason: note || "Return replaced",
+            timestamp: new Date(),
+        });
+        yield order.save();
+        if ((_b = order.customer_details) === null || _b === void 0 ? void 0 : _b.email) {
+            yield email_service_1.EmailService.addToQueue(email_queue_model_1.EmailType.RETURN_REPLACED, order.customer_details.email, order._id, {
+                orderId: order.order_id,
+                customerName: ((_c = order.customer_details) === null || _c === void 0 ? void 0 : _c.name) || "Customer",
+                note: note || "Replacement in progress",
+            });
+        }
+        return res.json({ success: true, data: order });
+    }
+    catch (error) {
+        console.error("Mark Return Replaced Error:", error);
+        return res.status(500).json({ message: "Failed to mark return as replaced" });
+    }
+});
+exports.markReturnReplaced = markReturnReplaced;
 const getOrderInvoice = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     try {

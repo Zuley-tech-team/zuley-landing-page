@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Building2, BadgeCheck, Handshake, Package, CalendarClock } from 'lucide-react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { useToast } from '../contexts/ToastContext';
 import { submitCorporateLead } from '../api/engagement';

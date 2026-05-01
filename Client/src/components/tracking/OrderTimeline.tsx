@@ -1,4 +1,4 @@
-import { Check, Circle, Truck, Package, CreditCard } from 'lucide-react';
+import { Check, Circle, Truck, Package, CreditCard, RotateCcw, XCircle } from 'lucide-react';
 
 interface TimelineStep {
     label: string;
@@ -20,8 +20,12 @@ const STATUS_LABELS: Record<string, string> = {
     paid: 'Payment Confirmed',
     shipped: 'Shipped',
     delivered: 'Delivered',
+    return_requested: 'Return Requested',
+    return_in_progress: 'Return In Progress',
+    return_rejected: 'Return Rejected',
     cancelled: 'Cancelled',
     refunded: 'Refunded',
+    replaced: 'Replaced',
     failed: 'Failed',
 };
 
@@ -31,16 +35,51 @@ const STATUS_ICONS: Record<string, React.ReactNode> = {
     paid: <CreditCard className="w-4 h-4" />,
     shipped: <Truck className="w-4 h-4" />,
     delivered: <Package className="w-4 h-4" />,
+    return_requested: <RotateCcw className="w-4 h-4" />,
+    return_in_progress: <RotateCcw className="w-4 h-4" />,
+    return_rejected: <XCircle className="w-4 h-4" />,
+    refunded: <RotateCcw className="w-4 h-4" />,
+    replaced: <Check className="w-4 h-4" />,
 };
 
 export function OrderTimeline({ currentStatus, paymentMethod, history }: OrderTimelineProps) {
     // For cancelled/refunded/failed - show a special state
-    const isTerminal = ['cancelled', 'refunded', 'failed'].includes(currentStatus);
+    const isTerminal = ['cancelled', 'refunded', 'failed', 'return_rejected', 'replaced'].includes(currentStatus);
     const isCod = paymentMethod === 'cod';
-    const statusOrder = isCod ? COD_STATUS_ORDER : ONLINE_STATUS_ORDER;
-    const normalizedCurrentStatus = isCod
-        ? (currentStatus === 'paid' || currentStatus === 'confirmed' ? 'created' : currentStatus)
-        : (currentStatus === 'paid' ? 'confirmed' : currentStatus);
+    const baseStatusOrder = isCod ? COD_STATUS_ORDER : ONLINE_STATUS_ORDER;
+    let normalizedCurrentStatus = currentStatus;
+    if (currentStatus === 'paid') {
+        normalizedCurrentStatus = isCod ? 'created' : 'confirmed';
+    } else if (currentStatus === 'confirmed' && isCod) {
+        normalizedCurrentStatus = 'created';
+    }
+
+    const historyStatuses = history.map((h) => h.status);
+    const hasReturnFlow =
+        ['return_requested', 'return_in_progress', 'return_rejected', 'refunded', 'replaced'].includes(currentStatus) ||
+        historyStatuses.some((status) =>
+            ['return_requested', 'return_in_progress', 'return_rejected', 'refunded', 'replaced'].includes(status)
+        );
+
+    const getReturnStatuses = () => {
+        if (['refunded'].includes(currentStatus) || historyStatuses.includes('refunded')) {
+            return ['return_requested', 'return_in_progress', 'refunded'];
+        }
+        if (['replaced'].includes(currentStatus) || historyStatuses.includes('replaced')) {
+            return ['return_requested', 'return_in_progress', 'replaced'];
+        }
+        if (['return_rejected'].includes(currentStatus) || historyStatuses.includes('return_rejected')) {
+            return ['return_requested', 'return_rejected'];
+        }
+        if (['return_in_progress'].includes(currentStatus) || historyStatuses.includes('return_in_progress')) {
+            return ['return_requested', 'return_in_progress'];
+        }
+        return ['return_requested'];
+    };
+
+    const statusOrder = hasReturnFlow
+        ? [...baseStatusOrder, ...getReturnStatuses()]
+        : baseStatusOrder;
 
     const getTimestamp = (status: string): string | undefined => {
         const entry = [...history].reverse().find((h) => h.status === status);

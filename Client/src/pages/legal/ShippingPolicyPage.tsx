@@ -1,4 +1,4 @@
-import { Navbar } from '../../components/common';
+import { Navbar } from '../../components/common/Navbar';
 import { Footer } from '../../components/home';
 
 export function ShippingPolicyPage() {

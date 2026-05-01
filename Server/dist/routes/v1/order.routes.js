@@ -138,6 +138,7 @@ router.get("/:orderId/track", (req, res) => __awaiter(void 0, void 0, void 0, fu
                     name: item.name,
                     quantity: item.quantity,
                     price: item.price,
+                    variant_info: item.variant_info,
                 })),
                 items_count: order.items_count,
                 total_amount: order.total_amount,

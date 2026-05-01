@@ -51,8 +51,12 @@ const orderSchema = new mongoose_1.default.Schema({
             "paid",
             "shipped",
             "delivered",
+            "return_requested",
+            "return_in_progress",
+            "return_rejected",
             "cancelled",
             "refunded",
+            "replaced",
             "failed"
         ],
         default: "created",
@@ -104,7 +108,34 @@ const orderSchema = new mongoose_1.default.Schema({
             timestamp: { type: Date, default: Date.now },
             reason: String,
         }
-    ]
+    ],
+    return_request: {
+        type: {
+            type: String,
+            enum: ["refund", "replace"],
+        },
+        reason: String,
+        note: String,
+        status: {
+            type: String,
+            enum: [
+                "requested",
+                "accepted",
+                "rejected",
+                "refunded",
+                "replaced",
+            ],
+        },
+        requested_at: Date,
+        decided_at: Date,
+        resolved_at: Date,
+        decision_note: String,
+        decided_by: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Admin" },
+    },
+    replacement_of: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Order",
+    },
 }, {
     timestamps: true,
 });

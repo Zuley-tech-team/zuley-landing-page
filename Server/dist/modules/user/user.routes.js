@@ -32,12 +32,22 @@ var __importStar = (this && this.__importStar) || (function () {
         return result;
     };
 })();
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
+const multer_1 = __importDefault(require("multer"));
 const user_middleware_1 = require("../../middlewares/user.middleware");
 const publicRateLimit_1 = require("../../middlewares/publicRateLimit");
 const userController = __importStar(require("./user.controller"));
 const router = (0, express_1.Router)();
+const upload = (0, multer_1.default)({
+    storage: multer_1.default.memoryStorage(),
+    limits: {
+        fileSize: 5 * 1024 * 1024,
+    },
+});
 // Public Routes — rate limited
 router.post("/send-otp", (0, publicRateLimit_1.publicRateLimit)({ windowMs: 5 * 60 * 1000, maxRequests: 5 }), // 5 per 5 min
 userController.sendOtp);
@@ -49,4 +59,6 @@ router.get("/me", userController.getMe);
 router.patch("/complete-profile", userController.completeProfile);
 router.get("/orders", userController.getMyOrders);
 router.get("/orders/:id/invoice/download", userController.downloadMyInvoice);
+router.post("/orders/:id/return-request", userController.submitReturnRequest);
+router.post("/reviews", upload.array("images", 5), userController.submitOrderReview);
 exports.default = router;

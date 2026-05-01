@@ -12,6 +12,11 @@ var EmailType;
     EmailType["SHIPPING_CONFIRMATION"] = "shipping_confirmation";
     EmailType["DELIVERY_CONFIRMATION"] = "delivery_confirmation";
     EmailType["REFUND_CONFIRMATION"] = "refund_confirmation";
+    EmailType["RETURN_REQUESTED"] = "return_requested";
+    EmailType["RETURN_ACCEPTED"] = "return_accepted";
+    EmailType["RETURN_REJECTED"] = "return_rejected";
+    EmailType["RETURN_REFUNDED"] = "return_refunded";
+    EmailType["RETURN_REPLACED"] = "return_replaced";
 })(EmailType || (exports.EmailType = EmailType = {}));
 var EmailStatus;
 (function (EmailStatus) {

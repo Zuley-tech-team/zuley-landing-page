@@ -4,6 +4,7 @@ export interface OrderTrackingItem {
     name: string;
     quantity: number;
     price: number;
+    variant_info?: string;
 }
 
 export interface ShippingInfo {

@@ -1,7 +1,7 @@
 import { useSearchParams, Link } from 'react-router-dom';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
-import { Button } from '../components/common';
+import { Button } from '../components/common/Button';
 import { CheckCircle2, Package, ArrowRight, Copy, Check, Download } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { getInvoiceDownloadUrl } from '../api/orders';
@@ -11,6 +11,8 @@ export function OrderSuccessPage() {
     const paymentId = searchParams.get('payment_id') || '';
     const orderId = searchParams.get('order_id') || '';
     const productName = searchParams.get('product') || '';
+    const itemsSummary = searchParams.get('items') || '';
+    const model = searchParams.get('model') || '';
     const amount = searchParams.get('amount') || '';
     const method = searchParams.get('method') || '';
     const invoice = searchParams.get('invoice') || '';
@@ -168,13 +170,24 @@ export function OrderSuccessPage() {
                                     </div>
                                 )}
 
-                                {productName && (
+                                {(itemsSummary || productName) && (
                                     <div className="flex items-start justify-between gap-4">
                                         <span className="font-body text-sm text-charcoal/60 shrink-0">
-                                            Item
+                                            Items
                                         </span>
                                         <span className="font-body text-sm font-medium text-charcoal text-right break-words">
-                                            {decodeURIComponent(productName)}
+                                            {decodeURIComponent(itemsSummary || productName)}
+                                        </span>
+                                    </div>
+                                )}
+
+                                {model && (
+                                    <div className="flex items-start justify-between gap-4">
+                                        <span className="font-body text-sm text-charcoal/60 shrink-0">
+                                            Phone Model
+                                        </span>
+                                        <span className="font-body text-sm font-medium text-charcoal text-right break-words">
+                                            {decodeURIComponent(model)}
                                         </span>
                                     </div>
                                 )}

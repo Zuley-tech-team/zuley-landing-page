@@ -1,3 +1,4 @@
+import { AdminReviewsPage } from './pages/admin/AdminReviewsPage';
 import { useEffect, lazy, Suspense, type ReactElement } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import './App.css';
@@ -201,6 +202,7 @@ function App() {
               <Route index element={<AdminDashboardPage />} />
               <Route path="products" element={<AdminProductsPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />
+               <Route path="reviews" element={<AdminReviewsPage />} />
               <Route path="inventory" element={<AdminInventoryPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
             </Route>

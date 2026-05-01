@@ -10,10 +10,11 @@ import {
     CheckCircle,
     XCircle,
     Clock,
-    Download
+    Download,
+    RotateCcw
 } from 'lucide-react';
 
-interface Order {
+interface OrderBase {
     _id: string;
     order_id: string;
     customer_details: {
@@ -26,7 +27,18 @@ interface Order {
         name: string;
         quantity: number;
         price: number;
+        variant_info?: string;
     }>;
+    return_request?: {
+        type?: 'refund' | 'replace';
+        reason?: string;
+        note?: string;
+        status?: 'requested' | 'accepted' | 'rejected' | 'refunded' | 'replaced';
+        requested_at?: string;
+        decided_at?: string;
+        resolved_at?: string;
+        decision_note?: string;
+    };
     total_amount: number;
     items_count: number;
     status: string;
@@ -58,14 +70,23 @@ interface Order {
     } | null;
 }
 
+interface Order extends OrderBase {
+    replacement_orders?: OrderBase[];
+    replacement_original?: OrderBase | null;
+}
+
 const statusConfig: Record<string, { label: string; color: string; icon: any }> = {
     created: { label: 'Placed', color: 'bg-amber-100 text-amber-700', icon: Clock },
     confirmed: { label: 'Confirmed', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
     paid: { label: 'Paid', color: 'bg-blue-100 text-blue-700', icon: Clock },
     shipped: { label: 'Shipped', color: 'bg-purple-100 text-purple-700', icon: Truck },
     delivered: { label: 'Delivered', color: 'bg-green-100 text-green-700', icon: CheckCircle },
+    return_requested: { label: 'Return Requested', color: 'bg-amber-100 text-amber-700', icon: RotateCcw },
+    return_in_progress: { label: 'Return In Progress', color: 'bg-blue-100 text-blue-700', icon: RotateCcw },
+    return_rejected: { label: 'Return Rejected', color: 'bg-red-100 text-red-700', icon: XCircle },
     cancelled: { label: 'Cancelled', color: 'bg-red-100 text-red-700', icon: XCircle },
     refunded: { label: 'Refunded', color: 'bg-gray-100 text-gray-700', icon: XCircle },
+    replaced: { label: 'Replaced', color: 'bg-emerald-100 text-emerald-700', icon: CheckCircle },
 };
 
 export function AdminOrdersPage() {
@@ -80,6 +101,18 @@ export function AdminOrdersPage() {
     useEffect(() => {
         loadOrders();
     }, [statusFilter]);
+
+    useEffect(() => {
+        if (selectedOrder) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+
+        return () => {
+            document.body.classList.remove('modal-open');
+        };
+    }, [selectedOrder]);
 
     const loadOrders = async (page = 1) => {
         setIsLoading(true);
@@ -165,6 +198,66 @@ export function AdminOrdersPage() {
             }
         } catch (error: any) {
             alert(error.message || 'Failed to mark COD payment as paid');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleAcceptReturn = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.acceptReturnRequest(orderId, note);
+            loadOrders(pagination.current);
+            if (selectedOrder?.order_id === orderId) {
+                const response = await adminAPI.getOrder(orderId);
+                setSelectedOrder(response.data);
+            }
+        } catch (error: any) {
+            alert(error.message || 'Failed to accept return request');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleRejectReturn = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.rejectReturnRequest(orderId, note);
+            loadOrders(pagination.current);
+            if (selectedOrder?.order_id === orderId) {
+                const response = await adminAPI.getOrder(orderId);
+                setSelectedOrder(response.data);
+            }
+        } catch (error: any) {
+            alert(error.message || 'Failed to reject return request');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleMarkReturnRefunded = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.markReturnRefunded(orderId, note);
+            loadOrders(pagination.current);
+            const response = await adminAPI.getOrder(orderId);
+            setSelectedOrder(response.data);
+        } catch (error: any) {
+            alert(error.message || 'Failed to mark return as refunded');
+        } finally {
+            setIsUpdating(false);
+        }
+    };
+
+    const handleMarkReturnReplaced = async (orderId: string, note?: string) => {
+        setIsUpdating(true);
+        try {
+            await adminAPI.markReturnReplaced(orderId, note);
+            loadOrders(pagination.current);
+            const response = await adminAPI.getOrder(orderId);
+            setSelectedOrder(response.data);
+        } catch (error: any) {
+            alert(error.message || 'Failed to mark return as replaced');
         } finally {
             setIsUpdating(false);
         }
@@ -272,6 +365,10 @@ export function AdminOrdersPage() {
                         <option value="paid">Paid</option>
                         <option value="shipped">Shipped</option>
                         <option value="delivered">Delivered</option>
+                        <option value="return_requested">Return Requested</option>
+                        <option value="return_in_progress">Return In Progress</option>
+                        <option value="return_rejected">Return Rejected</option>
+                        <option value="replaced">Replaced</option>
                         <option value="cancelled">Cancelled</option>
                         <option value="refunded">Refunded</option>
                     </select>
@@ -411,6 +508,10 @@ export function AdminOrdersPage() {
                     onUpdateStatus={handleUpdateStatus}
                     onShipOrder={handleShipOrder}
                     onMarkDelivered={handleMarkDelivered}
+                    onAcceptReturn={handleAcceptReturn}
+                    onRejectReturn={handleRejectReturn}
+                    onMarkReturnRefunded={handleMarkReturnRefunded}
+                    onMarkReturnReplaced={handleMarkReturnReplaced}
                     isUpdating={isUpdating}
                 />
             )}
@@ -426,16 +527,45 @@ interface OrderDetailModalProps {
     onUpdateStatus: (orderId: string, status: string, note?: string) => void;
     onShipOrder: (orderId: string, courierName: string, trackingNumber: string, trackingUrl?: string, notes?: string) => void;
     onMarkDelivered: (orderId: string, notes?: string) => void;
+    onAcceptReturn: (orderId: string, note?: string) => void;
+    onRejectReturn: (orderId: string, note?: string) => void;
+    onMarkReturnRefunded: (orderId: string, note?: string) => void;
+    onMarkReturnReplaced: (orderId: string, note?: string) => void;
     isUpdating: boolean;
 }
 
-function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpdateStatus, onShipOrder, onMarkDelivered, isUpdating }: OrderDetailModalProps) {
-    const [newStatus, setNewStatus] = useState(order.status);
+function OrderDetailModal({
+    order,
+    onClose,
+    onConfirmOrder,
+    onMarkCodPaid,
+    onUpdateStatus,
+    onShipOrder,
+    onMarkDelivered,
+    onAcceptReturn,
+    onRejectReturn,
+    onMarkReturnRefunded,
+    onMarkReturnReplaced,
+    isUpdating,
+}: OrderDetailModalProps) {
+    const primaryOrder = order.replacement_orders?.[0] || order;
+    const originalOrder = order.replacement_orders?.length ? order : order.replacement_original || null;
+
+    const [newStatus, setNewStatus] = useState(primaryOrder.status);
     const [statusNote, setStatusNote] = useState('');
-    const [courierName, setCourierName] = useState(order.shipping_details?.courier_name || '');
-    const [trackingNumber, setTrackingNumber] = useState(order.shipping_details?.tracking_number || '');
-    const [trackingUrl, setTrackingUrl] = useState(order.shipping_details?.tracking_url || '');
+    const [courierName, setCourierName] = useState(primaryOrder.shipping_details?.courier_name || '');
+    const [trackingNumber, setTrackingNumber] = useState(primaryOrder.shipping_details?.tracking_number || '');
+    const [trackingUrl, setTrackingUrl] = useState(primaryOrder.shipping_details?.tracking_url || '');
     const [shippingNotes, setShippingNotes] = useState('');
+
+    useEffect(() => {
+        setNewStatus(primaryOrder.status);
+        setCourierName(primaryOrder.shipping_details?.courier_name || '');
+        setTrackingNumber(primaryOrder.shipping_details?.tracking_number || '');
+        setTrackingUrl(primaryOrder.shipping_details?.tracking_url || '');
+        setShippingNotes('');
+        setStatusNote('');
+    }, [primaryOrder.order_id, primaryOrder.status]);
 
     const formatPrice = (amount: number) => {
         return new Intl.NumberFormat('en-IN', {
@@ -456,8 +586,8 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
     };
 
     const handleStatusUpdate = () => {
-        if (newStatus !== order.status) {
-            onUpdateStatus(order.order_id, newStatus, statusNote.trim() || undefined);
+        if (newStatus !== primaryOrder.status) {
+            onUpdateStatus(primaryOrder.order_id, newStatus, statusNote.trim() || undefined);
         }
     };
 
@@ -468,7 +598,7 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
         }
 
         onShipOrder(
-            order.order_id,
+            primaryOrder.order_id,
             courierName.trim(),
             trackingNumber.trim(),
             trackingUrl.trim() || undefined,
@@ -477,20 +607,28 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
     };
 
     const handleConfirmOrder = () => {
-        onConfirmOrder(order.order_id, statusNote.trim() || 'Order confirmed by admin');
+        onConfirmOrder(primaryOrder.order_id, statusNote.trim() || 'Order confirmed by admin');
     };
 
     const handleRejectOrder = () => {
-        onUpdateStatus(order.order_id, 'cancelled', statusNote.trim() || 'Order not confirmed by admin');
+        onUpdateStatus(primaryOrder.order_id, 'cancelled', statusNote.trim() || 'Order not confirmed by admin');
     };
 
-    const config = statusConfig[order.status] || {
-        label: order.status,
+    const config = statusConfig[primaryOrder.status] || {
+        label: primaryOrder.status,
         color: 'bg-gray-100 text-gray-700',
         icon: Package,
     };
     const StatusIcon = config.icon;
-    const invoiceUrl = adminAPI.getOrderInvoiceDownloadUrl(order.order_id);
+    const originalConfig = originalOrder
+        ? statusConfig[originalOrder.status] || {
+            label: originalOrder.status,
+            color: 'bg-gray-100 text-gray-700',
+            icon: Package,
+        }
+        : null;
+    const OriginalStatusIcon = originalConfig?.icon || Package;
+    const invoiceUrl = adminAPI.getOrderInvoiceDownloadUrl(primaryOrder.order_id);
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -498,11 +636,16 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                 <div className="flex items-center justify-between p-6 border-b border-gray-200 sticky top-0 z-30 bg-white shadow-sm">
                     <div>
                         <h2 className="font-heading text-xl font-bold text-gray-900">
-                            Order {order.order_id}
+                            Order {primaryOrder.order_id}
                         </h2>
                         <p className="font-body text-sm text-gray-500">
-                            {formatDate(order.createdAt)}
+                            {formatDate(primaryOrder.createdAt)}
                         </p>
+                        {originalOrder && (
+                            <p className="font-body text-xs text-gray-400 mt-1">
+                                Replacement for {originalOrder.order_id}
+                            </p>
+                        )}
                     </div>
                     <button
                         onClick={onClose}
@@ -532,12 +675,16 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                                 <option value="confirmed">Confirmed</option>
 	                                <option value="shipped">Shipped</option>
                                 <option value="delivered">Delivered</option>
+                                <option value="return_requested">Return Requested</option>
+                                <option value="return_in_progress">Return In Progress</option>
+                                <option value="return_rejected">Return Rejected</option>
+                                <option value="replaced">Replaced</option>
                                 <option value="cancelled">Cancelled</option>
                                 <option value="refunded">Refunded</option>
                             </select>
 	                            <button
 	                                onClick={handleStatusUpdate}
-                                disabled={newStatus === order.status || isUpdating}
+                                    disabled={newStatus === primaryOrder.status || isUpdating}
                                 className="px-4 py-2 bg-charcoal text-white text-sm rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed"
 	                            >
 	                                {isUpdating ? 'Updating...' : 'Update'}
@@ -554,7 +701,7 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
 	                        </div>
                     </div>
 
-                    {order.status === 'created' && (
+                    {primaryOrder.status === 'created' && (
                         <div className="flex flex-wrap items-center gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3">
                             <p className="text-sm text-amber-800 mr-2">Admin action required for this newly placed order.</p>
                             <button
@@ -583,9 +730,9 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                                 Customer
                             </h3>
                             <div className="space-y-2 text-sm">
-                                <p><span className="text-gray-500">Name:</span> {order.customer_details.name}</p>
-                                <p><span className="text-gray-500">Email:</span> {order.customer_details.email}</p>
-                                <p><span className="text-gray-500">Phone:</span> {order.customer_details.phone}</p>
+                                <p><span className="text-gray-500">Name:</span> {primaryOrder.customer_details.name}</p>
+                                <p><span className="text-gray-500">Email:</span> {primaryOrder.customer_details.email}</p>
+                                <p><span className="text-gray-500">Phone:</span> {primaryOrder.customer_details.phone}</p>
                             </div>
                         </div>
 
@@ -594,10 +741,10 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
 	                                Shipping Address
                             </h3>
                             <div className="text-sm text-gray-600">
-                                <p>{order.shipping_address.line1}</p>
-                                {order.shipping_address.line2 && <p>{order.shipping_address.line2}</p>}
+                                <p>{primaryOrder.shipping_address.line1}</p>
+                                {primaryOrder.shipping_address.line2 && <p>{primaryOrder.shipping_address.line2}</p>}
                                 <p>
-                                    {order.shipping_address.city}, {order.shipping_address.state} - {order.shipping_address.pincode}
+                                    {primaryOrder.shipping_address.city}, {primaryOrder.shipping_address.state} - {primaryOrder.shipping_address.pincode}
 	                                </p>
 	                            </div>
 	                        </div>
@@ -607,14 +754,14 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
 	                                Payment
 	                            </h3>
 	                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
-	                                <p><span className="text-gray-500">Method:</span> {order.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
-	                                <p><span className="text-gray-500">Status:</span> {order.payment_status || order.status}</p>
-	                                <p><span className="text-gray-500">Invoice:</span> {order.invoice?.invoiceNumber || 'Generated on download'}</p>
+                                    <p><span className="text-gray-500">Method:</span> {primaryOrder.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
+                                    <p><span className="text-gray-500">Status:</span> {primaryOrder.payment_status || primaryOrder.status}</p>
+                                    <p><span className="text-gray-500">Invoice:</span> {primaryOrder.invoice?.invoiceNumber || 'Generated on download'}</p>
 	                            </div>
-                                {order.payment_method === 'cod' && order.payment_status === 'cod_pending' && order.status !== 'cancelled' && (
+                                    {primaryOrder.payment_method === 'cod' && primaryOrder.payment_status === 'cod_pending' && primaryOrder.status !== 'cancelled' && (
                                     <div className="mt-3">
                                         <button
-                                            onClick={() => onMarkCodPaid(order.order_id, statusNote.trim() || 'COD payment collected by admin')}
+                                                onClick={() => onMarkCodPaid(primaryOrder.order_id, statusNote.trim() || 'COD payment collected by admin')}
                                             disabled={isUpdating}
                                             className="inline-flex items-center gap-2 px-4 py-2 border border-green-300 bg-green-50 text-green-700 text-sm rounded-lg hover:bg-green-100 disabled:opacity-50"
                                         >
@@ -624,6 +771,67 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                                     </div>
                                 )}
 	                        </div>
+
+                        {primaryOrder.return_request && (
+                            <div className="bg-gray-50 rounded-xl p-4 md:col-span-2">
+                                <h3 className="font-heading font-semibold text-gray-900 mb-3">
+                                    Return Request
+                                </h3>
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                    <p><span className="text-gray-500">Type:</span> {primaryOrder.return_request.type || 'N/A'}</p>
+                                    <p><span className="text-gray-500">Status:</span> {primaryOrder.return_request.status || 'N/A'}</p>
+                                    <p><span className="text-gray-500">Requested:</span> {primaryOrder.return_request.requested_at ? formatDate(primaryOrder.return_request.requested_at) : 'N/A'}</p>
+                                </div>
+                                {primaryOrder.return_request.reason && (
+                                    <p className="mt-2 text-sm text-gray-600">Reason: {primaryOrder.return_request.reason}</p>
+                                )}
+                                {primaryOrder.return_request.note && (
+                                    <p className="mt-1 text-sm text-gray-600">Note: {primaryOrder.return_request.note}</p>
+                                )}
+
+                                {primaryOrder.status === 'return_requested' && (
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <button
+                                            onClick={() => onAcceptReturn(primaryOrder.order_id, statusNote.trim() || 'Return request accepted')}
+                                            disabled={isUpdating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-green-600 text-white text-sm rounded-lg hover:bg-green-700 disabled:opacity-50"
+                                        >
+                                            <CheckCircle className="w-4 h-4" />
+                                            Accept Return
+                                        </button>
+                                        <button
+                                            onClick={() => onRejectReturn(primaryOrder.order_id, statusNote.trim() || 'Return request rejected')}
+                                            disabled={isUpdating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 disabled:opacity-50"
+                                        >
+                                            <XCircle className="w-4 h-4" />
+                                            Reject Return
+                                        </button>
+                                    </div>
+                                )}
+
+                                {primaryOrder.status === 'return_in_progress' && (
+                                    <div className="mt-4 flex flex-wrap gap-2">
+                                        <button
+                                            onClick={() => onMarkReturnRefunded(primaryOrder.order_id, statusNote.trim() || 'Return refunded')}
+                                            disabled={isUpdating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm rounded-lg hover:bg-gray-800 disabled:opacity-50"
+                                        >
+                                            <RotateCcw className="w-4 h-4" />
+                                            Mark Refunded
+                                        </button>
+                                        <button
+                                            onClick={() => onMarkReturnReplaced(primaryOrder.order_id, statusNote.trim() || 'Replacement in progress')}
+                                            disabled={isUpdating}
+                                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                                        >
+                                            <Truck className="w-4 h-4" />
+                                            Mark Replaced
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+                        )}
 	                        <input
 	                            value={statusNote}
 	                            onChange={(event) => setStatusNote(event.target.value)}
@@ -664,15 +872,15 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
 	                        </div>
 	                        <button
 	                            onClick={handleShipSubmit}
-	                            disabled={isUpdating || order.status === 'delivered'}
+                                disabled={isUpdating || primaryOrder.status === 'delivered'}
 	                            className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-charcoal text-white text-sm rounded-lg hover:bg-charcoal/90 disabled:opacity-50 disabled:cursor-not-allowed"
 	                        >
 	                            <Truck className="w-4 h-4" />
-	                            {order.status === 'shipped' ? 'Update Shipment' : 'Mark Shipped'}
+                                {primaryOrder.status === 'shipped' ? 'Update Shipment' : 'Mark Shipped'}
 	                        </button>
-	                        {order.status === 'shipped' && (
+                            {primaryOrder.status === 'shipped' && (
 	                            <button
-	                                onClick={() => onMarkDelivered(order.order_id, shippingNotes.trim() || undefined)}
+                                    onClick={() => onMarkDelivered(primaryOrder.order_id, shippingNotes.trim() || undefined)}
 	                                disabled={isUpdating}
 	                                className="mt-3 ml-2 inline-flex items-center gap-2 px-4 py-2 border border-green-300 bg-green-50 text-green-700 text-sm rounded-lg hover:bg-green-100 disabled:opacity-50"
 	                            >
@@ -685,7 +893,7 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
 	                    {/* Items */}
                     <div>
                         <h3 className="font-heading font-semibold text-gray-900 mb-3">
-                            Items ({order.items_count})
+                            Items ({primaryOrder.items_count})
                         </h3>
                         <div className="border border-gray-200 rounded-xl overflow-hidden">
                             <table className="w-full">
@@ -703,11 +911,14 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-200">
-                                    {order.items.map((item, index) => (
+                                    {primaryOrder.items.map((item, index) => (
                                         <tr key={index}>
                                             <td className="px-4 py-3">
                                                 <p className="font-medium text-gray-900">{item.name}</p>
                                                 <p className="text-sm text-gray-500">SKU: {item.sku}</p>
+                                                {item.variant_info && (
+                                                    <p className="text-sm text-gray-500">Phone model: {item.variant_info}</p>
+                                                )}
                                             </td>
                                             <td className="px-4 py-3 text-center text-gray-600">
                                                 {item.quantity}
@@ -724,7 +935,7 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                                             Total
                                         </td>
                                         <td className="px-4 py-3 text-right font-bold text-gray-900 text-lg">
-                                            {formatPrice(order.total_amount)}
+                                            {formatPrice(primaryOrder.total_amount)}
                                         </td>
                                     </tr>
                                 </tfoot>
@@ -738,7 +949,7 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                             Order History
                         </h3>
                         <div className="space-y-3">
-                            {order.history.map((event, index) => (
+                            {primaryOrder.history.map((event, index) => (
                                 <div
                                     key={index}
                                     className="flex items-start gap-3 text-sm"
@@ -757,6 +968,65 @@ function OrderDetailModal({ order, onClose, onConfirmOrder, onMarkCodPaid, onUpd
                             ))}
                         </div>
                     </div>
+
+                    {originalOrder && (
+                        <div className="border border-gray-200 rounded-xl p-4 bg-gray-50">
+                            <div className="flex items-center justify-between gap-2 mb-3">
+                                <div>
+                                    <h3 className="font-heading font-semibold text-gray-900">Original Order</h3>
+                                    <p className="text-sm text-gray-500">{originalOrder.order_id}</p>
+                                </div>
+                                <span
+                                    className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${originalConfig?.color || 'bg-gray-100 text-gray-700'}`}
+                                >
+                                    <OriginalStatusIcon className="w-3.5 h-3.5" />
+                                    {originalConfig?.label || originalOrder.status}
+                                </span>
+                            </div>
+
+                            <div className="space-y-2 text-sm text-gray-600">
+                                <p><span className="text-gray-500">Placed:</span> {formatDate(originalOrder.createdAt)}</p>
+                                <p><span className="text-gray-500">Total:</span> {formatPrice(originalOrder.total_amount)}</p>
+                            </div>
+
+                            <div className="mt-4">
+                                <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Items</h4>
+                                <div className="space-y-2">
+                                    {originalOrder.items.map((item, index) => (
+                                        <div key={`${item.sku}-${index}`} className="flex items-center justify-between text-sm">
+                                            <div>
+                                                <p className="text-gray-900 font-medium">{item.name}</p>
+                                                <p className="text-gray-500 text-xs">Qty: {item.quantity}</p>
+                                                {item.variant_info && (
+                                                    <p className="text-gray-500 text-xs">Phone model: {item.variant_info}</p>
+                                                )}
+                                            </div>
+                                            <span className="text-gray-700 font-medium">
+                                                {formatPrice(item.price * item.quantity)}
+                                            </span>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {originalOrder.return_request && (
+                                <div className="mt-4 border-t border-gray-200 pt-4">
+                                    <h4 className="text-xs font-semibold text-gray-500 uppercase mb-2">Return Request</h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                        <p><span className="text-gray-500">Type:</span> {originalOrder.return_request.type || 'N/A'}</p>
+                                        <p><span className="text-gray-500">Status:</span> {originalOrder.return_request.status || 'N/A'}</p>
+                                        <p><span className="text-gray-500">Requested:</span> {originalOrder.return_request.requested_at ? formatDate(originalOrder.return_request.requested_at) : 'N/A'}</p>
+                                    </div>
+                                    {originalOrder.return_request.reason && (
+                                        <p className="mt-2 text-sm text-gray-600">Reason: {originalOrder.return_request.reason}</p>
+                                    )}
+                                    {originalOrder.return_request.note && (
+                                        <p className="mt-1 text-sm text-gray-600">Note: {originalOrder.return_request.note}</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

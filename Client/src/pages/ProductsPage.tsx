@@ -1,6 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { CategoryFilter, ProductsGrid } from '../components/products';
 import { fetchProducts, type Product, type ProductCategory } from '../api/products';

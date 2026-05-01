@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { useAuth } from '../contexts/AuthContext';
-import { getMyOrders, downloadMyInvoice, type CustomerOrder } from '../api/auth';
+import { getMyOrders, downloadMyInvoice, submitReturnRequest, type CustomerOrder } from '../api/auth';
+import { submitReview } from '../api/reviews';
 import {
     Package,
     MapPin,
@@ -17,7 +18,19 @@ import {
     ArrowRight,
     Loader2,
     Download,
+    Mail,
+    X,
+    Star,
 } from 'lucide-react';
+
+const RETURN_REASONS = [
+    'Damaged on arrival',
+    'Wrong product delivered',
+    'Quality issue',
+    'Size/fit not as expected',
+    'Changed my mind',
+    'Other',
+];
 
 function formatDate(dateStr: string) {
     return new Intl.DateTimeFormat('en-IN', {
@@ -54,6 +67,14 @@ function getStatusConfig(status: string): StatusConfig {
             return { label: 'Shipped', color: 'text-blue-600', bg: 'bg-blue-50', icon: <Truck className="w-3.5 h-3.5" /> };
         case 'delivered':
             return { label: 'Delivered', color: 'text-success', bg: 'bg-success/10', icon: <CheckCircle className="w-3.5 h-3.5" /> };
+        case 'return_requested':
+            return { label: 'Return Initiated', color: 'text-amber-700', bg: 'bg-amber-100', icon: <RotateCcw className="w-3.5 h-3.5" /> };
+        case 'return_in_progress':
+            return { label: 'In Progress', color: 'text-blue-700', bg: 'bg-blue-100', icon: <RotateCcw className="w-3.5 h-3.5" /> };
+        case 'return_rejected':
+            return { label: 'Cancelled', color: 'text-error', bg: 'bg-error/10', icon: <XCircle className="w-3.5 h-3.5" /> };
+        case 'replaced':
+            return { label: 'Replaced', color: 'text-emerald-700', bg: 'bg-emerald-100', icon: <CheckCircle className="w-3.5 h-3.5" /> };
         case 'cancelled':
             return { label: 'Cancelled', color: 'text-error', bg: 'bg-error/10', icon: <XCircle className="w-3.5 h-3.5" /> };
         case 'refunded':
@@ -66,10 +87,23 @@ function getStatusConfig(status: string): StatusConfig {
     }
 }
 
-function OrderCard({ order }: { order: CustomerOrder }) {
+function OrderCard({
+    order,
+    onOpenReturn,
+    onOpenReview,
+}: {
+    order: CustomerOrder;
+    onOpenReturn: (order: CustomerOrder) => void;
+    onOpenReview: (order: CustomerOrder, item: CustomerOrder['items'][0]) => void;
+}) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isDownloading, setIsDownloading] = useState(false);
     const statusConfig = getStatusConfig(order.status);
+    const deliveredAt = order.shipping_details?.delivered_at;
+    const returnDeadline = deliveredAt ? new Date(new Date(deliveredAt).getTime() + 48 * 60 * 60 * 1000) : null;
+    const isReturnEligible = order.status === 'delivered' && returnDeadline ? new Date() <= returnDeadline : false;
+    const isReturnExpired = order.status === 'delivered' && returnDeadline ? new Date() > returnDeadline : false;
+    const isReviewEligible = order.status === 'delivered';
 
     const handleDownloadInvoice = async (e: React.MouseEvent) => {
         e.preventDefault();
@@ -105,7 +139,10 @@ function OrderCard({ order }: { order: CustomerOrder }) {
 
             {/* Items Preview */}
             <div className="orders-items">
-                {order.items.slice(0, isExpanded ? order.items.length : 2).map((item, i) => (
+                {order.items.slice(0, isExpanded ? order.items.length : 2).map((item, i) => {
+                    const itemSku = item.product_sku || item.sku;
+                    const isReviewed = order.reviewed_items?.includes(itemSku);
+                    return (
                     <div key={`${item.sku}-${i}`} className="orders-item-row">
                         {item.product_image ? (
                             <img
@@ -127,7 +164,18 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                                 {item.name}
                             </a>
                             {item.variant_info && (
-                                <p className="orders-item-variant">{item.variant_info}</p>
+                                <p className="orders-item-variant">Phone model: {item.variant_info}</p>
+                            )}
+                            {isReviewEligible && (
+                                <button
+                                    type="button"
+                                    className={`orders-review-btn ${isReviewed ? 'orders-review-btn--done' : ''}`}
+                                    onClick={() => !isReviewed && onOpenReview(order, item)}
+                                    disabled={isReviewed}
+                                >
+                                    <Star className="w-3.5 h-3.5" />
+                                    {isReviewed ? 'Review Submitted' : 'Write Review'}
+                                </button>
                             )}
                         </div>
                         <div className="orders-item-qty-price">
@@ -135,7 +183,8 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                             <span className="orders-item-price">{formatPrice(item.total_price)}</span>
                         </div>
                     </div>
-                ))}
+                    );
+                })}
                 {!isExpanded && order.items.length > 2 && (
                     <button
                         onClick={() => setIsExpanded(true)}
@@ -199,6 +248,28 @@ function OrderCard({ order }: { order: CustomerOrder }) {
                         Track Order <ArrowRight className="w-3.5 h-3.5 ml-1" />
                     </a>
                 </div>
+
+                <div className="orders-support-row">
+                    <a
+                        href="mailto:support@zuley.in"
+                        className="orders-help-btn"
+                    >
+                        <Mail className="w-3.5 h-3.5" />
+                        Need help?
+                    </a>
+                    {order.status === 'delivered' && (
+                        <button
+                            type="button"
+                            className="orders-return-btn"
+                            disabled={!isReturnEligible}
+                            onClick={() => onOpenReturn(order)}
+                            title={isReturnExpired ? 'Return window closed' : undefined}
+                        >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                            Return Product
+                        </button>
+                    )}
+                </div>
             </div>
         </article>
     );
@@ -209,6 +280,20 @@ export function OrdersPage() {
     const [orders, setOrders] = useState<CustomerOrder[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState('');
+    const [returnOrder, setReturnOrder] = useState<CustomerOrder | null>(null);
+    const [returnType, setReturnType] = useState<'refund' | 'replace'>('refund');
+    const [returnReason, setReturnReason] = useState('');
+    const [returnNote, setReturnNote] = useState('');
+    const [returnError, setReturnError] = useState('');
+    const [isSubmittingReturn, setIsSubmittingReturn] = useState(false);
+    const [reviewOrder, setReviewOrder] = useState<CustomerOrder | null>(null);
+    const [reviewItem, setReviewItem] = useState<CustomerOrder['items'][0] | null>(null);
+    const [reviewRating, setReviewRating] = useState(0);
+    const [reviewComment, setReviewComment] = useState('');
+    const [reviewImages, setReviewImages] = useState<File[]>([]);
+    const [reviewUploadProgress, setReviewUploadProgress] = useState<number | null>(null);
+    const [reviewError, setReviewError] = useState('');
+    const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
     useEffect(() => {
         if (!isLoggedIn && !authLoading) return;
@@ -220,6 +305,147 @@ export function OrdersPage() {
             .catch(err => setError(err.message || 'Failed to load orders'))
             .finally(() => setIsLoading(false));
     }, [isLoggedIn, authLoading]);
+
+    useEffect(() => {
+        if (returnOrder || reviewOrder) {
+            document.body.classList.add('modal-open');
+        } else {
+            document.body.classList.remove('modal-open');
+        }
+
+        return () => {
+            document.body.classList.remove('modal-open');
+        };
+    }, [returnOrder, reviewOrder]);
+
+    const openReturnModal = (order: CustomerOrder) => {
+        setReturnOrder(order);
+        setReturnType('refund');
+        setReturnReason('');
+        setReturnNote('');
+        setReturnError('');
+    };
+
+    const closeReturnModal = () => {
+        setReturnOrder(null);
+    };
+
+    const openReviewModal = (order: CustomerOrder, item: CustomerOrder['items'][0]) => {
+        setReviewOrder(order);
+        setReviewItem(item);
+        setReviewRating(0);
+        setReviewComment('');
+        setReviewImages([]);
+        setReviewUploadProgress(null);
+        setReviewError('');
+    };
+
+    const closeReviewModal = () => {
+        setReviewOrder(null);
+        setReviewItem(null);
+        setReviewRating(0);
+        setReviewComment('');
+        setReviewImages([]);
+        setReviewUploadProgress(null);
+        setReviewError('');
+    };
+
+    const handleReviewImagesChange = (files: FileList | null) => {
+        if (!files) {
+            setReviewImages([]);
+            return;
+        }
+
+        const next = Array.from(files).slice(0, 5);
+        setReviewImages(next);
+    };
+
+    const handleSubmitReview = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!reviewOrder || !reviewItem) return;
+
+        if (reviewRating < 1) {
+            setReviewError('Please select a star rating.');
+            return;
+        }
+
+        if (!reviewComment.trim()) {
+            setReviewError('Please add a review.');
+            return;
+        }
+
+        setIsSubmittingReview(true);
+        setReviewError('');
+        setReviewUploadProgress(reviewImages.length > 0 ? 0 : null);
+
+        try {
+            const sku = reviewItem.product_sku || reviewItem.sku;
+            await submitReview({
+                order_id: reviewOrder.order_id,
+                product_sku: sku,
+                rating: reviewRating,
+                comment: reviewComment.trim(),
+                images: reviewImages,
+            }, (percent) => setReviewUploadProgress(percent));
+
+            setOrders((current) =>
+                current.map((order) =>
+                    order.order_id === reviewOrder.order_id
+                        ? {
+                              ...order,
+                              reviewed_items: Array.from(
+                                  new Set([...(order.reviewed_items || []), sku])
+                              ),
+                          }
+                        : order
+                )
+            );
+
+            closeReviewModal();
+        } catch (error: any) {
+            setReviewError(error.message || 'Failed to submit review.');
+        } finally {
+            setIsSubmittingReview(false);
+            setReviewUploadProgress(null);
+        }
+    };
+
+    const handleSubmitReturn = async (event: React.FormEvent) => {
+        event.preventDefault();
+        if (!returnOrder) return;
+
+        if (!returnReason.trim()) {
+            setReturnError('Please choose a reason.');
+            return;
+        }
+
+        if (!returnNote.trim()) {
+            setReturnError('Please add a note for your request.');
+            return;
+        }
+
+        setIsSubmittingReturn(true);
+        setReturnError('');
+
+        try {
+            const response = await submitReturnRequest(returnOrder.order_id, {
+                type: returnType,
+                reason: returnReason,
+                note: returnNote,
+            });
+
+            setOrders((current) =>
+                current.map((order) =>
+                    order.order_id === response.data.order_id ? response.data : order
+                )
+            );
+            closeReturnModal();
+        } catch (error: any) {
+            setReturnError(error.message || 'Failed to submit return request.');
+        } finally {
+            setIsSubmittingReturn(false);
+        }
+    };
 
     return (
         <>
@@ -287,11 +513,170 @@ export function OrdersPage() {
                     {isLoggedIn && !isLoading && orders.length > 0 && (
                         <div className="orders-list">
                             {orders.map(order => (
-                                <OrderCard key={order._id} order={order} />
+                                <OrderCard
+                                    key={order._id}
+                                    order={order}
+                                    onOpenReturn={openReturnModal}
+                                    onOpenReview={openReviewModal}
+                                />
                             ))}
                         </div>
                     )}
                 </div>
+
+                {returnOrder && (
+                    <div className="orders-return-overlay" onClick={(e) => e.target === e.currentTarget && closeReturnModal()}>
+                        <div className="orders-return-modal">
+                            <div className="orders-return-header">
+                                <h3 className="orders-return-title">Return Request</h3>
+                                <button type="button" onClick={closeReturnModal} className="orders-return-close">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <form className="orders-return-form" onSubmit={handleSubmitReturn}>
+                                <label className="orders-return-label">
+                                    Choose option
+                                    <select
+                                        value={returnType}
+                                        onChange={(event) => setReturnType(event.target.value as 'refund' | 'replace')}
+                                        className="orders-return-select"
+                                    >
+                                        <option value="refund">Refund</option>
+                                        <option value="replace">Replace</option>
+                                    </select>
+                                </label>
+                                <label className="orders-return-label">
+                                    Reason
+                                    <select
+                                        value={returnReason}
+                                        onChange={(event) => setReturnReason(event.target.value)}
+                                        className="orders-return-select"
+                                    >
+                                        <option value="" disabled>
+                                            Select a reason
+                                        </option>
+                                        {RETURN_REASONS.map((reason) => (
+                                            <option key={reason} value={reason}>
+                                                {reason}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </label>
+                                <label className="orders-return-label">
+                                    Note
+                                    <textarea
+                                        value={returnNote}
+                                        onChange={(event) => setReturnNote(event.target.value)}
+                                        className="orders-return-textarea"
+                                        placeholder="Share more details about the issue"
+                                    />
+                                </label>
+                                {returnError && <p className="orders-return-error">{returnError}</p>}
+                                <div className="orders-return-actions">
+                                    <button type="button" className="orders-return-cancel" onClick={closeReturnModal}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="orders-return-submit" disabled={isSubmittingReturn}>
+                                        {isSubmittingReturn ? 'Submitting...' : 'Submit Request'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
+
+                {reviewOrder && reviewItem && (
+                    <div className="orders-review-overlay" onClick={(e) => e.target === e.currentTarget && closeReviewModal()}>
+                        <div className="orders-review-modal">
+                            <div className="orders-review-header">
+                                <div>
+                                    <h3 className="orders-review-title">Write a Review</h3>
+                                    <p className="orders-review-subtitle">{reviewItem.name}</p>
+                                </div>
+                                <button type="button" onClick={closeReviewModal} className="orders-review-close">
+                                    <X className="w-4 h-4" />
+                                </button>
+                            </div>
+                            <form className="orders-review-form" onSubmit={handleSubmitReview}>
+                                <div className="orders-review-stars">
+                                    {[1, 2, 3, 4, 5].map((star) => (
+                                        <button
+                                            key={star}
+                                            type="button"
+                                            className={`orders-review-star ${reviewRating >= star ? 'is-active' : ''}`}
+                                            onClick={() => setReviewRating(star)}
+                                            aria-label={`Rate ${star} star${star > 1 ? 's' : ''}`}
+                                        >
+                                            <Star 
+                                                className="w-5 h-5" 
+                                                fill={reviewRating >= star ? 'currentColor' : 'none'} 
+                                            />
+                                        </button>
+                                    ))}
+                                    <span className="orders-review-score">
+                                        {reviewRating ? `${reviewRating}/5` : 'Tap to rate'}
+                                    </span>
+                                </div>
+
+                                <label className="orders-review-label">
+                                    Share your experience
+                                    <textarea
+                                        value={reviewComment}
+                                        onChange={(event) => setReviewComment(event.target.value)}
+                                        className="orders-review-textarea"
+                                        placeholder="Tell us what you loved (or what we can improve)"
+                                    />
+                                </label>
+
+                                <label className="orders-review-label">
+                                    Add photos (optional)
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={(event) => handleReviewImagesChange(event.target.files)}
+                                        className="orders-review-file"
+                                    />
+                                    <span className="orders-review-hint">Up to 5 images. JPG/PNG recommended.</span>
+                                    {reviewImages.length > 0 && (
+                                        <div className="orders-review-preview">
+                                            {reviewImages.map((file, index) => (
+                                                <span key={`${file.name}-${index}`} className="orders-review-preview-chip">
+                                                    {file.name}
+                                                </span>
+                                            ))}
+                                        </div>
+                                    )}
+
+                                    {reviewUploadProgress !== null && (
+                                        <div className="orders-review-progress-wrap">
+                                            <div className="orders-review-progress-bar">
+                                                <div 
+                                                    className="orders-review-progress-fill" 
+                                                    style={{ width: `${reviewUploadProgress}%` }}
+                                                />
+                                            </div>
+                                            <span className="orders-review-progress-text">
+                                                Uploading photos... {reviewUploadProgress}%
+                                            </span>
+                                        </div>
+                                    )}
+                                </label>
+
+                                {reviewError && <p className="orders-review-error">{reviewError}</p>}
+
+                                <div className="orders-review-actions">
+                                    <button type="button" className="orders-review-cancel" onClick={closeReviewModal}>
+                                        Cancel
+                                    </button>
+                                    <button type="submit" className="orders-review-submit" disabled={isSubmittingReview}>
+                                        {isSubmittingReview ? 'Submitting...' : 'Submit Review'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                )}
 
                 <Footer />
             </main>

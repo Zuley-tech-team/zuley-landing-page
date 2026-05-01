@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, Phone, ShieldCheck, CheckCircle } from 'lucide-react';
-import { Navbar } from '../components/common';
+import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { useAuth } from '../contexts/AuthContext';
 import { completeProfile } from '../api/auth';

@@ -77,6 +77,17 @@ export interface CustomerOrder {
         state: string;
         pincode: string;
     };
+    return_request?: {
+        type?: 'refund' | 'replace';
+        reason?: string;
+        note?: string;
+        status?: 'requested' | 'accepted' | 'rejected' | 'refunded' | 'replaced';
+        requested_at?: string;
+        decided_at?: string;
+        resolved_at?: string;
+        decision_note?: string;
+    };
+    reviewed_items?: string[];
     createdAt: string;
 }
 
@@ -162,4 +173,19 @@ export async function downloadMyInvoice(orderId: string): Promise<void> {
     a.click();
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
+}
+
+export async function submitReturnRequest(
+    orderId: string,
+    payload: { type: 'refund' | 'replace'; reason: string; note: string }
+): Promise<{ success: boolean; data: CustomerOrder }>
+{
+    const res = await fetch(`${BASE}/orders/${encodeURIComponent(orderId)}/return-request`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', ...authHeaders() },
+        credentials: 'include',
+        body: JSON.stringify(payload),
+    });
+
+    return handleResponse(res);
 }
