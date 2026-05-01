@@ -40,6 +40,15 @@ const adminSchema = new mongoose_1.default.Schema({
     last_login: {
         type: Date,
     },
+    notification_last_viewed: {
+        dashboard: { type: Date, default: Date.now },
+        products: { type: Date, default: Date.now },
+        orders: { type: Date, default: Date.now },
+        reviews: { type: Date, default: Date.now },
+        inventory: { type: Date, default: Date.now },
+        leads: { type: Date, default: Date.now },
+        coupons: { type: Date, default: Date.now },
+    },
 }, {
     timestamps: true,
 });

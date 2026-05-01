@@ -173,6 +173,7 @@ class InvoiceService {
     static generatePDF(invoice_1) {
         return __awaiter(this, arguments, void 0, function* (invoice, paymentMethod = 'online', orderNumber) {
             return new Promise((resolve, reject) => {
+                var _a, _b;
                 const doc = new pdfkit_1.default({ size: 'A4', margin: 50 });
                 const isCod = paymentMethod === 'cod';
                 const fileName = `${invoice.invoiceNumber}.pdf`;
@@ -261,6 +262,19 @@ class InvoiceService {
                     doc.text(`SGST:`, 350, position);
                     doc.text(`${formatInvoiceMoney(invoice.taxSummary.totalSGST)}`, 480, position);
                     position += 15;
+                }
+                const couponDiscount = ((_a = invoice.coupon) === null || _a === void 0 ? void 0 : _a.discount_amount) || 0;
+                if (couponDiscount > 0) {
+                    const subtotalBeforeDiscount = invoice.totalAmount + couponDiscount;
+                    doc.text(`Subtotal:`, 350, position);
+                    doc.text(`${formatInvoiceMoney(subtotalBeforeDiscount)}`, 480, position);
+                    position += 15;
+                    const couponLabel = `Coupon Discount (${((_b = invoice.coupon) === null || _b === void 0 ? void 0 : _b.code) || ""}):`;
+                    const labelWidth = 125;
+                    doc.text(couponLabel, 350, position, { width: labelWidth });
+                    doc.text(`- ${formatInvoiceMoney(couponDiscount)}`, 480, position);
+                    const labelHeight = doc.heightOfString(couponLabel, { width: labelWidth });
+                    position += Math.max(15, labelHeight + 2);
                 }
                 doc.moveTo(350, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
                 position += 15;
@@ -354,6 +368,7 @@ class InvoiceService {
     }
     static createInvoice(order, customer) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             // 1. Generate Invoice Number
             const invoiceNumber = yield this.generateInvoiceNumber();
             // 2. Determine State Code
@@ -361,6 +376,8 @@ class InvoiceService {
             const customerStateCode = this.getStateCode(customerState);
             // 3. Calculate Tax
             const { processedItems, taxSummary, totalAmount } = this.calculateTax(order.items, customerStateCode);
+            const orderTotal = order.total_amount ? order.total_amount / 100 : totalAmount;
+            const couponDiscount = ((_a = order.coupon) === null || _a === void 0 ? void 0 : _a.discount_amount) ? order.coupon.discount_amount / 100 : 0;
             // 3. Prepare Invoice Data
             const invoiceData = {
                 invoiceNumber,
@@ -377,8 +394,17 @@ class InvoiceService {
                 },
                 items: processedItems,
                 taxSummary,
-                totalAmount,
-                amountInWords: this.numberToWords(totalAmount),
+                coupon: order.coupon
+                    ? {
+                        code: order.coupon.code,
+                        name: order.coupon.name,
+                        discount_type: order.coupon.discount_type,
+                        discount_value: order.coupon.discount_value,
+                        discount_amount: couponDiscount,
+                    }
+                    : undefined,
+                totalAmount: orderTotal,
+                amountInWords: this.numberToWords(orderTotal),
                 status: 'generated',
                 pdfPath: '' // Will update after generation
             };

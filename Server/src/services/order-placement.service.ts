@@ -6,6 +6,8 @@ import { Product } from "../models/product.model";
 import { reserveStock, restoreStock } from "../modules/inventory/inventory.service";
 import { generateOrderId } from "../utils/orderIdGenerator";
 import { InvoiceService } from "./invoice.service";
+import { Coupon } from "../models/coupon.model";
+import { findCouponByCode, validateCoupon } from "./coupon.service";
 
 type CheckoutItemInput = {
   sku: string;
@@ -32,6 +34,7 @@ export type CodOrderInput = {
   items: CheckoutItemInput[];
   customer: CustomerInput;
   shipping_address: ShippingAddressInput;
+  coupon_code?: string;
 };
 
 const normalizePhone = (phone: string) => {
@@ -116,6 +119,43 @@ export const createCodOrder = async (input: CodOrderInput) => {
     const orderId = await generateOrderId();
     const phone = normalizePhone(input.customer.phone);
 
+    let appliedCoupon: any = null;
+    let discountAmount = 0;
+    let couponDoc: any = null;
+
+    if (input.coupon_code?.trim()) {
+      couponDoc = await findCouponByCode(input.coupon_code);
+
+      if (!couponDoc) {
+        throw new Error("Invalid coupon code");
+      }
+
+      const couponItems = orderItems.map((item) => ({
+        sku: item.sku,
+        quantity: item.quantity,
+        unitPrice: item.price,
+      }));
+
+      const validation = validateCoupon(couponDoc, couponItems, totalAmount);
+      if (!validation.isValid) {
+        throw new Error(validation.reason || "Coupon cannot be applied");
+      }
+
+      discountAmount = validation.discountAmount;
+      appliedCoupon = {
+        code: couponDoc.code,
+        name: couponDoc.name,
+        discount_type: couponDoc.discount_type,
+        discount_value: couponDoc.discount_value,
+        discount_amount: discountAmount,
+        min_order_value: couponDoc.min_order_value,
+        max_discount: couponDoc.max_discount,
+        applies_to_all: couponDoc.applies_to_all,
+      };
+    }
+
+    const finalTotalAmount = Math.max(totalAmount - discountAmount, 0);
+
     const customerDoc = await Customer.create({
       full_name: input.customer.name.trim(),
       email: input.customer.email.trim().toLowerCase(),
@@ -130,7 +170,7 @@ export const createCodOrder = async (input: CodOrderInput) => {
     const payment = await Payment.create({
       gateway_payment_id: `cod_${orderId}`,
       gateway_order_id: orderId,
-      amount: totalAmount,
+      amount: finalTotalAmount,
       currency: "INR",
       status: "cod_pending",
       method: "cash_on_delivery",
@@ -150,7 +190,8 @@ export const createCodOrder = async (input: CodOrderInput) => {
         customer_id: customerDoc._id,
       },
       items: orderItems,
-      total_amount: totalAmount,
+      total_amount: finalTotalAmount,
+      coupon: appliedCoupon || undefined,
       items_count: itemsCount,
       status: "created",
       payment_method: "cod",
@@ -186,6 +227,10 @@ export const createCodOrder = async (input: CodOrderInput) => {
       await invoice.save();
     } catch (invoiceError) {
       console.error("Invoice/email generation failed for COD order", order.order_id, invoiceError);
+    }
+
+    if (couponDoc?._id) {
+      await Coupon.findByIdAndUpdate(couponDoc._id, { $inc: { usage_count: 1 } });
     }
 
     return {

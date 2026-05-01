@@ -54,6 +54,10 @@ router.post("/logout", authController.logout);
 // Protected Routes
 router.use(admin_middleware_1.authenticateAdmin);
 router.get("/me", authController.getMe);
+// Notification Routes
+const notificationController = __importStar(require("./notification.controller"));
+router.get("/notifications/counts", notificationController.getNotificationCounts);
+router.post("/notifications/mark-read", notificationController.markAsRead);
 // Dashboard Stats
 const productsController = __importStar(require("./products.controller"));
 router.get("/dashboard/stats", productsController.getDashboardStats);
@@ -102,4 +106,9 @@ const reviewController = __importStar(require("./review.controller"));
 router.get("/reviews", reviewController.getReviews);
 router.patch("/reviews/:id/approve", reviewController.approveReview);
 router.patch("/reviews/:id/reject", reviewController.rejectReview);
+// Coupon Routes
+const couponsController = __importStar(require("./coupons.controller"));
+router.get("/coupons", couponsController.getCoupons);
+router.post("/coupons", couponsController.createCoupon);
+router.put("/coupons/:id", couponsController.updateCoupon);
 exports.default = router;

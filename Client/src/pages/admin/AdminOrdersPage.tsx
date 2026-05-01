@@ -68,6 +68,11 @@ interface OrderBase {
         totalAmount: number;
         status: string;
     } | null;
+    coupon?: {
+        code?: string;
+        name?: string;
+        discount_amount?: number;
+    };
 }
 
 interface Order extends OrderBase {
@@ -753,11 +758,17 @@ function OrderDetailModal({
 	                            <h3 className="font-heading font-semibold text-gray-900 mb-3">
 	                                Payment
 	                            </h3>
-	                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                                     <p><span className="text-gray-500">Method:</span> {primaryOrder.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}</p>
                                     <p><span className="text-gray-500">Status:</span> {primaryOrder.payment_status || primaryOrder.status}</p>
                                     <p><span className="text-gray-500">Invoice:</span> {primaryOrder.invoice?.invoiceNumber || 'Generated on download'}</p>
 	                            </div>
+                                {primaryOrder.coupon?.code && (
+                                    <div className="mt-2 text-sm text-gray-700">
+                                        <span className="text-gray-500">Coupon:</span> {primaryOrder.coupon.code}
+                                        {primaryOrder.coupon.discount_amount ? ` (-${formatPrice(primaryOrder.coupon.discount_amount)})` : ''}
+                                    </div>
+                                )}
                                     {primaryOrder.payment_method === 'cod' && primaryOrder.payment_status === 'cod_pending' && primaryOrder.status !== 'cancelled' && (
                                     <div className="mt-3">
                                         <button

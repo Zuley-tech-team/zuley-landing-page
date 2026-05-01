@@ -25,6 +25,7 @@
   /* ---------------- TYPOGRAPHY ---------------- */
   --font-heading: "Playfair Display", serif;
   --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", "Fira Code", ui-monospace, monospace;
 
   --font-size-xs: 0.75rem;
   --font-size-sm: 0.875rem;
@@ -59,6 +60,13 @@
 
   /* ---------------- LETTER SPACING ---------------- */
   --tracking-luxury: 0.15em;
+}
+
+.coupon-code {
+  font-family: var(--font-mono);
+  letter-spacing: 0.05em;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 body.modal-open {

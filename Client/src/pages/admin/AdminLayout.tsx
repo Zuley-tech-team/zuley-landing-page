@@ -7,26 +7,50 @@ import {
     Star,
     Warehouse,
     Inbox,
+    TicketPercent,
     LogOut,
     Menu,
     X,
     Loader2
 } from 'lucide-react';
+import { adminAPI } from '../../api/admin';
 import { useEffect, useState } from 'react';
 
 const navItems = [
-    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-    { to: '/admin/products', icon: Package, label: 'Products' },
-    { to: '/admin/orders', icon: ShoppingCart, label: 'Orders' },
-    { to: '/admin/reviews', icon: Star, label: 'Reviews' },
-    { to: '/admin/inventory', icon: Warehouse, label: 'Inventory' },
-    { to: '/admin/leads', icon: Inbox, label: 'Leads' },
+    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', category: 'dashboard', end: true },
+    { to: '/admin/products', icon: Package, label: 'Products', category: 'products' },
+    { to: '/admin/orders', icon: ShoppingCart, label: 'Orders', category: 'orders' },
+    { to: '/admin/reviews', icon: Star, label: 'Reviews', category: 'reviews' },
+    { to: '/admin/inventory', icon: Warehouse, label: 'Inventory', category: 'inventory' },
+    { to: '/admin/leads', icon: Inbox, label: 'Leads', category: 'leads' },
+    { to: '/admin/coupons', icon: TicketPercent, label: 'Coupons Manage', category: 'coupons' },
 ];
 
 export function AdminLayout() {
     const { admin, logout, isLoading } = useAdmin();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState<Record<string, number>>({});
+
+    const loadNotifications = async () => {
+        try {
+            const res = await adminAPI.getNotificationCounts();
+            if (res.success) {
+                setNotifications(res.data as any);
+            }
+        } catch (error) {
+            console.error('Failed to load notifications:', error);
+        }
+    };
+
+    useEffect(() => {
+        if (admin) {
+            loadNotifications();
+            // Poll every 30 seconds
+            const interval = setInterval(loadNotifications, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [admin]);
 
     useEffect(() => {
         const favicon = document.querySelector('link[rel="icon"]') as HTMLLinkElement | null;
@@ -44,6 +68,28 @@ export function AdminLayout() {
             }
         };
     }, []);
+
+    const handleNavClick = async (category: string) => {
+        setSidebarOpen(false);
+        try {
+            if (notifications[category] > 0) {
+                await adminAPI.markNotificationRead(category);
+                setNotifications(prev => ({ ...prev, [category]: 0 }));
+            }
+        } catch (error) {
+            console.error('Failed to mark notification as read:', error);
+        }
+    };
+
+    useEffect(() => {
+        const currentPath = window.location.pathname;
+        const activeItem = navItems.find(item => 
+            item.to === currentPath || (item.to !== '/admin' && currentPath.startsWith(item.to))
+        );
+        if (activeItem && notifications[activeItem.category] > 0) {
+            handleNavClick(activeItem.category);
+        }
+    }, [window.location.pathname, notifications]);
 
     const handleLogout = async () => {
         await logout();
@@ -90,17 +136,24 @@ export function AdminLayout() {
                             key={item.to}
                             to={item.to}
                             end={item.end}
-                            onClick={() => setSidebarOpen(false)}
+                            onClick={() => handleNavClick(item.category)}
                             className={({ isActive }) =>
-                                `flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                                `flex items-center justify-between px-4 py-3 rounded-lg transition-colors ${
                                     isActive
                                         ? 'bg-white/20 text-white'
                                         : 'text-white/70 hover:bg-white/10 hover:text-white'
                                 }`
                             }
                         >
-                            <item.icon className="w-5 h-5" />
-                            <span className="font-body">{item.label}</span>
+                            <div className="flex items-center gap-3">
+                                <item.icon className="w-5 h-5" />
+                                <span className="font-body">{item.label}</span>
+                            </div>
+                            {notifications[item.category] > 0 && (
+                                <span className="flex h-5 min-w-[20px] items-center justify-center rounded-full border border-error bg-error/10 px-1 text-[10px] font-bold text-error">
+                                    {notifications[item.category]}
+                                </span>
+                            )}
                         </NavLink>
                     ))}
                 </nav>

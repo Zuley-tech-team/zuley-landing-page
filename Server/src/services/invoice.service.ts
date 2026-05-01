@@ -291,6 +291,23 @@ export class InvoiceService {
                 position += 15;
             }
 
+            const couponDiscount = invoice.coupon?.discount_amount || 0;
+
+            if (couponDiscount > 0) {
+                const subtotalBeforeDiscount = invoice.totalAmount + couponDiscount;
+                doc.text(`Subtotal:`, 350, position);
+                doc.text(`${formatInvoiceMoney(subtotalBeforeDiscount)}`, 480, position);
+                position += 15;
+
+                const couponLabel = `Coupon Discount (${invoice.coupon?.code || ""}):`;
+                const labelWidth = 125;
+                doc.text(couponLabel, 350, position, { width: labelWidth });
+                doc.text(`- ${formatInvoiceMoney(couponDiscount)}`, 480, position);
+                
+                const labelHeight = doc.heightOfString(couponLabel, { width: labelWidth });
+                position += Math.max(15, labelHeight + 2);
+            }
+
             doc.moveTo(350, position + 5).lineTo(550, position + 5).strokeColor('#E5E7EB').stroke();
             position += 15;
 
@@ -412,6 +429,8 @@ export class InvoiceService {
 
         // 3. Calculate Tax
         const { processedItems, taxSummary, totalAmount } = this.calculateTax(order.items, customerStateCode);
+        const orderTotal = order.total_amount ? order.total_amount / 100 : totalAmount;
+        const couponDiscount = order.coupon?.discount_amount ? order.coupon.discount_amount / 100 : 0;
 
         // 3. Prepare Invoice Data
         const invoiceData: Partial<IInvoice> = {
@@ -429,8 +448,17 @@ export class InvoiceService {
             },
             items: processedItems,
             taxSummary,
-            totalAmount,
-            amountInWords: this.numberToWords(totalAmount),
+            coupon: order.coupon
+                ? {
+                    code: order.coupon.code,
+                    name: order.coupon.name,
+                    discount_type: order.coupon.discount_type,
+                    discount_value: order.coupon.discount_value,
+                    discount_amount: couponDiscount,
+                }
+                : undefined,
+            totalAmount: orderTotal,
+            amountInWords: this.numberToWords(orderTotal),
             status: 'generated',
             pdfPath: '' // Will update after generation
         };

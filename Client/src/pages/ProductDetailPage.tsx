@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { CheckoutModal } from '../components/checkout/CheckoutModal';
 import { fetchProductBySku, fetchRelatedProducts, type Product } from '../api/products';
 import { fetchReviews, type ReviewItem } from '../api/reviews';
+import { fetchAvailableCoupons, type PublicCoupon } from '../api/coupons';
 import { ChevronRight, ChevronLeft, Check, ShoppingCart, ArrowLeft, Loader2, Star, X, RotateCcw, Award, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { useStockStatus } from '../hooks/useStockStatus';
@@ -28,6 +29,8 @@ export function ProductDetailPage() {
     const [reviewIndex, setReviewIndex] = useState(0);
     const [isReviewAutoPlaying, setIsReviewAutoPlaying] = useState(true);
     const [reviewLightboxImage, setReviewLightboxImage] = useState<string | null>(null);
+    const [availableCoupons, setAvailableCoupons] = useState<PublicCoupon[]>([]);
+    const [showAllCoupons, setShowAllCoupons] = useState(false);
     const { inStock, lowStock } = useStockStatus(product?.sku || '');
     const { showToast } = useToast();
     const { addToCart } = useCart();
@@ -153,6 +156,26 @@ export function ProductDetailPage() {
         };
 
         loadReviews();
+
+        return () => {
+            active = false;
+        };
+    }, [product?.sku]);
+
+    useEffect(() => {
+        if (!product?.sku) {
+            setAvailableCoupons([]);
+            return;
+        }
+
+        let active = true;
+        fetchAvailableCoupons([product.sku])
+            .then((data) => {
+                if (active) setAvailableCoupons(data);
+            })
+            .catch(() => {
+                if (active) setAvailableCoupons([]);
+            });
 
         return () => {
             active = false;
@@ -444,20 +467,44 @@ export function ProductDetailPage() {
                                     </div>
                                 </div>
 
-                                {/* Features */}
-                                {product.features && product.features.length > 0 && (
-                                    <div className="space-y-3">
-                                        <h3 className="font-heading text-lg font-semibold text-charcoal">
-                                            Key Features
+                                {availableCoupons.length > 0 && (
+                                    <div className="rounded-2xl border border-charcoal/10 bg-white/90 p-4">
+                                        <h3 className="font-heading text-sm font-semibold text-charcoal mb-3">
+                                            Available Offers
                                         </h3>
-                                        <ul className="space-y-2">
-                                            {product.features.map((feature, index) => (
-                                                <li key={index} className="flex items-start gap-3">
-                                                    <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
-                                                    <span className="font-body text-charcoal/70">{feature}</span>
-                                                </li>
+                                        <div className="space-y-3">
+                                            {(showAllCoupons ? availableCoupons : availableCoupons.slice(0, 1)).map((coupon) => (
+                                                <div key={coupon.id} className="flex items-start justify-between gap-3 rounded-xl border border-charcoal/10 bg-pearl/70 p-3">
+                                                    <div>
+                                                        <p className="coupon-code text-sm text-charcoal">
+                                                            {coupon.code}
+                                                        </p>
+                                                        <p className="font-body text-xs text-charcoal/60">
+                                                            {coupon.discount_type === 'percentage'
+                                                                ? `${coupon.discount_value}% off`
+                                                                : `₹${Math.round(coupon.discount_value / 100)} off`}
+                                                            {coupon.min_order_value ? ` on orders above ₹${Math.round(coupon.min_order_value / 100)}` : ''}
+                                                        </p>
+                                                        {coupon.description && (
+                                                            <p className="font-body text-xs text-charcoal/50 mt-1">
+                                                                {coupon.description}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <span className="px-2 py-1 rounded-full bg-charcoal text-pearl text-[10px] font-semibold tracking-wide">
+                                                        APPLY
+                                                    </span>
+                                                </div>
                                             ))}
-                                        </ul>
+                                        </div>
+                                        {availableCoupons.length > 1 && (
+                                            <button
+                                                onClick={() => setShowAllCoupons(!showAllCoupons)}
+                                                className="w-full mt-3 py-2 text-xs font-semibold text-charcoal/60 hover:text-charcoal border-t border-charcoal/5 transition-colors"
+                                            >
+                                                {showAllCoupons ? 'Show Less' : `+ ${availableCoupons.length - 1} more offer${availableCoupons.length > 2 ? 's' : ''} available`}
+                                            </button>
+                                        )}
                                     </div>
                                 )}
 
@@ -487,6 +534,23 @@ export function ProductDetailPage() {
                                         {inStock ? 'Buy Now' : 'Out of Stock'}
                                     </Button>
                                 </div>
+
+                                {/* Features */}
+                                {product.features && product.features.length > 0 && (
+                                    <div className="space-y-3">
+                                        <h3 className="font-heading text-lg font-semibold text-charcoal">
+                                            Key Features
+                                        </h3>
+                                        <ul className="space-y-2">
+                                            {product.features.map((feature, index) => (
+                                                <li key={index} className="flex items-start gap-3">
+                                                    <Check className="w-5 h-5 text-success flex-shrink-0 mt-0.5" />
+                                                    <span className="font-body text-charcoal/70">{feature}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
 
                             </div>

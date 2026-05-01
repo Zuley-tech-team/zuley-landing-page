@@ -118,6 +118,32 @@ class AdminAPI {
         });
     }
 
+    // Coupons
+    async getCoupons(params?: { page?: number; limit?: number; search?: string; status?: string }) {
+        const searchParams = new URLSearchParams();
+        if (params?.page) searchParams.set('page', String(params.page));
+        if (params?.limit) searchParams.set('limit', String(params.limit));
+        if (params?.search) searchParams.set('search', params.search);
+        if (params?.status) searchParams.set('status', params.status);
+
+        const query = searchParams.toString();
+        return this.request<{ success: boolean; data: any[]; pagination: Pagination }>(`/coupons${query ? `?${query}` : ''}`);
+    }
+
+    async createCoupon(payload: any) {
+        return this.request<{ success: boolean; data: any }>('/coupons', {
+            method: 'POST',
+            body: JSON.stringify(payload),
+        });
+    }
+
+    async updateCoupon(id: string, payload: any) {
+        return this.request<{ success: boolean; data: any }>(`/coupons/${id}`, {
+            method: 'PUT',
+            body: JSON.stringify(payload),
+        });
+    }
+
     // Orders
     async getOrders(params?: { page?: number; limit?: number; search?: string; status?: string }) {
         const searchParams = new URLSearchParams();
@@ -363,6 +389,18 @@ class AdminAPI {
     async getUserDetails(id: string) {
         return this.request<{ success: boolean; data: any }>(`/users/${id}`);
     }
+
+    // Notifications
+    async getNotificationCounts() {
+        return this.request<{ success: boolean; data: NotificationCounts }>('/notifications/counts');
+    }
+
+    async markNotificationRead(category: string) {
+        return this.request<{ success: boolean }>('/notifications/mark-read', {
+            method: 'POST',
+            body: JSON.stringify({ category }),
+        });
+    }
 }
 
 export interface DashboardStats {
@@ -377,6 +415,16 @@ export interface Pagination {
     current: number;
     total: number;
     count: number;
+}
+
+export interface NotificationCounts {
+    dashboard: number;
+    products: number;
+    orders: number;
+    reviews: number;
+    inventory: number;
+    leads: number;
+    coupons: number;
 }
 
 export const adminAPI = new AdminAPI();

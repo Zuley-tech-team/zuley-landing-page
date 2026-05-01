@@ -59,6 +59,22 @@
   background: transparent;
 }
 
+/* ─── Sticky Sections ─── */
+.checkout-sticky-top {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background-color: #fff;
+}
+
+.checkout-sticky-bottom {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  background-color: #fff;
+  border-top: 1px solid rgba(28, 30, 35, 0.08);
+}
+
 .checkout-form-body::-webkit-scrollbar-thumb {
   background: rgba(28, 30, 35, 0.15);
   border-radius: 999px;
@@ -206,6 +222,42 @@
   color: #ffffff;
 }
 
+/* ─── Summary Card (Review Step) ─── */
+.checkout-summary-card {
+  padding: 1.25rem;
+  background-color: #f9fafb;
+  border: 1px solid rgba(28, 30, 35, 0.08);
+  border-radius: 1rem;
+}
+
+/* ─── Payment Method Selection ─── */
+.checkout-payment-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  padding: 1rem;
+  border-radius: 0.875rem;
+  border: 2px solid transparent;
+  text-align: left;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.checkout-payment-btn.active {
+  border-color: #1c1e23;
+  background-color: #1c1e23;
+  color: #fff;
+}
+
+.checkout-payment-btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: rgba(28, 30, 35, 0.1);
+  background-color: transparent;
+  color: rgba(28, 30, 35, 0.4);
+}
+
 /* ─── Select styling (to match inputs) ─── */
 .checkout-input option {
   color: #1c1e23;
@@ -227,5 +279,20 @@
   }
   to {
     transform: translateX(0);
+  }
+}
+
+.checkout-step-transition {
+  animation: checkout-step-fade 0.3s ease-out;
+}
+
+@keyframes checkout-step-fade {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

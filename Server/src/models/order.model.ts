@@ -34,6 +34,16 @@ const orderSchema = new mongoose.Schema(
       required: true,
       description: "Total amount in paise",
     },
+    coupon: {
+      code: { type: String },
+      name: { type: String },
+      discount_type: { type: String, enum: ["percentage", "flat"] },
+      discount_value: { type: Number },
+      discount_amount: { type: Number, default: 0 },
+      min_order_value: { type: Number },
+      max_discount: { type: Number },
+      applies_to_all: { type: Boolean },
+    },
     items_count: {
       type: Number,
       required: true,

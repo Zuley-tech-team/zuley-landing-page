@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Truck, CreditCard, Loader2, AlertCircle, Minus, Plus } from 'lucide-react';
+import { X, Truck, CreditCard, Loader2, AlertCircle, Minus, Plus, ArrowLeft, Tag } from 'lucide-react';
 import { Button } from '../common';
 import type { Product } from '../../api/products';
 import type { CustomerInfo, ShippingAddress } from '../../hooks/useRazorpay';
 import { useAuth } from '../../contexts/AuthContext';
 import { completeProfile } from '../../api/auth';
 import { placeCodOrder } from '../../api/orders';
+import { fetchAvailableCoupons, validateCouponCode, type PublicCoupon, type CouponValidationResult } from '../../api/coupons';
 import './CheckoutModal.css';
 
 const PHONE_MODEL_OPTIONS = [
@@ -78,6 +79,13 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const [variantSelections, setVariantSelections] = useState<Record<string, string>>({});
     const [checkoutItems, setCheckoutItems] = useState<CheckoutItem[]>(items);
     const [removeCandidate, setRemoveCandidate] = useState<RemoveCandidate | null>(null);
+    const [step, setStep] = useState<'details' | 'payment'>('details');
+    const [availableCoupons, setAvailableCoupons] = useState<PublicCoupon[]>([]);
+    const [showAllCoupons, setShowAllCoupons] = useState(false);
+    const [couponCode, setCouponCode] = useState('');
+    const [couponError, setCouponError] = useState<string | null>(null);
+    const [appliedCoupon, setAppliedCoupon] = useState<CouponValidationResult | null>(null);
+    const [isValidatingCoupon, setIsValidatingCoupon] = useState(false);
 
     // Validation
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -114,6 +122,11 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             setIsPincodeLookupLoading(false);
             setCheckoutItems(items);
             setRemoveCandidate(null);
+            setStep('details');
+            setAvailableCoupons([]);
+            setCouponCode('');
+            setCouponError(null);
+            setAppliedCoupon(null);
             setVariantSelections(
                 items.reduce<Record<string, string>>((acc, item) => {
                     if (isPhoneCoverProduct(item.product)) {
@@ -190,6 +203,53 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             maximumFractionDigits: 0,
         }).format(price);
 
+    const loadAvailableCoupons = async () => {
+        try {
+            const skus = checkoutItems.map((item) => item.product.sku);
+            const coupons = await fetchAvailableCoupons(skus);
+            setAvailableCoupons(coupons);
+        } catch (error) {
+            setAvailableCoupons([]);
+        }
+    };
+
+    const handleProceed = () => {
+        if (!validateForm()) return;
+        setStep('payment');
+    };
+
+    const applyCoupon = async (code: string) => {
+        const trimmedCode = code.trim().toUpperCase();
+        if (!trimmedCode) return;
+
+        setIsValidatingCoupon(true);
+        setCouponError(null);
+
+        try {
+            const result = await validateCouponCode({
+                code: trimmedCode,
+                items: checkoutItems.map((item) => ({
+                    sku: item.product.sku,
+                    quantity: item.quantity,
+                })),
+            });
+
+            setAppliedCoupon(result);
+            setCouponCode(result.code);
+        } catch (error: any) {
+            setAppliedCoupon(null);
+            setCouponError(error.message || 'Unable to apply coupon');
+        } finally {
+            setIsValidatingCoupon(false);
+        }
+    };
+
+    const clearCoupon = () => {
+        setAppliedCoupon(null);
+        setCouponCode('');
+        setCouponError(null);
+    };
+
     const validateForm = (): boolean => {
         const errors: Record<string, string> = {};
 
@@ -258,8 +318,29 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
         }
     }, [checkoutItems.length, isOpen, onClose]);
 
+    useEffect(() => {
+        if (!isOpen || step !== 'payment') {
+            return;
+        }
+        loadAvailableCoupons();
+    }, [isOpen, step, checkoutItems.length]);
+
+    useEffect(() => {
+        if (!isOpen) return;
+        setAppliedCoupon(null);
+        setCouponCode('');
+        setCouponError(null);
+    }, [checkoutItems.length, isOpen]);
+
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+        
+        if (step === 'details') {
+            handleProceed();
+            return;
+        }
+
+        if (isPlacingCodOrder) return;
         if (!validateForm()) return;
 
         const customerInfo: CustomerInfo = { name: name.trim(), email: email.trim(), phone: phone.trim() };
@@ -286,6 +367,7 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     ...shippingAddress,
                     country: 'India',
                 },
+                coupon_code: appliedCoupon?.code || undefined,
             });
 
             if (user && (!user.name || !user.phone)) {
@@ -335,15 +417,34 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     if (!isOpen || checkoutItems.length === 0) return null;
 
     const totalPrice = checkoutItems.reduce((acc, curr) => acc + curr.product.price * curr.quantity, 0);
+    const discountValue = appliedCoupon ? appliedCoupon.discount_amount / 100 : 0;
+    const totalAfterDiscount = appliedCoupon ? appliedCoupon.total / 100 : totalPrice;
 
     return (
         <div className="checkout-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
             <div className="checkout-modal" ref={modalRef}>
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-charcoal/10">
-                    <h2 className="font-heading text-xl font-bold text-charcoal">
-                        Checkout
-                    </h2>
+                    <div className="flex items-center gap-3">
+                        {step === 'payment' && (
+                            <button
+                                type="button"
+                                onClick={() => setStep('details')}
+                                className="p-2 rounded-lg hover:bg-charcoal/5 transition-colors"
+                                aria-label="Back to details"
+                            >
+                                <ArrowLeft className="w-5 h-5 text-charcoal/70" />
+                            </button>
+                        )}
+                        <div>
+                            <h2 className="font-heading text-xl font-bold text-charcoal">
+                                {step === 'payment' ? 'Review & Pay' : 'Checkout'}
+                            </h2>
+                            {step === 'payment' && (
+                                <p className="font-body text-xs text-charcoal/50">Apply coupons and confirm payment</p>
+                            )}
+                        </div>
+                    </div>
                     <button
                         onClick={onClose}
                         className="p-2 rounded-lg hover:bg-charcoal/5 transition-colors cursor-pointer"
@@ -354,88 +455,96 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                 </div>
 
                 {/* ─── Checkout Form ─── */}
-                <form onSubmit={handleSubmit} className="checkout-form-body">
+                <form onSubmit={handleSubmit} className={`checkout-form-body ${step === 'payment' ? 'checkout-step-transition' : ''}`}>
                     {/* Order Summary */}
-                    <div className="px-6 py-4 bg-pearl/80 border-b border-charcoal/10">
+                    <div className={`px-6 py-4 bg-pearl/80 border-b border-charcoal/10 ${step === 'payment' ? 'py-3' : 'py-4'}`}>
                         <div className="flex flex-col gap-4">
                             {checkoutItems.map((item) => (
                                 <div key={item.product.sku} className="flex gap-4">
-                                    <div className="w-16 h-16 rounded-xl bg-white border border-charcoal/10 overflow-hidden flex-shrink-0">
+                                    <div className={`${step === 'payment' ? 'w-12 h-12' : 'w-16 h-16'} rounded-xl bg-white border border-charcoal/10 overflow-hidden flex-shrink-0 transition-all`}>
                                         <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                                     </div>
-                                    <div className="flex-1 min-w-0 space-y-2">
-                                        <h3 className="font-heading font-semibold text-charcoal truncate">{item.product.name}</h3>
+                                    <div className="flex-1 min-w-0 space-y-1">
+                                        <h3 className={`font-heading font-semibold text-charcoal truncate ${step === 'payment' ? 'text-sm' : ''}`}>{item.product.name}</h3>
                                         <div className="flex items-center justify-between gap-3">
                                             <p className="font-body text-sm text-charcoal/60">Qty: {item.quantity}</p>
-                                            <div className="flex items-center gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        if (item.quantity <= 1) {
-                                                            handleRemoveItem(item.product.sku, item.product.name);
-                                                            return;
-                                                        }
+                                            {step === 'details' && (
+                                                <div className="flex items-center gap-2">
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (item.quantity <= 1) {
+                                                                handleRemoveItem(item.product.sku, item.product.name);
+                                                                return;
+                                                            }
 
-                                                        handleQuantityChange(item.product.sku, item.quantity - 1);
-                                                    }}
-                                                    className="checkout-qty-btn"
-                                                    aria-label={`Decrease quantity for ${item.product.name}`}
-                                                >
-                                                    <Minus className="w-3.5 h-3.5" />
-                                                </button>
-                                                <span className="checkout-qty-value">{item.quantity}</span>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleQuantityChange(item.product.sku, item.quantity + 1)}
-                                                    className="checkout-qty-btn"
-                                                    aria-label={`Increase quantity for ${item.product.name}`}
-                                                >
-                                                    <Plus className="w-3.5 h-3.5" />
-                                                </button>
-                                            </div>
+                                                            handleQuantityChange(item.product.sku, item.quantity - 1);
+                                                        }}
+                                                        className="checkout-qty-btn"
+                                                        aria-label={`Decrease quantity for ${item.product.name}`}
+                                                    >
+                                                        <Minus className="w-3.5 h-3.5" />
+                                                    </button>
+                                                    <span className="checkout-qty-value">{item.quantity}</span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => handleQuantityChange(item.product.sku, item.quantity + 1)}
+                                                        className="checkout-qty-btn"
+                                                        aria-label={`Increase quantity for ${item.product.name}`}
+                                                    >
+                                                        <Plus className="w-3.5 h-3.5" />
+                                                    </button>
+                                                </div>
+                                            )}
                                         </div>
                                         {isPhoneCoverProduct(item.product) && (
                                             <div>
-                                                <select
-                                                    value={variantSelections[item.product.sku] || ''}
-                                                    onChange={(event) => {
-                                                        const value = event.target.value;
-                                                        setVariantSelections((prev) => ({
-                                                            ...prev,
-                                                            [item.product.sku]: value,
-                                                        }));
-                                                        setFormErrors((prev) => {
-                                                            const next = { ...prev };
-                                                            delete next[`variant_${item.product.sku}`];
-                                                            return next;
-                                                        });
-                                                    }}
-                                                    className={`checkout-input ${formErrors[`variant_${item.product.sku}`] ? 'checkout-input-error' : ''}`}
-                                                    id={`checkout-variant-${item.product.sku}`}
-                                                >
-                                                    <option value="">Select phone model *</option>
-                                                    {PHONE_MODEL_OPTIONS.map(({ company, models }) => (
-                                                        <optgroup key={company} label={company}>
-                                                            {models.map((model) => {
-                                                                const optionValue = `${company} ${model}`;
+                                                {step === 'payment' ? (
+                                                    <p className="text-xs text-charcoal/50">Model: {variantSelections[item.product.sku]}</p>
+                                                ) : (
+                                                    <>
+                                                        <select
+                                                            value={variantSelections[item.product.sku] || ''}
+                                                            onChange={(event) => {
+                                                                const value = event.target.value;
+                                                                setVariantSelections((prev) => ({
+                                                                    ...prev,
+                                                                    [item.product.sku]: value,
+                                                                }));
+                                                                setFormErrors((prev) => {
+                                                                    const next = { ...prev };
+                                                                    delete next[`variant_${item.product.sku}`];
+                                                                    return next;
+                                                                });
+                                                            }}
+                                                            className={`checkout-input ${formErrors[`variant_${item.product.sku}`] ? 'checkout-input-error' : ''}`}
+                                                            id={`checkout-variant-${item.product.sku}`}
+                                                        >
+                                                            <option value="">Select phone model *</option>
+                                                            {PHONE_MODEL_OPTIONS.map(({ company, models }) => (
+                                                                <optgroup key={company} label={company}>
+                                                                    {models.map((model) => {
+                                                                        const optionValue = `${company} ${model}`;
 
-                                                                return (
-                                                                    <option key={optionValue} value={optionValue}>
-                                                                        {optionValue}
-                                                                    </option>
-                                                                );
-                                                            })}
-                                                        </optgroup>
-                                                    ))}
-                                                </select>
-                                                {formErrors[`variant_${item.product.sku}`] && (
-                                                    <p className="checkout-field-error">{formErrors[`variant_${item.product.sku}`]}</p>
+                                                                        return (
+                                                                            <option key={optionValue} value={optionValue}>
+                                                                                {optionValue}
+                                                                            </option>
+                                                                        );
+                                                                    })}
+                                                                </optgroup>
+                                                            ))}
+                                                        </select>
+                                                        {formErrors[`variant_${item.product.sku}`] && (
+                                                            <p className="checkout-field-error">{formErrors[`variant_${item.product.sku}`]}</p>
+                                                        )}
+                                                    </>
                                                 )}
                                             </div>
                                         )}
                                     </div>
                                     <div className="text-right">
-                                        <p className="font-heading font-semibold text-charcoal">{formatPrice(item.product.price * item.quantity)}</p>
+                                        <p className={`font-heading font-semibold text-charcoal ${step === 'payment' ? 'text-sm' : ''}`}>{formatPrice(item.product.price * item.quantity)}</p>
                                     </div>
                                 </div>
                             ))}
@@ -452,160 +561,322 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                             </div>
                         )}
 
-                        {/* Customer Info */}
-                        <fieldset className="space-y-3">
-                            <legend className="flex items-center gap-2 font-heading text-sm font-semibold text-charcoal mb-1">
-                                <CreditCard className="w-4 h-4 text-charcoal/50" />
-                                Customer Details
-                            </legend>
+                        {/* Customer & Shipping Info */}
+                        {step === 'details' ? (
+                            <>
+                                {/* Customer Info */}
+                                <fieldset className="space-y-3">
+                                    <legend className="flex items-center gap-2 font-heading text-sm font-semibold text-charcoal mb-1">
+                                        <CreditCard className="w-4 h-4 text-charcoal/50" />
+                                        Customer Details
+                                    </legend>
 
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder="Full Name *"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    className={`checkout-input ${formErrors.name ? 'checkout-input-error' : ''}`}
-                                    id="checkout-name"
-                                />
-                                {formErrors.name && <p className="checkout-field-error">{formErrors.name}</p>}
-                            </div>
+                                    <div>
+                                        <input
+                                            type="text"
+                                            placeholder="Full Name *"
+                                            value={name}
+                                            onChange={(e) => setName(e.target.value)}
+                                            className={`checkout-input ${formErrors.name ? 'checkout-input-error' : ''}`}
+                                            id="checkout-name"
+                                        />
+                                        {formErrors.name && <p className="checkout-field-error">{formErrors.name}</p>}
+                                    </div>
 
-                            <div>
-                                <input
-                                    type="email"
-                                    placeholder="Email Address *"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                    disabled
-                                    className={`checkout-input bg-charcoal/5 text-charcoal/70 cursor-not-allowed ${formErrors.email ? 'checkout-input-error' : ''}`}
-                                    id="checkout-email"
-                                />
-                                {formErrors.email && <p className="checkout-field-error">{formErrors.email}</p>}
-                            </div>
+                                    <div>
+                                        <input
+                                            type="email"
+                                            placeholder="Email Address *"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            disabled
+                                            className={`checkout-input bg-charcoal/5 text-charcoal/70 cursor-not-allowed ${formErrors.email ? 'checkout-input-error' : ''}`}
+                                            id="checkout-email"
+                                        />
+                                        {formErrors.email && <p className="checkout-field-error">{formErrors.email}</p>}
+                                    </div>
 
-                            <div>
-                                <div className="flex">
-                                    <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-charcoal/15 bg-charcoal/5 font-body text-sm text-charcoal/50">
-                                        +91
-                                    </span>
-                                    <input
-                                        type="tel"
-                                        placeholder="Phone Number *"
-                                        value={phone}
-                                        onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                                        className={`checkout-input rounded-l-none ${formErrors.phone ? 'checkout-input-error' : ''}`}
-                                        id="checkout-phone"
-                                    />
-                                </div>
-                                {formErrors.phone && <p className="checkout-field-error">{formErrors.phone}</p>}
-                            </div>
-                        </fieldset>
+                                    <div>
+                                        <div className="flex">
+                                            <span className="inline-flex items-center px-3 rounded-l-xl border border-r-0 border-charcoal/15 bg-charcoal/5 font-body text-sm text-charcoal/50">
+                                                +91
+                                            </span>
+                                            <input
+                                                type="tel"
+                                                placeholder="Phone Number *"
+                                                value={phone}
+                                                onChange={(e) => setPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                                                className={`checkout-input rounded-l-none ${formErrors.phone ? 'checkout-input-error' : ''}`}
+                                                id="checkout-phone"
+                                            />
+                                        </div>
+                                        {formErrors.phone && <p className="checkout-field-error">{formErrors.phone}</p>}
+                                    </div>
+                                </fieldset>
 
-                        {/* Shipping Address */}
-                        <fieldset className="space-y-3">
-                            <legend className="flex items-center gap-2 font-heading text-sm font-semibold text-charcoal mb-1">
-                                <Truck className="w-4 h-4 text-charcoal/50" />
-                                Shipping Address
-                            </legend>
+                                {/* Shipping Address */}
+                                <fieldset className="space-y-3">
+                                    <legend className="flex items-center gap-2 font-heading text-sm font-semibold text-charcoal mb-1">
+                                        <Truck className="w-4 h-4 text-charcoal/50" />
+                                        Shipping Address
+                                    </legend>
 
-                            <div>
-                                <input
-                                    type="text"
-                                    placeholder="Address Line 1 *"
-                                    value={line1}
-                                    onChange={(e) => setLine1(e.target.value)}
-                                    className={`checkout-input ${formErrors.line1 ? 'checkout-input-error' : ''}`}
-                                    id="checkout-address1"
-                                />
-                                {formErrors.line1 && <p className="checkout-field-error">{formErrors.line1}</p>}
-                            </div>
+                                    <div>
+                                        <input
+                                            type="text"
+                                            placeholder="Address Line 1 *"
+                                            value={line1}
+                                            onChange={(e) => setLine1(e.target.value)}
+                                            className={`checkout-input ${formErrors.line1 ? 'checkout-input-error' : ''}`}
+                                            id="checkout-address1"
+                                        />
+                                        {formErrors.line1 && <p className="checkout-field-error">{formErrors.line1}</p>}
+                                    </div>
 
-                            <input
-                                type="text"
-                                placeholder="Address Line 2 (Optional)"
-                                value={line2}
-                                onChange={(e) => setLine2(e.target.value)}
-                                className="checkout-input"
-                                id="checkout-address2"
-                            />
-
-                            <div className="grid grid-cols-2 gap-3">
-                                <div>
                                     <input
                                         type="text"
-                                        placeholder="Pincode *"
-                                        value={pincode}
-                                        onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
-                                        className={`checkout-input ${formErrors.pincode ? 'checkout-input-error' : ''}`}
-                                        id="checkout-pincode"
+                                        placeholder="Address Line 2 (Optional)"
+                                        value={line2}
+                                        onChange={(e) => setLine2(e.target.value)}
+                                        className="checkout-input"
+                                        id="checkout-address2"
                                     />
-                                    {isPincodeLookupLoading && (
-                                        <p className="mt-1 font-body text-xs text-charcoal/50">
-                                            Fetching city and state...
+
+                                    <div className="grid grid-cols-2 gap-3">
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="Pincode *"
+                                                value={pincode}
+                                                onChange={(e) => setPincode(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                                                className={`checkout-input ${formErrors.pincode ? 'checkout-input-error' : ''}`}
+                                                id="checkout-pincode"
+                                            />
+                                            {isPincodeLookupLoading && (
+                                                <p className="mt-1 font-body text-xs text-charcoal/50">
+                                                    Fetching city and state...
+                                                </p>
+                                            )}
+                                            {pincodeLookupMessage && (
+                                                <p className="checkout-field-error">{pincodeLookupMessage}</p>
+                                            )}
+                                            {formErrors.pincode && <p className="checkout-field-error">{formErrors.pincode}</p>}
+                                        </div>
+                                        <div>
+                                            <input
+                                                type="text"
+                                                placeholder="City *"
+                                                value={city}
+                                                onChange={(e) => setCity(e.target.value)}
+                                                className={`checkout-input ${formErrors.city ? 'checkout-input-error' : ''}`}
+                                                id="checkout-city"
+                                            />
+                                            {formErrors.city && <p className="checkout-field-error">{formErrors.city}</p>}
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <select
+                                            value={state}
+                                            onChange={(e) => setState(e.target.value)}
+                                            className={`checkout-input ${!state ? 'text-charcoal/40' : ''} ${formErrors.state ? 'checkout-input-error' : ''}`}
+                                            id="checkout-state"
+                                        >
+                                            <option value="" disabled>
+                                                Select State *
+                                            </option>
+                                            {INDIAN_STATES.map((s) => (
+                                                <option key={s} value={s}>
+                                                    {s}
+                                                </option>
+                                            ))}
+                                        </select>
+                                        {formErrors.state && <p className="checkout-field-error">{formErrors.state}</p>}
+                                    </div>
+                                </fieldset>
+                            </>
+                        ) : (
+                            <div className="space-y-4">
+                                <div className="checkout-summary-card">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-charcoal/40">Ship To</h4>
+                                        <button 
+                                            type="button" 
+                                            onClick={() => setStep('details')}
+                                            className="text-xs font-semibold text-charcoal/60 hover:text-charcoal"
+                                        >
+                                            Edit
+                                        </button>
+                                    </div>
+                                    <div className="space-y-1">
+                                        <p className="font-heading font-semibold text-charcoal">{name}</p>
+                                        <p className="font-body text-sm text-charcoal/70">{phone}</p>
+                                        <p className="font-body text-sm text-charcoal/70 leading-relaxed mt-2">
+                                            {line1}{line2 ? `, ${line2}` : ''}<br />
+                                            {city}, {state} - {pincode}
                                         </p>
-                                    )}
-                                    {pincodeLookupMessage && (
-                                        <p className="checkout-field-error">{pincodeLookupMessage}</p>
-                                    )}
-                                    {formErrors.pincode && <p className="checkout-field-error">{formErrors.pincode}</p>}
-                                </div>
-                                <div>
-                                    <input
-                                        type="text"
-                                        placeholder="City *"
-                                        value={city}
-                                        onChange={(e) => setCity(e.target.value)}
-                                        className={`checkout-input ${formErrors.city ? 'checkout-input-error' : ''}`}
-                                        id="checkout-city"
-                                    />
-                                    {formErrors.city && <p className="checkout-field-error">{formErrors.city}</p>}
+                                    </div>
                                 </div>
                             </div>
+                        )}
 
-                            <div>
-                                <select
-                                    value={state}
-                                    onChange={(e) => setState(e.target.value)}
-                                    className={`checkout-input ${!state ? 'text-charcoal/40' : ''} ${formErrors.state ? 'checkout-input-error' : ''}`}
-                                    id="checkout-state"
-                                >
-                                    <option value="" disabled>
-                                        Select State *
-                                    </option>
-                                    {INDIAN_STATES.map((s) => (
-                                        <option key={s} value={s}>
-                                            {s}
-                                        </option>
-                                    ))}
-                                </select>
-                                {formErrors.state && <p className="checkout-field-error">{formErrors.state}</p>}
+
+                        {step === 'payment' && (
+                            <div className="space-y-4">
+                                <div className="rounded-xl border border-charcoal/10 bg-white p-4">
+                                    <h3 className="font-heading text-sm font-semibold text-charcoal mb-3 flex items-center gap-2">
+                                        <Tag className="w-4 h-4 text-charcoal/60" />
+                                        Apply Coupon
+                                    </h3>
+                                    <div className="flex flex-col sm:flex-row gap-2">
+                                        <input
+                                            type="text"
+                                            placeholder="Enter coupon code"
+                                            value={couponCode}
+                                            onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                                            className="checkout-input"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => applyCoupon(couponCode)}
+                                            disabled={isValidatingCoupon}
+                                            className="px-4 py-2 rounded-xl bg-charcoal text-pearl text-sm font-semibold hover:bg-charcoal/90 disabled:opacity-60"
+                                        >
+                                            {isValidatingCoupon ? 'Checking...' : 'Apply'}
+                                        </button>
+                                    </div>
+                                    {couponError && (
+                                        <p className="mt-2 text-xs text-error">{couponError}</p>
+                                    )}
+                                    {appliedCoupon && (
+                                        <div className="mt-3 flex items-center justify-between rounded-lg bg-pearl px-3 py-2 text-sm">
+                                            <span className="coupon-code text-charcoal">Applied: {appliedCoupon.code}</span>
+                                            <button
+                                                type="button"
+                                                onClick={clearCoupon}
+                                                className="text-xs text-charcoal/60 hover:text-charcoal"
+                                            >
+                                                Remove
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+
+                                {availableCoupons.length > 0 && (
+                                    <div className="rounded-xl border border-charcoal/10 bg-white p-4">
+                                        <h3 className="font-heading text-sm font-semibold text-charcoal mb-3">
+                                            Available Coupons
+                                        </h3>
+                                        <div className="space-y-2">
+                                            {(showAllCoupons ? availableCoupons : availableCoupons.slice(0, 1)).map((coupon) => (
+                                                <div key={coupon.id} className="flex items-center justify-between gap-3 rounded-lg border border-charcoal/10 bg-pearl/70 px-3 py-2">
+                                                    <div>
+                                                        <p className="coupon-code text-sm text-charcoal">{coupon.code}</p>
+                                                        <p className="text-xs text-charcoal/60">
+                                                            {coupon.discount_type === 'percentage'
+                                                                ? `${coupon.discount_value}% off`
+                                                                : `₹${Math.round(coupon.discount_value / 100)} off`}
+                                                            {coupon.min_order_value ? ` on orders above ₹${Math.round(coupon.min_order_value / 100)}` : ''}
+                                                        </p>
+                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => applyCoupon(coupon.code)}
+                                                        className="text-xs font-semibold text-charcoal hover:text-charcoal/70"
+                                                    >
+                                                        Apply
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {availableCoupons.length > 1 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowAllCoupons(!showAllCoupons)}
+                                                className="w-full mt-2 py-1 text-[10px] font-bold uppercase tracking-wider text-charcoal/40 hover:text-charcoal transition-colors"
+                                            >
+                                                {showAllCoupons ? 'Show Less' : `+ ${availableCoupons.length - 1} More available`}
+                                            </button>
+                                        )}
+
+                                    </div>
+                                )}
+
+                                <div className="rounded-xl border border-charcoal/10 bg-white p-4">
+                                    <h3 className="font-heading text-sm font-semibold text-charcoal mb-3">Payment Method</h3>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        <div className="checkout-payment-btn active">
+                                            <span className="font-bold text-sm">Cash on Delivery</span>
+                                            <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">Recommended</span>
+                                        </div>
+                                        <div className="checkout-payment-btn disabled">
+                                            <span className="font-bold text-sm">Online Payment</span>
+                                            <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">Coming Soon</span>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
-                        </fieldset>
+                        )}
                     </div>
 
                     {/* Footer / CTA */}
-                    <div className="px-6 py-4 border-t border-charcoal/10 bg-white">
-                        <div className="flex items-center justify-between mb-3">
-                            <span className="font-body text-sm text-charcoal/60">Total</span>
-                            <span className="font-heading text-xl font-bold text-charcoal">
-                                {formatPrice(totalPrice)}
-                            </span>
-                        </div>
-                        <Button
-                            type="submit"
-                            variant="primary"
-                            size="lg"
-                            fullWidth
-                            disabled={isPlacingCodOrder}
-                            icon={isPlacingCodOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
-                            iconPosition="left"
-                        >
-                            {isPlacingCodOrder ? 'Processing...' : `Place COD Order ${formatPrice(totalPrice)}`}
-                        </Button>
-                        <p className="font-body text-xs text-charcoal/40 text-center mt-2">
-                            Cash on delivery only for now.
-                        </p>
+                    <div className="checkout-sticky-bottom px-6 py-4">
+                        {step === 'details' ? (
+                            <>
+                                <div className="flex items-center justify-between mb-3">
+                                    <span className="font-body text-sm text-charcoal/60">Subtotal</span>
+                                    <span className="font-heading text-xl font-bold text-charcoal">
+                                        {formatPrice(totalPrice)}
+                                    </span>
+                                </div>
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="lg"
+                                    fullWidth
+                                    icon={<Truck className="w-5 h-5" />}
+                                    iconPosition="left"
+                                >
+                                    Proceed
+                                </Button>
+                                <p className="font-body text-xs text-charcoal/40 text-center mt-2">
+                                    Continue to apply coupons and choose payment.
+                                </p>
+                            </>
+                        ) : (
+                            <>
+                                <div className="space-y-2 mb-4">
+                                    <div className="flex items-center justify-between text-sm text-charcoal/60">
+                                        <span>Subtotal</span>
+                                        <span>{formatPrice(totalPrice)}</span>
+                                    </div>
+                                    {appliedCoupon && (
+                                        <div className="flex items-center justify-between text-sm text-emerald-700">
+                                            <span>Coupon ({appliedCoupon.code})</span>
+                                            <span>-{formatPrice(discountValue)}</span>
+                                        </div>
+                                    )}
+                                    <div className="flex items-center justify-between text-base font-semibold text-charcoal">
+                                        <span>Total</span>
+                                        <span>{formatPrice(totalAfterDiscount)}</span>
+                                    </div>
+                                </div>
+                                <Button
+                                    type="submit"
+                                    variant="primary"
+                                    size="lg"
+                                    fullWidth
+                                    disabled={isPlacingCodOrder}
+                                    icon={isPlacingCodOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
+                                    iconPosition="left"
+                                >
+                                    {isPlacingCodOrder ? 'Processing...' : `Place COD Order ${formatPrice(totalAfterDiscount)}`}
+                                </Button>
+                                <p className="font-body text-xs text-charcoal/40 text-center mt-2">
+                                    Cash on delivery only for now.
+                                </p>
+                            </>
+                        )}
                     </div>
                 </form>
 

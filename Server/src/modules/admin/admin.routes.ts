@@ -20,6 +20,11 @@ router.post("/logout", authController.logout);
 router.use(authenticateAdmin);
 
 router.get("/me", authController.getMe);
+ 
+// Notification Routes
+import * as notificationController from "./notification.controller";
+router.get("/notifications/counts", notificationController.getNotificationCounts);
+router.post("/notifications/mark-read", notificationController.markAsRead);
 
 // Dashboard Stats
 import * as productsController from "./products.controller";
@@ -76,5 +81,11 @@ import * as reviewController from "./review.controller";
 router.get("/reviews", reviewController.getReviews);
 router.patch("/reviews/:id/approve", reviewController.approveReview);
 router.patch("/reviews/:id/reject", reviewController.rejectReview);
+
+// Coupon Routes
+import * as couponsController from "./coupons.controller";
+router.get("/coupons", couponsController.getCoupons);
+router.post("/coupons", couponsController.createCoupon);
+router.put("/coupons/:id", couponsController.updateCoupon);
 
 export default router;

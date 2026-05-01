@@ -17,6 +17,8 @@ const product_model_1 = require("../models/product.model");
 const inventory_service_1 = require("../modules/inventory/inventory.service");
 const orderIdGenerator_1 = require("../utils/orderIdGenerator");
 const invoice_service_1 = require("./invoice.service");
+const coupon_model_1 = require("../models/coupon.model");
+const coupon_service_1 = require("./coupon.service");
 const normalizePhone = (phone) => {
     const digits = phone.replace(/\D/g, "");
     return digits.length > 10 && digits.startsWith("91") ? digits.slice(2) : digits;
@@ -45,7 +47,7 @@ const validateCodInput = (input) => {
     }
 };
 const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b;
+    var _a, _b, _c;
     validateCodInput(input);
     const reservedItems = [];
     try {
@@ -84,12 +86,42 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
         const itemsCount = orderItems.reduce((sum, item) => sum + item.quantity, 0);
         const orderId = yield (0, orderIdGenerator_1.generateOrderId)();
         const phone = normalizePhone(input.customer.phone);
+        let appliedCoupon = null;
+        let discountAmount = 0;
+        let couponDoc = null;
+        if ((_a = input.coupon_code) === null || _a === void 0 ? void 0 : _a.trim()) {
+            couponDoc = yield (0, coupon_service_1.findCouponByCode)(input.coupon_code);
+            if (!couponDoc) {
+                throw new Error("Invalid coupon code");
+            }
+            const couponItems = orderItems.map((item) => ({
+                sku: item.sku,
+                quantity: item.quantity,
+                unitPrice: item.price,
+            }));
+            const validation = (0, coupon_service_1.validateCoupon)(couponDoc, couponItems, totalAmount);
+            if (!validation.isValid) {
+                throw new Error(validation.reason || "Coupon cannot be applied");
+            }
+            discountAmount = validation.discountAmount;
+            appliedCoupon = {
+                code: couponDoc.code,
+                name: couponDoc.name,
+                discount_type: couponDoc.discount_type,
+                discount_value: couponDoc.discount_value,
+                discount_amount: discountAmount,
+                min_order_value: couponDoc.min_order_value,
+                max_discount: couponDoc.max_discount,
+                applies_to_all: couponDoc.applies_to_all,
+            };
+        }
+        const finalTotalAmount = Math.max(totalAmount - discountAmount, 0);
         const customerDoc = yield customer_model_1.Customer.create({
             full_name: input.customer.name.trim(),
             email: input.customer.email.trim().toLowerCase(),
             phone,
             address_line1: input.shipping_address.line1.trim(),
-            address_line2: ((_a = input.shipping_address.line2) === null || _a === void 0 ? void 0 : _a.trim()) || "",
+            address_line2: ((_b = input.shipping_address.line2) === null || _b === void 0 ? void 0 : _b.trim()) || "",
             city: input.shipping_address.city.trim(),
             state: input.shipping_address.state.trim(),
             pincode: input.shipping_address.pincode.trim(),
@@ -97,7 +129,7 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
         const payment = yield payment_model_1.Payment.create({
             gateway_payment_id: `cod_${orderId}`,
             gateway_order_id: orderId,
-            amount: totalAmount,
+            amount: finalTotalAmount,
             currency: "INR",
             status: "cod_pending",
             method: "cash_on_delivery",
@@ -116,7 +148,8 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
                 customer_id: customerDoc._id,
             },
             items: orderItems,
-            total_amount: totalAmount,
+            total_amount: finalTotalAmount,
+            coupon: appliedCoupon || undefined,
             items_count: itemsCount,
             status: "created",
             payment_method: "cod",
@@ -124,7 +157,7 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
             payment_id: payment._id,
             shipping_address: {
                 line1: input.shipping_address.line1.trim(),
-                line2: ((_b = input.shipping_address.line2) === null || _b === void 0 ? void 0 : _b.trim()) || "",
+                line2: ((_c = input.shipping_address.line2) === null || _c === void 0 ? void 0 : _c.trim()) || "",
                 city: input.shipping_address.city.trim(),
                 state: input.shipping_address.state.trim(),
                 pincode: input.shipping_address.pincode.trim(),
@@ -150,6 +183,9 @@ const createCodOrder = (input) => __awaiter(void 0, void 0, void 0, function* ()
         }
         catch (invoiceError) {
             console.error("Invoice/email generation failed for COD order", order.order_id, invoiceError);
+        }
+        if (couponDoc === null || couponDoc === void 0 ? void 0 : couponDoc._id) {
+            yield coupon_model_1.Coupon.findByIdAndUpdate(couponDoc._id, { $inc: { usage_count: 1 } });
         }
         return {
             order,

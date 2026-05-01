@@ -29,6 +29,7 @@ const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminInventoryPage = lazy(() => import('./pages/admin/AdminInventoryPage'));
 const AdminLeadsPage = lazy(() => import('./pages/admin/AdminLeadsPage'));
+const AdminCouponsPage = lazy(() => import('./pages/admin/AdminCouponsPage'));
 const AdminProtectedRoute = lazy(() => import('./pages/admin/AdminProtectedRoute'));
 
 const RouteLoader = () => (
@@ -205,6 +206,7 @@ function App() {
                <Route path="reviews" element={<AdminReviewsPage />} />
               <Route path="inventory" element={<AdminInventoryPage />} />
               <Route path="leads" element={<AdminLeadsPage />} />
+              <Route path="coupons" element={<AdminCouponsPage />} />
             </Route>
           </Route>
 

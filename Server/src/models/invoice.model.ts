@@ -46,6 +46,14 @@ export interface IInvoice extends Document {
         totalIGST: number;
     };
 
+    coupon?: {
+        code?: string;
+        name?: string;
+        discount_type?: "percentage" | "flat";
+        discount_value?: number;
+        discount_amount?: number;
+    };
+
     totalAmount: number; // Grand Total
     amountInWords: string;
 
@@ -100,6 +108,14 @@ const InvoiceSchema: Schema = new Schema({
         totalCGST: { type: Number, default: 0 },
         totalSGST: { type: Number, default: 0 },
         totalIGST: { type: Number, default: 0 },
+    },
+
+    coupon: {
+        code: { type: String },
+        name: { type: String },
+        discount_type: { type: String, enum: ["percentage", "flat"] },
+        discount_value: { type: Number },
+        discount_amount: { type: Number, default: 0 },
     },
 
     totalAmount: { type: Number, required: true },

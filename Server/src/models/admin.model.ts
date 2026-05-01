@@ -27,6 +27,15 @@ const adminSchema = new mongoose.Schema(
         last_login: {
             type: Date,
         },
+        notification_last_viewed: {
+            dashboard: { type: Date, default: Date.now },
+            products: { type: Date, default: Date.now },
+            orders: { type: Date, default: Date.now },
+            reviews: { type: Date, default: Date.now },
+            inventory: { type: Date, default: Date.now },
+            leads: { type: Date, default: Date.now },
+            coupons: { type: Date, default: Date.now },
+        },
     },
     {
         timestamps: true,
@@ -57,6 +66,15 @@ export interface IAdmin extends mongoose.Document {
     password: string;
     role: "admin" | "superadmin";
     last_login?: Date;
+    notification_last_viewed: {
+        dashboard: Date;
+        products: Date;
+        orders: Date;
+        reviews: Date;
+        inventory: Date;
+        leads: Date;
+        coupons: Date;
+    };
     comparePassword(candidatePassword: string): Promise<boolean>;
 }
 

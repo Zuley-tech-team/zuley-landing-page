@@ -57,6 +57,7 @@ export interface PlaceCodOrderPayload {
         pincode: string;
         country?: string;
     };
+    coupon_code?: string;
 }
 
 export interface PlaceCodOrderResponse {

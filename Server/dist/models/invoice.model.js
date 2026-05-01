@@ -75,6 +75,13 @@ const InvoiceSchema = new mongoose_1.Schema({
         totalSGST: { type: Number, default: 0 },
         totalIGST: { type: Number, default: 0 },
     },
+    coupon: {
+        code: { type: String },
+        name: { type: String },
+        discount_type: { type: String, enum: ["percentage", "flat"] },
+        discount_value: { type: Number },
+        discount_amount: { type: Number, default: 0 },
+    },
     totalAmount: { type: Number, required: true },
     amountInWords: { type: String, required: true },
     pdfPath: { type: String, required: true },
