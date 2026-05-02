@@ -86,14 +86,14 @@ export function RefundPolicyPage() {
 
                             <h3 className="font-semibold text-charcoal mb-2">b) Refund Method</h3>
                             <ul className="list-disc pl-6 mb-6 space-y-1">
-                                <li>Online payments: Refunded to the <strong>original payment method</strong></li>
-                                <li>COD orders: Refunded via bank transfer or UPI (details to be provided by the customer)</li>
+                                <li>Refunds are processed via bank transfer or UPI (details to be provided by the customer).</li>
+                                <li>The applicable refund mode is confirmed by support during refund approval.</li>
                             </ul>
 
                             <h3 className="font-semibold text-charcoal mb-2">c) Refund Timeline</h3>
                             <ul className="list-disc pl-6 space-y-1">
                                 <li>Refunds will be processed within <strong>7–10 business days</strong> after approval</li>
-                                <li>Bank or payment gateway delays are beyond our control</li>
+                                <li>Banking network delays are beyond our control</li>
                             </ul>
                         </section>
 

@@ -69,22 +69,22 @@ export function TermsConditionsPage() {
                                     </ul>
                                 </li>
                             </ul>
-                            <p>If payment has been made, refunds will be processed as per applicable timelines.</p>
+                            <p>If any amount has been collected, refunds (if applicable) will be processed as per applicable timelines.</p>
                         </section>
 
                         <hr className="border-charcoal/10" />
 
                         <section>
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">5. Payments</h2>
-                            <p className="mb-4">We accept:</p>
+                            <p className="mb-4">Currently, we accept:</p>
                             <ul className="list-disc pl-6 mb-6 space-y-2">
-                                <li>Online payments via <strong>a Secured Payment Gateway</strong></li>
                                 <li>Cash on Delivery (COD), where available</li>
                             </ul>
-                            <p className="mb-4">For online payments:</p>
+                            <p className="mb-4">If additional payment methods are introduced in future, the same will be updated on the Website and these Terms.</p>
+                            <p className="mb-4">For COD and refund handling:</p>
                             <ul className="list-disc pl-6 space-y-2">
-                                <li>Zuley does not store or process card, UPI, or banking details.</li>
-                                <li>Refunds (if applicable) will be issued to the <strong>original payment method</strong> as per our payment gateway policies.</li>
+                                <li>Zuley only collects payment information necessary to process the order and applicable refunds.</li>
+                                <li>Refunds (if applicable) are issued using the method communicated by support during refund processing.</li>
                             </ul>
                         </section>
 

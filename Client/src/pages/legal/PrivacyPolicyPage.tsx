@@ -79,9 +79,9 @@ export function PrivacyPolicyPage() {
                         <hr className="border-charcoal/10" />
 
                         <section>
-                            <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">4. Payment Processing</h2>
-                            <p className="mb-4">All payments are processed securely through <strong>a Secured Payment Gateway</strong>.</p>
-                            <p>We do <strong>not</strong> collect, store, or process credit/debit card numbers, UPI IDs, or banking details.</p>
+                            <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">4. Payment Information Handling</h2>
+                            <p>At present, orders are primarily fulfilled through Cash on Delivery (COD), where available.</p>
+                            <p className="mt-3">If refunds are applicable, we may collect limited bank/UPI details only for refund transfer processing through authorized channels.</p>
                         </section>
 
                         <hr className="border-charcoal/10" />
@@ -91,7 +91,7 @@ export function PrivacyPolicyPage() {
                             <p className="mb-4">We share personal data <strong>only as required</strong> with:</p>
                             <ul className="list-disc pl-6 mb-4 space-y-1">
                                 <li>Logistics and delivery partners (limited to name, phone number, address)</li>
-                                <li>Payment gateway providers</li>
+                                <li>Banking or payout partners (only when required for refunds)</li>
                                 <li>Email and communication service providers</li>
                                 <li>Analytics and advertising platforms</li>
                             </ul>

@@ -224,7 +224,7 @@ export function Footer() {
                         <div className="flex flex-wrap items-center justify-center gap-6">
                             <div className="flex items-center gap-2 text-pearl/50">
                                 <Shield className="w-5 h-5" />
-                                <span className="font-body text-sm">Secure Checkout</span>
+                                <span className="font-body text-sm">Secure Ordering</span>
                             </div>
                             <div className="flex items-center gap-2 text-pearl/50">
                                 <Truck className="w-5 h-5" />

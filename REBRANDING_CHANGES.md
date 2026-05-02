@@ -78,3 +78,36 @@ When payment gateway approval is done, revert only these rebranding edits:
 Suggested check command at revert time:
 - `rg -n --ignore-case "silver coating|silver-coated|quality assured|quality certified" Client/src`
 
+
+## Additional Temporary Payment-Gateway Compliance Updates (2026-05-02)
+
+Objective: Remove statements implying active online payment gateway support from legal/footer content until gateway approval is complete.
+
+15. `Client/src/pages/legal/TermsConditionsPage.tsx`
+- Updated payment section to indicate that `Cash on Delivery (COD)` is the currently available method.
+- Removed the claim `Online payments via a Secured Payment Gateway`.
+- Replaced online-payment specific wording with neutral future-ready language for payment methods.
+- Updated refund wording to avoid `original payment method` / gateway-policy references.
+
+16. `Client/src/pages/legal/PrivacyPolicyPage.tsx`
+- Renamed section from `Payment Processing` to `Payment Information Handling`.
+- Removed card/gateway-centric storage statement and replaced with current-state COD + refund transfer handling language.
+- Replaced `Payment gateway providers` in data-sharing list with `Banking or payout partners (only when required for refunds)`.
+
+17. `Client/src/pages/legal/RefundPolicyPage.tsx`
+- Removed `Online payments` refund method line.
+- Standardized refund mode to bank transfer/UPI confirmed by support at refund time.
+- Replaced `payment gateway delays` with `banking network delays`.
+
+18. `Client/src/components/home/Footer.tsx`
+- Updated trust badge from `Secure Checkout` to `Secure Ordering` to avoid implying online gateway checkout.
+
+### Verification for This Subset
+- Checked policy/footer files for and removed these active-gateway phrases:
+  - `online payment`
+  - `secured payment gateway`
+  - `original payment method`
+  - `payment gateway`
+
+### Revert Note for This Subset
+- After payment gateway goes live, restore online-payment language only in these four files (items 15-18), without touching unrelated feature updates.
