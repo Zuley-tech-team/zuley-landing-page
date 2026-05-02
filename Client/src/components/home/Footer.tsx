@@ -5,7 +5,6 @@ import { subscribeNewsletter } from '../../api/engagement';
 import {
     Mail,
     Instagram,
-    Facebook,
     Shield,
     Truck,
     Send,
@@ -36,7 +35,7 @@ const footerLinks = {
 
 const socialLinks = [
     { icon: Instagram, href: 'https://instagram.com/zuley.in', label: 'Instagram' },
-    { icon: Facebook, href: 'https://instagram.com/zuley.in', label: 'Facebook' },
+    // { icon: Facebook, href: 'https://instagram.com/zuley.in', label: 'Facebook' },
 ];
 
 export function Footer() {

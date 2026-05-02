@@ -1,4 +1,4 @@
-import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { Outlet, NavLink, useNavigate, useLocation } from 'react-router-dom';
 import { useAdmin } from '../../contexts/AdminContext';
 import {
     LayoutDashboard,
@@ -29,6 +29,7 @@ const navItems = [
 export function AdminLayout() {
     const { admin, logout, isLoading } = useAdmin();
     const navigate = useNavigate();
+    const location = useLocation();
     const [sidebarOpen, setSidebarOpen] = useState(false);
     const [notifications, setNotifications] = useState<Record<string, number>>({});
 
@@ -82,14 +83,14 @@ export function AdminLayout() {
     };
 
     useEffect(() => {
-        const currentPath = window.location.pathname;
-        const activeItem = navItems.find(item => 
+        const currentPath = location.pathname;
+        const activeItem = navItems.find((item) =>
             item.to === currentPath || (item.to !== '/admin' && currentPath.startsWith(item.to))
         );
         if (activeItem && notifications[activeItem.category] > 0) {
             handleNavClick(activeItem.category);
         }
-    }, [window.location.pathname, notifications]);
+    }, [location.pathname, notifications]);
 
     const handleLogout = async () => {
         await logout();
