@@ -5,9 +5,9 @@ import { Gem, Hammer, CheckCircle, Award, Shield, Play } from 'lucide-react';
 const pillars = [
     {
         icon: Gem,
-        title: '925 Sterling Silver',
-        subtitle: 'Pure Silver Standard',
-        description: 'We use only 925 sterling silver, the international benchmark for quality and durability. Each piece is hallmarked for authenticity.',
+        title: 'silver coating',
+        subtitle: 'Silver-Coated Standard',
+        description: 'We use only silver coating, a trusted benchmark for quality and durability. Each piece is quality-tested for consistency.',
     },
     {
         icon: Hammer,
@@ -23,9 +23,9 @@ const pillars = [
     },
     {
         icon: Award,
-        title: 'Hallmark Certified',
-        subtitle: 'Guaranteed Authenticity',
-        description: 'Official hallmark certification proves the purity and quality of our silver, giving you complete peace of mind.',
+        title: 'Quality Certified',
+        subtitle: 'Guaranteed Reliability',
+        description: 'Every piece goes through strict quality certification for finish, durability, and confidence in daily use.',
     },
 ];
 
@@ -133,9 +133,9 @@ export function CraftsmanshipSection() {
                         {/* Corner stats */}
                         <div className="absolute top-6 right-6 text-right">
                             <div className="flex items-baseline gap-1 justify-end">
-                                <span className="font-heading text-5xl md:text-7xl font-bold text-primary">925</span>
+                                <span className="font-heading text-3xl md:text-5xl font-bold text-primary">Silver-Coated</span>
                             </div>
-                            <p className="font-body text-sm text-pearl/50 uppercase tracking-wider">Sterling Silver</p>
+                            <p className="font-body text-sm text-pearl/50 uppercase tracking-wider">silver coating</p>
                         </div>
                     </div>
                 </div>
@@ -154,7 +154,7 @@ export function CraftsmanshipSection() {
                         <span className="text-primary">Built to Last.</span>
                     </h2>
                     <p className="font-body text-lg md:text-xl text-pearl/70 max-w-3xl mx-auto">
-                        Every piece begins with 925 sterling silver - the highest standard of purity.
+                        Every piece begins with silver coating - a premium standard for finish and durability.
                         Our artisans combine traditional craftsmanship with modern precision.
                     </p>
                 </div>
@@ -199,7 +199,7 @@ export function CraftsmanshipSection() {
                 <div className="flex flex-wrap items-center justify-center gap-6 mt-12 md:mt-16 pt-12 border-t border-pearl/10">
                     <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-graphite/50 border border-primary/20">
                         <Award className="w-5 h-5 text-primary" />
-                        <span className="font-body text-sm text-pearl/70">BIS Hallmarked</span>
+                        <span className="font-body text-sm text-pearl/70">Quality Assured</span>
                     </div>
                     <div className="flex items-center gap-3 px-6 py-3 rounded-full bg-graphite/50 border border-primary/20">
                         <Shield className="w-5 h-5 text-primary" />

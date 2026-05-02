@@ -437,7 +437,7 @@ export function ProductDetailPage() {
                                              <Award className="w-5 h-5 text-charcoal/80" strokeWidth={2.5} />
                                          </div>
                                          <div className="flex flex-col">
-                                             <span className="font-heading text-sm font-bold text-charcoal">Pure 925 Silver</span>
+                                             <span className="font-heading text-sm font-bold text-charcoal">Silver-Coated coating</span>
                                              <span className="font-body text-[11px] text-charcoal/60 leading-tight">Certified Quality</span>
                                          </div>
                                      </div>

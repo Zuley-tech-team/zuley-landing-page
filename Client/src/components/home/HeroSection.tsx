@@ -172,7 +172,7 @@ export function HeroSection() {
 
                         {/* Subtitle */}
                         <p className="hero-subtitle font-body text-lg md:text-xl text-charcoal/70 max-w-lg mb-10 leading-relaxed">
-                            Premium 925 sterling silver pens and silver covers -
+                            Premium silver coating pens and silver covers -
                             personalized with your name, message, or logo. Crafted for those
                             who appreciate the finer things.
                         </p>
@@ -206,7 +206,7 @@ export function HeroSection() {
                                 </div>
                                 <div>
                                     <p className="font-body text-xs text-charcoal/50 uppercase tracking-wider">Certified</p>
-                                    <p className="font-body text-sm font-medium text-charcoal">925 Sterling</p>
+                                    <p className="font-body text-sm font-medium text-charcoal">Silver Coating</p>
                                 </div>
                             </div>
                             <div className="hero-trust flex items-center gap-2">
@@ -224,7 +224,7 @@ export function HeroSection() {
                                 </div>
                                 <div>
                                     <p className="font-body text-xs text-charcoal/50 uppercase tracking-wider">Quality</p>
-                                    <p className="font-body text-sm font-medium text-charcoal">Hallmarked</p>
+                                    <p className="font-body text-sm font-medium text-charcoal">Quality Tested</p>
                                 </div>
                             </div>
                         </div>
@@ -260,8 +260,8 @@ export function HeroSection() {
                                             </p>
                                         </div>
                                         <div className="text-right">
-                                            <p className="font-heading text-4xl md:text-5xl font-bold text-primary">925</p>
-                                            <p className="font-body text-xs text-pearl/60 uppercase tracking-wider">Sterling</p>
+                                            <p className="font-heading text-xl md:text-2xl font-bold text-primary">Silver-Coated</p>
+                                            <p className="font-body text-xs text-pearl/60 uppercase tracking-wider">Premium Finish</p>
                                         </div>
                                     </div>
                                 </div>

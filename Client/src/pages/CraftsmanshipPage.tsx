@@ -4,15 +4,15 @@ import { Footer } from '../components/home';
 
 const process = [
     'Design and prototyping',
-    'Silver preparation and purity checks',
+    'Silver-coating preparation and finish checks',
     'Precision shaping and forming',
     'Assembly and finishing',
     'Laser engraving when personalized',
-    'Final quality inspection and hallmark verification',
+    'Final quality inspection and certification verification',
 ];
 
 const checkpoints = [
-    'Raw material purity verification',
+    'Raw material quality verification',
     'Dimensional and finish checks during production',
     'Engraving clarity and alignment validation',
     'Functional testing for product mechanics',
@@ -45,15 +45,15 @@ export function CraftsmanshipPage() {
                 <section className="max-w-7xl mx-auto px-6 py-14 md:py-18">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
                         <article>
-                            <h2 className="font-heading text-3xl font-semibold text-charcoal mb-4">The 925 Sterling Standard</h2>
+                            <h2 className="font-heading text-3xl font-semibold text-charcoal mb-4">The Silver-Coated Standard</h2>
                             <p className="font-body text-charcoal/70 leading-relaxed">
-                                Our products use certified 925 sterling silver, balancing purity with durability for everyday usage.
-                                Each piece is hallmarked to confirm authenticity.
+                                Our products use premium silver coating, balancing refined finish with durability for everyday usage.
+                                Each piece is quality-tested to confirm consistency.
                             </p>
                             <div className="mt-6 space-y-3 font-body text-charcoal/70">
-                                <p className="flex items-center gap-2"><FlaskConical className="w-4 h-4" /> 92.5 percent silver for premium finish and value</p>
-                                <p className="flex items-center gap-2"><Factory className="w-4 h-4" /> 7.5 percent alloy for long-term strength</p>
-                                <p className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Hallmark-backed quality assurance</p>
+                                <p className="flex items-center gap-2"><FlaskConical className="w-4 h-4" /> Premium silver-coated finish for everyday elegance</p>
+                                <p className="flex items-center gap-2"><Factory className="w-4 h-4" /> Durable material engineering for long-term strength</p>
+                                <p className="flex items-center gap-2"><BadgeCheck className="w-4 h-4" /> Rigorous multi-stage quality assurance</p>
                             </div>
                         </article>
                         <article className="bg-white rounded-2xl p-8 shadow-soft border border-charcoal/10">

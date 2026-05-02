@@ -117,7 +117,7 @@ export function QuickViewModal({ product, isOpen, onClose }: QuickViewModalProps
                             <div className="grid gap-2">
                                 <p className="font-body text-sm text-charcoal/75 flex items-center gap-2">
                                     <Sparkles className="w-4 h-4" />
-                                    Hand-finished craftsmanship in 925 silver
+                                    Hand-finished craftsmanship in silver coating
                                 </p>
                                 <p className="font-body text-sm text-charcoal/65 flex items-center gap-2">
                                     <Check className="w-4 h-4 text-success" />

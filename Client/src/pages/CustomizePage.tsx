@@ -5,7 +5,7 @@ import { Footer } from '../components/home';
 const processSteps = [
     {
         title: 'Choose Your Silver',
-        description: 'Select premium pens and silver covers crafted in 925 sterling silver.',
+        description: 'Select premium pens and silver covers crafted in silver coating.',
         icon: PenTool,
     },
     {

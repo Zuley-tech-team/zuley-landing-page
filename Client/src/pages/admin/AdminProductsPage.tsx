@@ -860,7 +860,7 @@ function ProductModal({ product, onClose, onSave, isSaving }: ProductModalProps)
                                 onChange={(e) => setSpecText(e.target.value)}
                                 rows={6}
                                 className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-charcoal focus:border-transparent resize-none"
-                                placeholder="material: 925 Sterling Silver"
+                                placeholder="material: silver coating"
                             />
                             <p className="mt-1 text-xs text-gray-500">Use key: value on each line.</p>
                         </div>

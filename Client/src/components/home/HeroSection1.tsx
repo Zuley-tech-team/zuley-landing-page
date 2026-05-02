@@ -99,7 +99,7 @@ export function HeroSection1() {
                                     <span className="text-charcoal text-[8px] font-bold">✓</span>
                                 </div>
                                 <span className="font-body text-xs text-pearl/90 tracking-wide">
-                                    BIS Hallmarked • 925 Silver
+                                    BIS Standard • Silver Coating
                                 </span>
                             </div>
 
@@ -111,7 +111,7 @@ export function HeroSection1() {
 
                             {/* Sub-headline */}
                             <p className="font-body text-sm sm:text-base md:text-lg text-pearl/75 leading-relaxed mb-5 md:mb-6 max-w-lg">
-                                Premium personalized silver pens and accessories for meaningful gifting and modern professionals.
+                                Premium silver pens and accessories for meaningful gifting and modern professionals.
                             </p>
 
                             {/* CTA buttons */}
@@ -149,11 +149,11 @@ export function HeroSection1() {
                 <div className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2 mt-6 md:mt-8">
                     <span className="flex items-center gap-2 font-body text-xs text-charcoal/70">
                         <span className="w-1.5 h-1.5 rounded-full bg-charcoal/40" />
-                        BIS Hallmarked
+                        Quality Assured
                     </span>
                     <span className="flex items-center gap-2 font-body text-xs text-charcoal/70">
                         <span className="w-1.5 h-1.5 rounded-full bg-charcoal/40" />
-                        925 Sterling Silver
+                        silver coating
                     </span>
                     <span className="flex items-center gap-2 font-body text-xs text-charcoal/70">
                         <span className="w-1.5 h-1.5 rounded-full bg-charcoal/40" />

@@ -6,7 +6,7 @@ import { useToast } from '../contexts/ToastContext';
 import { submitCorporateLead } from '../api/engagement';
 
 const reasons = [
-    '925 sterling silver with hallmark quality',
+    'silver coating with premium quality finish',
     'Precision logo engraving for brand consistency',
     'Bulk pricing tiers and custom quote support',
     'Dedicated account assistance and timeline updates',

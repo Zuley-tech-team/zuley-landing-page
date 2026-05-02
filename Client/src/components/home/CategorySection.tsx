@@ -9,7 +9,7 @@ import { fetchProducts, type Product } from '../../api/products';
 const categories = [
     {
         title: 'Silver Pens',
-        description: 'The art of writing, elevated in sterling silver',
+        description: 'The art of writing, elevated in silver coating',
         cta: 'Shop Pens',
         icon: Pen,
         images: [

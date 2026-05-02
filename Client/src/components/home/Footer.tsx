@@ -74,7 +74,7 @@ export function Footer() {
                                 <span className="font-heading text-3xl font-bold text-pearl">Zuley</span>
                             </div>
                             <h3 className="font-heading text-xl md:text-2xl font-semibold mb-4">
-                                Redefining Silver Beyond Jewellery
+                                Redefining Everyday Silver Accessories
                             </h3>
                             <p className="font-body text-pearl/70 leading-relaxed">
                                 We believe silver belongs in your everyday life, in the tools you use,
@@ -101,8 +101,10 @@ export function Footer() {
                                     <Mail className="w-6 h-6 text-primary" />
                                 </div>
                                 <div>
-                                    <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Email Us</h4>
+                                    <h4 className="font-heading text-sm font-semibold uppercase tracking-wider mb-2">Contact Us</h4>
                                     <p className="font-body text-sm text-pearl/60">
+                                        +91 77930 81684
+                                    <br />    
                                         support@zuley.in
                                     <br />
                                         Mon-Sat, 10am-7pm

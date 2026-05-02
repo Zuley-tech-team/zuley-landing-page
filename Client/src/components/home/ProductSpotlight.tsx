@@ -8,8 +8,8 @@ import heroBelow from '../../assets/hero-below.webp';
 const benefits = [
     {
         icon: Award,
-        title: 'Pure Silver Craftsmanship',
-        description: 'Handcrafted from 925 sterling silver with precision engineering',
+        title: 'Silver-Coated Craftsmanship',
+        description: 'Handcrafted from silver coating with precision engineering',
     },
     {
         icon: PenTool,
@@ -114,11 +114,11 @@ export function ProductSpotlight() {
                     </span>
                     <h2 className="font-heading text-3xl md:text-4xl lg:text-5xl font-bold text-charcoal mb-4">
                         The Signature Pen.{' '}
-                        <span className="text-accent-dark">Crafted in Pure Silver.</span>
+                        <span className="text-accent-dark">Crafted in Silver-Coated.</span>
                     </h2>
                     <p className="font-body text-lg md:text-xl text-charcoal/70 max-w-3xl mx-auto leading-relaxed">
                         More than a writing instrument, our silver pen is a statement of refinement.
-                        Each piece is meticulously crafted from 925 sterling silver, designed to be
+                        Each piece is meticulously crafted from silver coating, designed to be
                         passed down through generations.
                     </p>
                 </div>
@@ -143,12 +143,12 @@ export function ProductSpotlight() {
                         <div className="absolute inset-0 flex items-center">
                             <div className="max-w-xl p-8 md:p-12">
                                 <div className="flex items-baseline gap-2 mb-4">
-                                    <span className="font-heading text-6xl md:text-8xl font-bold text-primary">925</span>
-                                    <span className="font-body text-pearl/70 uppercase tracking-wider">Sterling</span>
+                                    <span className="font-heading text-3xl md:text-5xl font-bold text-primary">Silver-Coated</span>
+                                    <span className="font-body text-pearl/70 uppercase tracking-wider">Premium Finish</span>
                                 </div>
                                 <p className="font-body text-lg text-pearl/80 leading-relaxed">
-                                    The international benchmark for silver purity. Each piece carries
-                                    the official hallmark certification.
+                                    A premium standard for finish and durability. Each piece goes through
+                                    strict quality checks before delivery.
                                 </p>
                             </div>
                         </div>
@@ -163,7 +163,7 @@ export function ProductSpotlight() {
                         </div>
                         <div className="px-4 py-2 bg-charcoal/90 backdrop-blur-sm rounded-full">
                             <span className="font-body text-sm font-medium text-pearl">
-                                Hallmark Certified
+                                Quality Certified
                             </span>
                         </div>
                     </div>
