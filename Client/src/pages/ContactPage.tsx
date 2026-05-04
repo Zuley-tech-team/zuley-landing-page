@@ -82,8 +82,9 @@ export function ContactPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                         <a href="mailto:support@zuley.in" className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Mail className="w-6 h-6 text-charcoal mb-3" />
-                            <h2 className="font-heading text-xl text-charcoal font-semibold">Email</h2>
+                            <h2 className="font-heading text-xl text-charcoal font-semibold">Contact Us</h2>
                             <p className="font-body text-charcoal/65 mt-2">support@zuley.in</p>
+                            <p className="font-body text-charcoal/65 mt-2">+91 77930 81684</p>
                         </a>
                         <div className="bg-white rounded-2xl p-6 border border-charcoal/10 shadow-soft">
                             <Clock className="w-6 h-6 text-charcoal mb-3" />

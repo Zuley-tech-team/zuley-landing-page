@@ -25,7 +25,7 @@ const footerLinks = {
     support: [
         { label: 'Contact Us', href: '/contact' },
         { label: 'Shipping Policy', href: '/shipping-policy' },
-        { label: 'Returns & Refunds', href: '/refund-policy' },
+        { label: 'Refund & Cancellation Policy', href: '/refund-policy' },
         { label: 'Privacy Policy', href: '/privacy-policy' },
         { label: 'Terms & Conditions', href: '/terms' },
         { label: 'FAQs', href: '/contact' },
