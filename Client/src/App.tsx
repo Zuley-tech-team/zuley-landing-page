@@ -101,7 +101,7 @@ function App() {
             element={withMeta(
               <ProductDetailPage />,
               'Product Details',
-              'View product details, personalization options, and checkout for premium silver accessories.',
+              'View product details, personalization options, and checkout for premium silver plated accessories.',
               '/products'
             )}
           />

@@ -42,10 +42,10 @@ export function AboutPage() {
                 <section className="bg-white border-b border-charcoal/10">
                     <div className="max-w-7xl mx-auto px-6 py-16 md:py-22">
                         <h1 className="font-heading text-4xl md:text-5xl lg:text-6xl font-bold text-charcoal max-w-3xl leading-tight">
-                            Redefining Everyday Silver Accessories
+                            Redefining Everyday Silver Plated Accessories
                         </h1>
                         <p className="font-body text-lg text-charcoal/70 max-w-3xl mt-6 leading-relaxed">
-                            We create premium silver accessories that belong in everyday life. Each piece blends utility, elegance,
+                            We create premium silver plated accessories that belong in everyday life. Each piece blends utility, elegance,
                             and personal meaning so your daily essentials can carry your identity.
                         </p>
                     </div>

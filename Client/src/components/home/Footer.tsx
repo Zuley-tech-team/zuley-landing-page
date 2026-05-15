@@ -73,7 +73,7 @@ export function Footer() {
                                 <span className="font-heading text-3xl font-bold text-pearl">Zuley</span>
                             </div>
                             <h3 className="font-heading text-xl md:text-2xl font-semibold mb-4">
-                                Redefining Everyday Silver Accessories
+                                Redefining Everyday Silver Plated Accessories
                             </h3>
                             <p className="font-body text-pearl/70 leading-relaxed">
                                 We believe silver belongs in your everyday life, in the tools you use,

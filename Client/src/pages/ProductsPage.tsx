@@ -124,7 +124,7 @@ export function ProductsPage() {
                                 {getTitle()}
                             </h1>
                             <p className="font-body text-base md:text-lg text-charcoal/60 max-w-2xl mx-auto">
-                                Discover our exquisite collection of handcrafted silver accessories. Each piece is a testament to timeless elegance and superior craftsmanship.
+                                Discover our exquisite collection of handcrafted silver plated accessories. Each piece is a testament to timeless elegance and superior craftsmanship.
                             </p>
                         </div>
 

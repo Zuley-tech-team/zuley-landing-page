@@ -84,6 +84,8 @@ export function RefundPolicyPage() {
                             <h3 className="font-semibold text-charcoal mb-2">a) Refund Approval</h3>
                             <p className="mb-6">Once a return is approved and inspected, refunds will be initiated.</p>
 
+                            <p className="mb-6">For replacement, exchange, or damaged products, we will process the exchange within 5 days of receiving the returned product. The replacement item will be delivered within 6 working days thereafter.</p>
+
                             <h3 className="font-semibold text-charcoal mb-2">b) Refund Method</h3>
                             <ul className="list-disc pl-6 mb-6 space-y-1">
                                 <li>Refunds are processed via bank transfer or UPI (details to be provided by the customer).</li>

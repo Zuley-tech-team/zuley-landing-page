@@ -117,7 +117,7 @@ export function CorporatePage() {
                             Premium Personalized Silver Gifts for Your Brand and People
                         </h1>
                         <p className="font-body text-lg text-pearl/70 max-w-2xl mt-5 leading-relaxed">
-                            Elevate employee and client gifting with custom-branded silver accessories delivered with reliability at scale.
+                            Elevate employee and client gifting with custom-branded silver plated accessories delivered with reliability at scale.
                         </p>
                     </div>
                 </section>
