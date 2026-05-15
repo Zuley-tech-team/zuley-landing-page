@@ -219,6 +219,7 @@ export class InvoiceService {
             doc.font('Helvetica').fontSize(9).fillColor('#333333');
             doc.text(invoice.sellerDetails.name);
             doc.text(invoice.sellerDetails.address, { width: 230 });
+            doc.text(`GSTIN: ${invoice.sellerDetails.gstin}`);
             doc.text(`PAN: ${invoice.sellerDetails.pan}`);
             doc.text(`State: ${invoice.sellerDetails.state} (${invoice.sellerDetails.stateCode})`);
 

@@ -8,7 +8,6 @@ import { UserMenu } from '../auth';
 
 const navLinks = [
     { label: 'Silver Pens', href: '/products?category=silver-pens' },
-    { label: 'Silver Phone Covers', href: '/products?category=silver-phone-covers' },
     { label: 'About', href: '/about' },
     { label: 'Track Order', href: '/track-order' },
     { label: 'Corporate', href: '/corporate' },

@@ -5,7 +5,7 @@ import { Footer } from '../components/home';
 const processSteps = [
     {
         title: 'Choose Your Silver',
-        description: 'Select premium pens and silver covers crafted in silver coating.',
+        description: 'Select premium silver pens crafted in silver coating.',
         icon: PenTool,
     },
     {
@@ -41,10 +41,10 @@ const occasionCards = [
 const galleryExamples = [
     { text: 'Rajesh Kumar', style: 'Classic Serif', type: 'Silver Pen' },
     { text: 'Always and Forever', style: 'Elegant Script', type: 'Silver Pen' },
-    { text: 'Class of 2026', style: 'Modern Sans', type: 'Silver Cover' },
+    { text: 'Class of 2026', style: 'Modern Sans', type: 'Heritage Pen' },
     { text: 'Acme Corp', style: 'Monogram', type: 'Corporate Pen' },
     { text: 'Dr. A. Sharma', style: 'Classic Serif', type: 'Executive Pen' },
-    { text: '25.12.2024', style: 'Modern Sans', type: 'Phone Cover' },
+    { text: '25.12.2024', style: 'Modern Sans', type: 'Fountain Pen' },
 ];
 
 const faqItems = [

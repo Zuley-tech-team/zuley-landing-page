@@ -4,7 +4,7 @@ import { Button } from '../common';
 import { ArrowRight } from 'lucide-react';
 import hero1 from '../../assets/hero-1.webp';
 import hero2 from '../../assets/hero-2.webp';
-import hero3 from '../../assets/hero-3.webp';
+// import hero3 from '../../assets/hero-3.webp';
 
 // Hero background images for subtle crossfade
 const heroBackgrounds = [
@@ -18,11 +18,11 @@ const heroBackgrounds = [
         image: hero2,
         alt: 'Silver pen hero image 2',
     },
-    {
-        id: 3,
-        image: hero3,
-        alt: 'Silver pen hero image 3',
-    },
+    // {
+    //     id: 3,
+    //     image: hero3,
+    //     alt: 'Silver pen hero image 3',
+    // },
 ];
 
 export function HeroSection1() {

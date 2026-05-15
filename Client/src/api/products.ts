@@ -1,6 +1,6 @@
 import { API_BASE_URL } from './config';
 
-export type ProductCategory = 'silver-pens' | 'silver-phone-covers';
+export type ProductCategory = 'silver-pens' | 'silver-phone-covers'; // silver-phone-covers is legacy, kept for DB compat
 
 export interface ProductSpecifications {
     material: string;

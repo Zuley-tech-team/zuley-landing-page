@@ -14,7 +14,6 @@ import {
 const footerLinks = {
     shop: [
         { label: 'Silver Pens', href: '/products?category=silver-pens' },
-        { label: 'Phone Covers', href: '/products?category=silver-phone-covers' },
         { label: 'All Products', href: '/products' },
     ],
     about: [

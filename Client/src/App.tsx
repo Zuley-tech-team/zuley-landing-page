@@ -92,7 +92,7 @@ function App() {
             element={withMeta(
               <ProductsPage />,
               'Shop Silver Products',
-              'Explore Zuley silver pens and silver phone covers crafted for premium gifting and personal use.',
+              'Explore Zuley premium silver pens crafted for gifting and personal use.',
               '/products'
             )}
           />

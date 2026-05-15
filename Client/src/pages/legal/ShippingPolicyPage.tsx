@@ -25,7 +25,7 @@ export function ShippingPolicyPage() {
                         <section>
                             <h2 className="font-heading text-2xl font-semibold text-charcoal mb-4">1. Order Processing</h2>
                             <ul className="list-disc pl-6 space-y-2">
-                                <li>Orders are generally processed within <strong>1–3 business days</strong> after order confirmation.</li>
+                                <li>Orders are generally processed and delivered within <strong>1–3 business days</strong> after order confirmation.</li>
                                 <li>Orders placed on weekends or public holidays will be processed on the next working day.</li>
                                 <li>Processing times may vary during high-demand periods, sales, or due to operational constraints.</li>
                             </ul>

@@ -184,6 +184,9 @@ export function PrivacyPolicyPage() {
                             <p className="mb-4">For questions or concerns regarding this Privacy Policy:</p>
                             <div className="bg-pearl/30 p-4 rounded-xl space-y-2">
                                 <p><strong>Email:</strong> support@zuley.in</p>
+                                <p><strong>Mobile Number:</strong> +91 7793081684</p>
+                                <p><strong>Managed by:</strong> Vinay Kumar Soni</p>
+
                                 <p><strong>Address:</strong> Lunwa, Nawa, Nagaur District, Rajasthan, India - 341509.</p>
                             </div>
                         </section>

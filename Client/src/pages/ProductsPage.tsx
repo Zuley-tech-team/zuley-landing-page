@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { useState, useEffect, useMemo } from 'react';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
-import { CategoryFilter, ProductsGrid } from '../components/products';
+import { ProductsGrid } from '../components/products';
 import { fetchProducts, type Product, type ProductCategory } from '../api/products';
 import { Loader2, SlidersHorizontal, Sparkles } from 'lucide-react';
 
@@ -64,13 +64,6 @@ export function ProductsPage() {
         setVisibleCount(PAGE_SIZE);
     }, [categoryFilter, sortBy, priceRange]);
 
-    const categoryCounts = useMemo(() => {
-        const counts: Record<string, number> = { all: allProducts.length };
-        allProducts.forEach((product) => {
-            counts[product.category] = (counts[product.category] || 0) + 1;
-        });
-        return counts;
-    }, [allProducts]);
 
     const filteredProducts = useMemo(() => {
         const filtered = allProducts.filter((product) => {
@@ -114,8 +107,6 @@ export function ProductsPage() {
         switch (categoryFilter) {
             case 'silver-pens':
                 return 'Silver Pens';
-            case 'silver-phone-covers':
-                return 'Silver Phone Covers';
             default:
                 return 'Our Collection';
         }
@@ -138,9 +129,9 @@ export function ProductsPage() {
                         </div>
 
                         {/* Category Filter */}
-                        <div className="flex justify-center mb-10">
+                        {/* <div className="flex justify-center mb-10">
                             <CategoryFilter counts={categoryCounts} />
-                        </div>
+                        </div> */}
 
                         {/* Filter and Sort Toolbar */}
                         <div className="rounded-2xl border border-charcoal/10 bg-white p-4 md:p-5 shadow-soft">

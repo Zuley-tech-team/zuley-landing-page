@@ -659,7 +659,6 @@ function ProductModal({ product, onClose, onSave, isSaving }: ProductModalProps)
                                 className="w-full px-4 py-2 border border-gray-300 rounded-xl focus:ring-2 focus:ring-charcoal focus:border-transparent"
                             >
                                 <option value="silver-pens">Silver Pens</option>
-                                <option value="silver-phone-covers">Silver Phone Covers</option>
                             </select>
                         </div>
                     </section>

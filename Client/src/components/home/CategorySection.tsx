@@ -1,182 +1,155 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
-import { Button } from '../common';
-import { Pen, Smartphone, ArrowRight } from 'lucide-react';
-import { getCategorySlug } from '../../data/products';
+import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
 import { fetchProducts, type Product } from '../../api/products';
 
-const categories = [
+const FALLBACK_PENS: Product[] = [
     {
-        title: 'Silver Pens',
-        description: 'The art of writing, elevated in silver coating',
-        cta: 'Shop Pens',
-        icon: Pen,
-        images: [
-            'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=600&q=80',
-            'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&q=80',
-            'https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?w=600&q=80',
-        ],
+        _id: 'pen-001',
+        sku: 'pen-001',
+        name: 'Executive Signature Pen',
+        category: 'silver-pens',
+        categoryLabel: 'Silver Pens',
+        price: 12999,
+        originalPrice: 15999,
+        image: 'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=800&q=80',
+        description: 'Handcrafted silver coating pen with personalized engraving option',
+        badge: 'Bestseller',
+        isActive: true,
     },
     {
-        title: 'Silver Phone Covers',
-        description: 'Protect your device in premium silver style',
-        cta: 'Shop Covers',
-        icon: Smartphone,
-        images: [
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80',
-            'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80',
-            'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80',
-        ],
+        _id: 'pen-002',
+        sku: 'pen-002',
+        name: 'Classic Fountain Pen',
+        category: 'silver-pens',
+        categoryLabel: 'Silver Pens',
+        price: 9999,
+        image: 'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=800&q=80',
+        description: 'Elegant fountain pen with smooth ink flow and premium silver finish',
+        isActive: true,
+    },
+    {
+        _id: 'pen-003',
+        sku: 'pen-003',
+        name: 'Premium Ballpoint',
+        category: 'silver-pens',
+        categoryLabel: 'Silver Pens',
+        price: 7499,
+        image: 'https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?w=800&q=80',
+        description: 'Refined ballpoint pen perfect for everyday professional use',
+        badge: 'New',
+        isActive: true,
+    },
+    {
+        _id: 'pen-004',
+        sku: 'pen-004',
+        name: 'Heritage Collection Pen',
+        category: 'silver-pens',
+        categoryLabel: 'Silver Pens',
+        price: 18999,
+        originalPrice: 22999,
+        image: 'https://images.unsplash.com/photo-1589128777073-263566ae5e4d?w=800&q=80',
+        description: 'Limited edition pen with intricate silver engravings and vintage design',
+        badge: 'Limited Edition',
+        isActive: true,
+    },
+    {
+        _id: 'pen-005',
+        sku: 'pen-005',
+        name: 'Modern Minimalist Pen',
+        category: 'silver-pens',
+        categoryLabel: 'Silver Pens',
+        price: 8499,
+        image: 'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=800&q=80',
+        description: 'Sleek contemporary design with brushed silver finish',
+        isActive: true,
     },
 ];
 
-const fallbackImages: Record<string, string[]> = {
-    'silver-pens': [
-        'https://images.unsplash.com/photo-1585336261022-680e295ce3fe?w=600&q=80',
-        'https://images.unsplash.com/photo-1583485088034-697b5bc54ccd?w=600&q=80',
-        'https://images.unsplash.com/photo-1518674660708-0e2c0473e68e?w=600&q=80',
-    ],
-    'silver-phone-covers': [
-        'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80',
-        'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80',
-        'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80',
-    ],
-};
+const AUTO_SLIDE_INTERVAL = 4000;
+
+const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
 
 export function CategorySection() {
     const sectionRef = useRef<HTMLElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
-    const cardsRef = useRef<HTMLDivElement>(null);
-    const [activeImages, setActiveImages] = useState<number[]>(() => categories.map(() => 0));
-    const [categoryImages, setCategoryImages] = useState<Record<string, string[]>>(fallbackImages);
+    const carouselRef = useRef<HTMLDivElement>(null);
 
-    // Store interval IDs in a ref to persist across re-renders
-    const hoverIntervalsRef = useRef<(ReturnType<typeof setInterval> | null)[]>(categories.map(() => null));
+    const [pens, setPens] = useState<Product[]>(FALLBACK_PENS);
+    const [activeIndex, setActiveIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const autoSlideRef = useRef<ReturnType<typeof setInterval> | null>(null);
+    const [isAnimating, setIsAnimating] = useState(false);
 
-    // Cycle images on hover
-    const handleMouseEnter = (cardIndex: number) => {
-        // Clear any existing interval for this card first
-        if (hoverIntervalsRef.current[cardIndex]) {
-            clearInterval(hoverIntervalsRef.current[cardIndex]!);
-        }
-
-        const interval = setInterval(() => {
-            setActiveImages((prev) => {
-                const newImages = [...prev];
-                const currentImages = categoryImages[getCategorySlug(categories[cardIndex].title)]
-                    ?? categories[cardIndex].images;
-                if (currentImages.length > 0) {
-                    newImages[cardIndex] = (newImages[cardIndex] + 1) % currentImages.length;
-                }
-                return newImages;
-            });
-        }, 800);
-
-        hoverIntervalsRef.current[cardIndex] = interval;
-    };
-
-    const handleMouseLeave = (cardIndex: number) => {
-        if (hoverIntervalsRef.current[cardIndex]) {
-            clearInterval(hoverIntervalsRef.current[cardIndex]!);
-            hoverIntervalsRef.current[cardIndex] = null;
-        }
-        setActiveImages((prev) => {
-            const newImages = [...prev];
-            newImages[cardIndex] = 0;
-            return newImages;
-        });
-    };
-
+    // Load pens from API
     useEffect(() => {
         let cancelled = false;
-
-        async function loadCategoryImages() {
+        async function loadPens() {
             try {
-                const categorySlugs = categories.map((category) => getCategorySlug(category.title));
-                const responses = await Promise.all(
-                    categorySlugs.map((slug) => fetchProducts({ category: slug, limit: 3 }))
-                );
-                if (cancelled) {
-                    return;
+                const data = await fetchProducts({ category: 'silver-pens' });
+                if (!cancelled && data && data.length > 0) {
+                    setPens(data);
                 }
-
-                const nextImages: Record<string, string[]> = { ...fallbackImages };
-                responses.forEach((products, index) => {
-                    const slug = categorySlugs[index];
-                    const mainImages = products
-                        .map((product: Product) => product.image)
-                        .filter(Boolean)
-                        .slice(0, 3);
-                    if (mainImages.length > 0) {
-                        nextImages[slug] = mainImages;
-                    }
-                });
-
-                setCategoryImages(nextImages);
-            } catch (error) {
-                console.error('Failed to load category images:', error);
+            } catch {
+                // keep fallback
             }
         }
-
-        loadCategoryImages();
-
-        return () => {
-            cancelled = true;
-        };
+        loadPens();
+        return () => { cancelled = true; };
     }, []);
 
+    const goTo = useCallback((index: number) => {
+        if (isAnimating) return;
+        setIsAnimating(true);
+        setActiveIndex((index + pens.length) % pens.length);
+        setTimeout(() => setIsAnimating(false), 500);
+    }, [isAnimating, pens.length]);
+
+    const goNext = useCallback(() => goTo(activeIndex + 1), [goTo, activeIndex]);
+    const goPrev = useCallback(() => goTo(activeIndex - 1), [goTo, activeIndex]);
+
+    // Auto-slide
+    useEffect(() => {
+        if (isHovered) {
+            if (autoSlideRef.current) clearInterval(autoSlideRef.current);
+            return;
+        }
+        autoSlideRef.current = setInterval(goNext, AUTO_SLIDE_INTERVAL);
+        return () => {
+            if (autoSlideRef.current) clearInterval(autoSlideRef.current);
+        };
+    }, [isHovered, goNext]);
+
+    // GSAP entrance animations
     useEffect(() => {
         ScrollTrigger.refresh();
-
         const ctx = gsap.context(() => {
-            // Header animation
             gsap.fromTo(
                 headerRef.current,
                 { opacity: 0, y: 30 },
                 {
-                    opacity: 1,
-                    y: 0,
-                    duration: 0.7,
-                    ease: 'power3.out',
-                    scrollTrigger: {
-                        trigger: headerRef.current,
-                        start: 'top 85%',
-                        toggleActions: 'play none none reverse',
-                    },
+                    opacity: 1, y: 0, duration: 0.7, ease: 'power3.out',
+                    scrollTrigger: { trigger: headerRef.current, start: 'top 85%', toggleActions: 'play none none reverse' },
                 }
             );
-
-            // Cards animation
-            const cards = cardsRef.current?.querySelectorAll('.category-card');
-            if (cards && cards.length > 0) {
-                gsap.fromTo(
-                    cards,
-                    { opacity: 0, y: 40 },
-                    {
-                        opacity: 1,
-                        y: 0,
-                        stagger: 0.15,
-                        duration: 0.6,
-                        ease: 'power3.out',
-                        scrollTrigger: {
-                            trigger: cardsRef.current,
-                            start: 'top 85%',
-                            toggleActions: 'play none none reverse',
-                        },
-                    }
-                );
-            }
+            gsap.fromTo(
+                carouselRef.current,
+                { opacity: 0, y: 40 },
+                {
+                    opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
+                    scrollTrigger: { trigger: carouselRef.current, start: 'top 85%', toggleActions: 'play none none reverse' },
+                }
+            );
         }, sectionRef);
-
         return () => ctx.revert();
     }, []);
 
+    const currentPen = pens[activeIndex];
+
     return (
-        <section
-            ref={sectionRef}
-            className="py-12 md:py-16 lg:py-20 bg-pearl"
-        >
+        <section ref={sectionRef} className="py-12 md:py-16 lg:py-20 bg-pearl overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 {/* Section Header */}
                 <div ref={headerRef} className="text-center mb-10 md:mb-12">
@@ -184,91 +157,158 @@ export function CategorySection() {
                         Our Collection
                     </span>
                     <h2 className="font-heading text-2xl md:text-3xl lg:text-4xl font-bold text-charcoal mb-3">
-                        Explore Our Silver Collection
+                        Explore Our Silver Pen Collection
                     </h2>
                     <p className="font-body text-sm md:text-base text-charcoal/60 max-w-lg mx-auto">
-                        Premium accessories designed for everyday elegance
+                        Premium silver pens designed for everyday elegance
                     </p>
                 </div>
 
-                {/* Category Cards Grid - Equal Width */}
+                {/* Carousel */}
                 <div
-                    ref={cardsRef}
-                    className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 max-w-5xl mx-auto"
+                    ref={carouselRef}
+                    className="relative max-w-5xl mx-auto"
+                    onMouseEnter={() => setIsHovered(true)}
+                    onMouseLeave={() => setIsHovered(false)}
                 >
-                    {categories.map((category, index) => {
-                        const IconComponent = category.icon;
-                        const categorySlug = getCategorySlug(category.title);
-                        const images = categoryImages[categorySlug] ?? category.images;
+                    {/* Main Card */}
+                    <div className="relative bg-white rounded-3xl shadow-luxury overflow-hidden border border-charcoal/5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 md:min-h-[480px]">
+                            {/* Image Panel */}
+                            <div className="relative h-56 sm:h-64 md:h-full overflow-hidden bg-gradient-to-br from-primary-light/20 to-pearl order-1">
+                                {pens.map((pen, idx) => (
+                                    <img
+                                        key={pen._id}
+                                        src={pen.image}
+                                        alt={pen.name}
+                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${idx === activeIndex
+                                                ? 'opacity-100 scale-100'
+                                                : 'opacity-0 scale-105'
+                                            }`}
+                                        loading="lazy"
+                                    />
+                                ))}
+                                {/* Gradient overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 md:to-white/5" />
 
-                        return (
-                            <Link
-                                key={index}
-                                to={`/products?category=${categorySlug}`}
-                                className="category-card group bg-white rounded-2xl overflow-hidden shadow-soft hover:shadow-luxury transition-all duration-500 cursor-pointer block"
-                                onMouseEnter={() => handleMouseEnter(index)}
-                                onMouseLeave={() => handleMouseLeave(index)}
-                            >
-                                {/* Image Area - Separate from background */}
-                                <div className="relative aspect-video overflow-hidden">
-                                    {images.map((img, imgIndex) => (
-                                        <img
-                                            key={imgIndex}
-                                            src={img}
-                                            alt={`${category.title} variant ${imgIndex + 1}`}
-                                            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-500 ${imgIndex === activeImages[index] ? 'opacity-100' : 'opacity-0'
-                                                }`}
-                                            loading="lazy"
-                                        />
-                                    ))}
-
-                                    {/* Subtle overlay on hover */}
-                                    <div className="absolute inset-0 bg-charcoal/0 group-hover:bg-charcoal/10 transition-colors duration-300" />
-
-                                    {/* Image indicators */}
-                                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                        {images.map((_, imgIndex) => (
-                                            <span
-                                                key={imgIndex}
-                                                className={`w-1.5 h-1.5 rounded-full transition-colors duration-300 ${imgIndex === activeImages[index]
-                                                    ? 'bg-white'
-                                                    : 'bg-white/50'
-                                                    }`}
-                                            />
-                                        ))}
+                                {/* Badge */}
+                                {currentPen.badge && (
+                                    <div className="absolute top-5 left-5">
+                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold font-body ${currentPen.badge === 'Bestseller'
+                                                ? 'bg-amber-100 text-amber-800'
+                                                : currentPen.badge === 'New'
+                                                    ? 'bg-emerald-100 text-emerald-800'
+                                                    : 'bg-primary/20 text-charcoal'
+                                            }`}>
+                                            <Sparkles className="w-3 h-3" />
+                                            {currentPen.badge}
+                                        </span>
                                     </div>
+                                )}
+                            </div>
+
+                            {/* Content Panel */}
+                            <div className="flex flex-col justify-between p-8 md:p-10 order-2">
+                                {/* Counter indicator */}
+                                <div className="flex items-center justify-between mb-6">
+                                    <span className="font-body text-xs uppercase tracking-widest text-charcoal/40">
+                                        Silver Pens
+                                    </span>
+                                    <span className="font-body text-xs text-charcoal/40">
+                                        {activeIndex + 1} / {pens.length}
+                                    </span>
                                 </div>
 
-                                {/* Content Area */}
-                                <div className="p-4 md:p-5">
-                                    {/* Icon + Title row */}
-                                    <div className="flex items-center gap-2.5 mb-2.5">
-                                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-primary-light to-primary flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                            <IconComponent className="w-4.5 h-4.5 text-charcoal" strokeWidth={1.5} />
-                                        </div>
-                                        <h3 className="font-heading text-lg md:text-xl font-semibold text-charcoal">
-                                            {category.title}
-                                        </h3>
-                                    </div>
-
-                                    {/* Description */}
-                                    <p className="font-body text-sm text-charcoal/60 leading-relaxed mb-3">
-                                        {category.description}
+                                {/* Text content */}
+                                <div className="flex-1">
+                                    <h3
+                                        key={currentPen._id}
+                                        className="font-heading text-2xl md:text-3xl font-bold text-charcoal mb-3 transition-all duration-300"
+                                    >
+                                        {currentPen.name}
+                                    </h3>
+                                    <p className="font-body text-sm md:text-base text-charcoal/60 leading-relaxed mb-6">
+                                        {currentPen.description}
                                     </p>
 
-                                    {/* CTA */}
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        icon={<ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />}
-                                        className="text-charcoal hover:text-charcoal p-0 hover:bg-transparent"
-                                    >
-                                        {category.cta}
-                                    </Button>
+                                    {/* Price */}
+                                    <div className="flex items-baseline gap-3 mb-8">
+                                        <span className="font-heading text-2xl md:text-3xl font-bold text-charcoal">
+                                            {formatPrice(currentPen.price)}
+                                        </span>
+                                        {currentPen.originalPrice && (
+                                            <span className="font-body text-sm text-charcoal/40 line-through">
+                                                {formatPrice(currentPen.originalPrice)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </div>
-                            </Link>
-                        );
-                    })}
+
+                                {/* CTA */}
+                                <Link
+                                    to={`/products/${currentPen.sku}`}
+                                    className="inline-flex items-center gap-2 self-start px-6 py-3 bg-charcoal text-pearl rounded-xl font-body text-sm font-semibold hover:bg-graphite transition-colors group"
+                                >
+                                    View Details
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Link>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Navigation Arrows */}
+                    <button
+                        onClick={goPrev}
+                        aria-label="Previous pen"
+                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-11 h-11 bg-white rounded-full shadow-card border border-charcoal/10 flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-pearl transition-all duration-300 hover:scale-110 z-10"
+                    >
+                        <ChevronLeft className="w-5 h-5" />
+                    </button>
+                    <button
+                        onClick={goNext}
+                        aria-label="Next pen"
+                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-11 h-11 bg-white rounded-full shadow-card border border-charcoal/10 flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-pearl transition-all duration-300 hover:scale-110 z-10"
+                    >
+                        <ChevronRight className="w-5 h-5" />
+                    </button>
+
+                    {/* Dot Indicators */}
+                    <div className="flex items-center justify-center gap-2 mt-6">
+                        {pens.map((_, idx) => (
+                            <button
+                                key={idx}
+                                onClick={() => goTo(idx)}
+                                aria-label={`Go to slide ${idx + 1}`}
+                                className={`transition-all duration-300 rounded-full ${idx === activeIndex
+                                        ? 'w-8 h-2.5 bg-charcoal'
+                                        : 'w-2.5 h-2.5 bg-charcoal/20 hover:bg-charcoal/40'
+                                    }`}
+                            />
+                        ))}
+                    </div>
+
+                    {/* Auto-slide progress bar */}
+                    {/* <div className="mt-3 max-w-xs mx-auto h-0.5 bg-charcoal/10 rounded-full overflow-hidden">
+                        <div
+                            key={`${activeIndex}-${isHovered}`}
+                            className={`h-full bg-charcoal/40 rounded-full ${isHovered ? 'w-0' : 'w-full'}`}
+                            style={{
+                                transition: isHovered ? 'none' : `width ${AUTO_SLIDE_INTERVAL}ms linear`,
+                                width: isHovered ? '0%' : '100%',
+                            }}
+                        />
+                    </div> */}
+
+                    {/* View All CTA */}
+                    <div className="text-center mt-8">
+                        <Link
+                            to="/products?category=silver-pens"
+                            className="inline-flex items-center gap-2 font-body text-sm font-medium text-charcoal/60 hover:text-charcoal transition-colors group"
+                        >
+                            View All Silver Pens
+                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </Link>
+                    </div>
                 </div>
             </div>
         </section>

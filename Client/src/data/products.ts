@@ -1,4 +1,4 @@
-export type ProductCategory = 'silver-pens' | 'silver-phone-covers';
+export type ProductCategory = 'silver-pens';
 
 export interface ProductSpecifications {
     material: string;
@@ -26,7 +26,6 @@ export interface Product {
 
 export const categories: { slug: ProductCategory; label: string }[] = [
     { slug: 'silver-pens', label: 'Silver Pens' },
-    { slug: 'silver-phone-covers', label: 'Silver Phone Covers' },
 ];
 
 export const products: Product[] = [
@@ -169,114 +168,8 @@ export const products: Product[] = [
             warranty: '1 Year',
         },
     },
-    // Silver Phone Covers
-    {
-        id: 'cover-001',
-        name: 'Classic Silver Case',
-        category: 'silver-phone-covers',
-        categoryLabel: 'Silver Phone Covers',
-        price: 4999,
-        image: 'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=600&q=80',
-        images: [
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80',
-            'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80',
-        ],
-        description: 'Premium silver-accented phone case with shock protection',
-        longDescription: 'Protect your device in style with the Classic Silver Case. Featuring genuine silver coating accents and military-grade shock absorption, this case offers the perfect blend of luxury and protection.',
-        badge: 'Bestseller',
-        features: [
-            'Genuine silver accent frame',
-            'Military-grade drop protection',
-            'Wireless charging compatible',
-            'Raised edges for screen protection',
-        ],
-        specifications: {
-            material: 'Aircraft-grade Aluminum with Silver Accents',
-            weight: '45 grams',
-            warranty: '1 Year',
-        },
-    },
-    {
-        id: 'cover-002',
-        name: 'Engraved Monogram Case',
-        category: 'silver-phone-covers',
-        categoryLabel: 'Silver Phone Covers',
-        price: 6999,
-        originalPrice: 8499,
-        image: 'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=600&q=80',
-        images: [
-            'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80',
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80',
-        ],
-        description: 'Personalized phone case with your initials in silver coating',
-        longDescription: 'Make your phone uniquely yours with the Engraved Monogram Case. Your initials are hand-engraved in silver coating, creating a one-of-a-kind accessory that reflects your personal style.',
-        badge: 'New',
-        features: [
-            'Hand-engraved silver coating monogram',
-            'Choose up to 3 initials',
-            'Multiple font styles available',
-            'Slim profile design',
-        ],
-        specifications: {
-            material: 'Premium Polycarbonate with silver coating Plate',
-            weight: '38 grams',
-            warranty: '1 Year',
-        },
-    },
-    {
-        id: 'cover-003',
-        name: 'Platinum Shield Case',
-        category: 'silver-phone-covers',
-        categoryLabel: 'Silver Phone Covers',
-        price: 5499,
-        image: 'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=600&q=80',
-        images: [
-            'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=800&q=80',
-            'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=800&q=80',
-        ],
-        description: 'Military-grade protection with elegant silver trim',
-        longDescription: 'The Platinum Shield Case offers uncompromising protection without sacrificing style. Its reinforced corners and platinum-finished silver trim make it the choice for those who demand the best.',
-        features: [
-            'Platinum-finished silver trim',
-            '6-foot drop protection tested',
-            'Scratch-resistant coating',
-            'Precise button cutouts',
-        ],
-        specifications: {
-            material: 'Reinforced TPU with Platinum Silver Trim',
-            weight: '42 grams',
-            warranty: '2 Years',
-        },
-    },
-    {
-        id: 'cover-004',
-        name: 'Luxury Leather & Silver',
-        category: 'silver-phone-covers',
-        categoryLabel: 'Silver Phone Covers',
-        price: 8999,
-        originalPrice: 10999,
-        image: 'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=600&q=80',
-        images: [
-            'https://images.unsplash.com/photo-1609081219090-a6d81d3085bf?w=800&q=80',
-            'https://images.unsplash.com/photo-1592899677977-9c10ca588bbd?w=800&q=80',
-        ],
-        description: 'Premium Italian leather combined with silver hardware',
-        longDescription: 'The epitome of luxury phone protection. Handcrafted from genuine Italian leather with silver coating hardware, this case ages beautifully and develops a unique patina over time.',
-        badge: 'Limited Edition',
-        features: [
-            'Genuine Italian leather',
-            'silver coating corner protectors',
-            'Card slot on back',
-            'Develops unique patina',
-            'Handstitched details',
-        ],
-        specifications: {
-            material: 'Italian Leather with silver coating',
-            weight: '55 grams',
-            warranty: '2 Years',
-        },
-    },
 ];
+
 
 export function getCategorySlug(title: string): ProductCategory {
     return title.toLowerCase().replace(/\s+/g, '-') as ProductCategory;

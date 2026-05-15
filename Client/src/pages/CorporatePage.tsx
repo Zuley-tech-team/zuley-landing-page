@@ -8,7 +8,7 @@ import { submitCorporateLead } from '../api/engagement';
 const reasons = [
     'silver coating with premium quality finish',
     'Precision logo engraving for brand consistency',
-    'Bulk pricing tiers and custom quote support',
+    'Pricing tiers and custom quote support',
     'Dedicated account assistance and timeline updates',
 ];
 
@@ -17,16 +17,6 @@ const products = [
         name: 'Executive Silver Pens',
         fromPrice: 'From Rs. 3,999 per piece',
         summary: 'Ideal for recognition awards, leadership gifting, and client appreciation.',
-    },
-    {
-        name: 'Personalized Silver Covers',
-        fromPrice: 'From Rs. 2,999 per piece',
-        summary: 'Modern premium gifting for tech teams, founders, and high-value clients.',
-    },
-    {
-        name: 'Premium Silver Phone Covers',
-        fromPrice: 'From Rs. 2,999 per piece',
-        summary: 'Modern gifting option for tech teams and high-value clients.',
     },
 ];
 
@@ -48,7 +38,7 @@ const caseStudies = [
     },
     {
         client: 'Global Finance Corp',
-        outcome: '200 engraved silver covers delivered ahead of timeline.',
+        outcome: '75 engraved silver pens delivered ahead of timeline.',
     },
 ];
 
@@ -74,7 +64,7 @@ export function CorporatePage() {
     const [email, setEmail] = useState('');
     const [phone, setPhone] = useState('');
     const [quantity, setQuantity] = useState(25);
-    const [productType, setProductType] = useState<'silver-pens' | 'silver-phone-covers' | 'mixed'>('silver-pens');
+    const [productType, setProductType] = useState<'silver-pens'>('silver-pens');
     const [timeline, setTimeline] = useState('');
     const [message, setMessage] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -194,12 +184,10 @@ export function CorporatePage() {
                                     />
                                     <select
                                         value={productType}
-                                        onChange={(event) => setProductType(event.target.value as 'silver-pens' | 'silver-phone-covers' | 'mixed')}
+                                        onChange={(event) => setProductType(event.target.value as 'silver-pens')}
                                         className="w-full rounded-xl border border-pearl/20 bg-charcoal/40 px-4 py-2.5 font-body text-pearl"
                                     >
                                         <option className="text-charcoal" value="silver-pens">Silver pens</option>
-                                        <option className="text-charcoal" value="silver-phone-covers">Silver phone covers</option>
-                                        <option className="text-charcoal" value="mixed">Mixed products</option>
                                     </select>
                                 </div>
                                 <input

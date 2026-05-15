@@ -15,7 +15,7 @@ const steps = [
     {
         number: '01',
         title: 'Choose Your Product',
-        description: 'Select from our collection of silver pens and silver covers',
+        description: 'Select from our collection of premium silver pens',
     },
     {
         number: '02',
