@@ -58,7 +58,7 @@ const faqItems = [
     },
     {
         q: 'Does personalization affect delivery timeline?',
-        a: 'Yes, personalized items usually add 1 to 2 business days for engraving and final quality checks.',
+        a: 'Yes, personalized items usually add 5 to 7 business days for engraving and final quality checks.',
     },
 ];
 
