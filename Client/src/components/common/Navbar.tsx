@@ -10,7 +10,7 @@ const navLinks = [
     { label: 'Silver Pens', href: '/products?category=silver-pens' },
     { label: 'About', href: '/about' },
     { label: 'Track Order', href: '/track-order' },
-    { label: 'Corporate', href: '/corporate' },
+    // { label: 'Corporate', href: '/corporate' }, // temporarily hidden
     { label: 'Contact', href: '/contact' },
 ];
 
