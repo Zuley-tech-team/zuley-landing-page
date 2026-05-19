@@ -126,10 +126,10 @@ export function ProductSpotlight() {
                 {/* Product Display - Large Image */}
                 <div
                     ref={imageRef}
-                    className="relative mb-16 md:mb-20 rounded-3xl overflow-hidden"
+                    className="relative hidden md:block mb-16 md:mb-20 rounded-[2rem] md:rounded-3xl overflow-hidden"
                 >
                     {/* Main Image */}
-                    <div className="relative aspect-square md:aspect-[21/9]">
+                    <div className="relative aspect-[4/5] sm:aspect-[5/4] md:aspect-[21/9]">
                         <img
                             src={heroBelow}
                             alt="Signature silver pen"
@@ -137,16 +137,16 @@ export function ProductSpotlight() {
                         />
 
                         {/* Overlay gradient */}
-                        <div className="absolute inset-0 bg-gradient-to-r from-charcoal/70 via-charcoal/30 to-transparent" />
+                        <div className="absolute inset-0 hidden md:block bg-gradient-to-r from-charcoal/70 via-charcoal/30 to-transparent" />
 
                         {/* Content overlay */}
-                        <div className="absolute inset-0 flex items-center">
-                            <div className="max-w-xl p-8 md:p-12">
-                                <div className="flex items-baseline gap-2 mb-4">
-                                    <span className="font-heading text-3xl md:text-5xl font-bold text-primary">Silver-Coated</span>
-                                    <span className="font-body text-pearl/70 uppercase tracking-wider">Premium Finish</span>
+                        <div className="absolute inset-0 hidden md:flex items-center">
+                            <div className="max-w-xl p-5 sm:p-6 md:p-12">
+                                <div className="flex flex-col items-start gap-2 mb-3 md:mb-4 sm:flex-row sm:items-baseline sm:gap-2.5">
+                                    <span className="font-heading text-2xl sm:text-3xl md:text-5xl font-bold text-primary leading-none">Silver-Coated</span>
+                                    <span className="font-body text-[11px] sm:text-xs md:text-sm text-pearl/75 uppercase tracking-[0.2em] sm:tracking-wider">Premium Finish</span>
                                 </div>
-                                <p className="font-body text-lg text-pearl/80 leading-relaxed">
+                                <p className="max-w-md font-body text-sm sm:text-base md:text-lg text-pearl/80 leading-relaxed">
                                     A premium standard for finish and durability. Each piece goes through
                                     strict quality checks before delivery.
                                 </p>
@@ -155,14 +155,14 @@ export function ProductSpotlight() {
                     </div>
 
                     {/* Floating badges */}
-                    <div className="absolute top-4 right-4 md:top-6 md:right-6 flex flex-col gap-2">
-                        <div className="px-4 py-2 bg-pearl/95 backdrop-blur-sm rounded-full shadow-card">
-                            <span className="font-body text-sm font-medium text-charcoal">
+                    <div className="absolute top-6 right-6 hidden md:flex flex-col gap-2">
+                        <div className="px-3 py-2 md:px-4 md:py-2 bg-pearl/95 backdrop-blur-sm rounded-full shadow-card text-center sm:text-left">
+                            <span className="font-body text-xs sm:text-sm font-medium text-charcoal">
                                 ✨ Premium Quality
                             </span>
                         </div>
-                        <div className="px-4 py-2 bg-charcoal/90 backdrop-blur-sm rounded-full">
-                            <span className="font-body text-sm font-medium text-pearl">
+                        <div className="px-3 py-2 md:px-4 md:py-2 bg-charcoal/90 backdrop-blur-sm rounded-full text-center sm:text-left">
+                            <span className="font-body text-xs sm:text-sm font-medium text-pearl">
                                 Quality Certified
                             </span>
                         </div>

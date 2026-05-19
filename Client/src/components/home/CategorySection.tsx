@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useCallback } from 'react';
+import { useEffect, useRef, useState, useCallback, type TouchEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { gsap, ScrollTrigger } from '../../lib/gsap';
 import { ChevronLeft, ChevronRight, ArrowRight, Sparkles } from 'lucide-react';
@@ -76,10 +76,15 @@ export function CategorySection() {
     const sectionRef = useRef<HTMLElement>(null);
     const headerRef = useRef<HTMLDivElement>(null);
     const carouselRef = useRef<HTMLDivElement>(null);
+    const touchStartXRef = useRef<number | null>(null);
+    const touchEndXRef = useRef<number | null>(null);
 
     const [pens, setPens] = useState<Product[]>(FALLBACK_PENS);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [trackIndex, setTrackIndex] = useState(1);
+    const [transitionEnabled, setTransitionEnabled] = useState(true);
     const [isHovered, setIsHovered] = useState(false);
+    const [isAutoPlaying, setIsAutoPlaying] = useState(true);
     const autoSlideRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [isAnimating, setIsAnimating] = useState(false);
 
@@ -100,27 +105,130 @@ export function CategorySection() {
         return () => { cancelled = true; };
     }, []);
 
-    const goTo = useCallback((index: number) => {
-        if (isAnimating) return;
+    useEffect(() => {
+        setActiveIndex(0);
+        setTrackIndex(pens.length > 1 ? 1 : 0);
+        setTransitionEnabled(false);
+        const frame = requestAnimationFrame(() => setTransitionEnabled(true));
+        return () => cancelAnimationFrame(frame);
+    }, [pens.length]);
+
+    const goTo = useCallback((index: number, manual = true) => {
+        if (isAnimating || pens.length === 0) return;
+        if (manual) {
+            setIsAutoPlaying(false);
+        }
+
+        const normalizedIndex = (index + pens.length) % pens.length;
         setIsAnimating(true);
-        setActiveIndex((index + pens.length) % pens.length);
+        setTransitionEnabled(true);
+        setActiveIndex(normalizedIndex);
+        setTrackIndex(normalizedIndex + 1);
         setTimeout(() => setIsAnimating(false), 500);
     }, [isAnimating, pens.length]);
 
-    const goNext = useCallback(() => goTo(activeIndex + 1), [goTo, activeIndex]);
-    const goPrev = useCallback(() => goTo(activeIndex - 1), [goTo, activeIndex]);
+    const goNext = useCallback((manual = true) => {
+        if (isAnimating || pens.length === 0) return;
+        if (manual) {
+            setIsAutoPlaying(false);
+        }
+
+        setIsAnimating(true);
+        setTransitionEnabled(true);
+
+        if (activeIndex === pens.length - 1 && pens.length > 1) {
+            setTrackIndex(pens.length + 1);
+            setActiveIndex(0);
+        } else {
+            setTrackIndex((current) => current + 1);
+            setActiveIndex((current) => (current + 1) % pens.length);
+        }
+
+        setTimeout(() => setIsAnimating(false), 500);
+    }, [activeIndex, isAnimating, pens.length]);
+
+    const goPrev = useCallback((manual = true) => {
+        if (isAnimating || pens.length === 0) return;
+        if (manual) {
+            setIsAutoPlaying(false);
+        }
+
+        setIsAnimating(true);
+        setTransitionEnabled(true);
+
+        if (activeIndex === 0 && pens.length > 1) {
+            setTrackIndex(0);
+            setActiveIndex(pens.length - 1);
+        } else {
+            setTrackIndex((current) => current - 1);
+            setActiveIndex((current) => (current - 1 + pens.length) % pens.length);
+        }
+
+        setTimeout(() => setIsAnimating(false), 500);
+    }, [activeIndex, isAnimating, pens.length]);
+
+    const handleTouchStart = useCallback((event: TouchEvent<HTMLDivElement>) => {
+        touchStartXRef.current = event.touches[0]?.clientX ?? null;
+        touchEndXRef.current = null;
+    }, []);
+
+    const handleTouchMove = useCallback((event: TouchEvent<HTMLDivElement>) => {
+        touchEndXRef.current = event.touches[0]?.clientX ?? null;
+    }, []);
+
+    const handleTouchEnd = useCallback(() => {
+        if (touchStartXRef.current === null || touchEndXRef.current === null) return;
+
+        const swipeDistance = touchStartXRef.current - touchEndXRef.current;
+        const minSwipeDistance = 50;
+
+        if (Math.abs(swipeDistance) >= minSwipeDistance) {
+            if (swipeDistance > 0) {
+                goNext(true);
+            } else {
+                goPrev(true);
+            }
+        }
+
+        touchStartXRef.current = null;
+        touchEndXRef.current = null;
+    }, [goNext, goPrev]);
 
     // Auto-slide
     useEffect(() => {
-        if (isHovered) {
+        if (isHovered || !isAutoPlaying || pens.length <= 1) {
             if (autoSlideRef.current) clearInterval(autoSlideRef.current);
             return;
         }
-        autoSlideRef.current = setInterval(goNext, AUTO_SLIDE_INTERVAL);
+        autoSlideRef.current = setInterval(() => goNext(false), AUTO_SLIDE_INTERVAL);
         return () => {
             if (autoSlideRef.current) clearInterval(autoSlideRef.current);
         };
-    }, [isHovered, goNext]);
+    }, [goNext, isAutoPlaying, isHovered, pens.length]);
+
+    const handleTransitionEnd = useCallback(() => {
+        if (pens.length <= 1) {
+            return;
+        }
+
+        if (trackIndex === pens.length + 1) {
+            setTransitionEnabled(false);
+            setTrackIndex(1);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setTransitionEnabled(true));
+            });
+        } else if (trackIndex === 0) {
+            setTransitionEnabled(false);
+            setTrackIndex(pens.length);
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => setTransitionEnabled(true));
+            });
+        }
+    }, [pens.length, trackIndex]);
+
+    const visiblePens = pens.length > 1
+        ? [pens[pens.length - 1], ...pens, pens[0]]
+        : pens;
 
     // GSAP entrance animations
     useEffect(() => {
@@ -146,8 +254,6 @@ export function CategorySection() {
         return () => ctx.revert();
     }, []);
 
-    const currentPen = pens[activeIndex];
-
     return (
         <section ref={sectionRef} className="py-12 md:py-16 lg:py-20 bg-pearl overflow-hidden">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -167,109 +273,110 @@ export function CategorySection() {
                 {/* Carousel */}
                 <div
                     ref={carouselRef}
-                    className="relative max-w-5xl mx-auto"
+                    className="relative max-w-5xl mx-auto md:px-14"
                     onMouseEnter={() => setIsHovered(true)}
                     onMouseLeave={() => setIsHovered(false)}
                 >
-                    {/* Main Card */}
-                    <div className="relative bg-white rounded-3xl shadow-luxury overflow-hidden border border-charcoal/5">
-                        <div className="grid grid-cols-1 md:grid-cols-2 md:min-h-[480px]">
-                            {/* Image Panel */}
-                            <div className="relative h-56 sm:h-64 md:h-full overflow-hidden bg-gradient-to-br from-primary-light/20 to-pearl order-1">
-                                {pens.map((pen, idx) => (
-                                    <img
-                                        key={pen._id}
-                                        src={pen.image}
-                                        alt={pen.name}
-                                        className={`absolute inset-0 w-full h-full object-cover transition-all duration-500 ${idx === activeIndex
-                                                ? 'opacity-100 scale-100'
-                                                : 'opacity-0 scale-105'
-                                            }`}
-                                        loading="lazy"
-                                    />
-                                ))}
-                                {/* Gradient overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 md:to-white/5" />
+                    <button
+                        onClick={() => goPrev(true)}
+                        aria-label="Previous pen"
+                        className="absolute left-0 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/10 bg-white/96 text-charcoal shadow-soft transition-all duration-300 hover:border-charcoal/20 hover:bg-white md:flex"
+                    >
+                        <ChevronLeft className="h-4 w-4" />
+                    </button>
 
-                                {/* Badge */}
-                                {currentPen.badge && (
-                                    <div className="absolute top-5 left-5">
-                                        <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold font-body ${currentPen.badge === 'Bestseller'
-                                                ? 'bg-amber-100 text-amber-800'
-                                                : currentPen.badge === 'New'
-                                                    ? 'bg-emerald-100 text-emerald-800'
-                                                    : 'bg-primary/20 text-charcoal'
-                                            }`}>
-                                            <Sparkles className="w-3 h-3" />
-                                            {currentPen.badge}
-                                        </span>
-                                    </div>
-                                )}
-                            </div>
-
-                            {/* Content Panel */}
-                            <div className="flex flex-col justify-between p-8 md:p-10 order-2">
-                                {/* Counter indicator */}
-                                <div className="flex items-center justify-between mb-6">
-                                    <span className="font-body text-xs uppercase tracking-widest text-charcoal/40">
-                                        Silver Pens
-                                    </span>
-                                    <span className="font-body text-xs text-charcoal/40">
-                                        {activeIndex + 1} / {pens.length}
-                                    </span>
-                                </div>
-
-                                {/* Text content */}
-                                <div className="flex-1">
-                                    <h3
-                                        key={currentPen._id}
-                                        className="font-heading text-2xl md:text-3xl font-bold text-charcoal mb-3 transition-all duration-300"
-                                    >
-                                        {currentPen.name}
-                                    </h3>
-                                    <p className="font-body text-sm md:text-base text-charcoal/60 leading-relaxed mb-6">
-                                        {currentPen.description}
-                                    </p>
-
-                                    {/* Price */}
-                                    <div className="flex items-baseline gap-3 mb-8">
-                                        <span className="font-heading text-2xl md:text-3xl font-bold text-charcoal">
-                                            {formatPrice(currentPen.price)}
-                                        </span>
-                                        {currentPen.originalPrice && (
-                                            <span className="font-body text-sm text-charcoal/40 line-through">
-                                                {formatPrice(currentPen.originalPrice)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* CTA */}
-                                <Link
-                                    to={`/products/${currentPen.sku}`}
-                                    className="inline-flex items-center gap-2 self-start px-6 py-3 bg-charcoal text-pearl rounded-xl font-body text-sm font-semibold hover:bg-graphite transition-colors group"
+                    <div
+                        className="overflow-hidden rounded-3xl border border-charcoal/5 bg-white shadow-luxury touch-pan-y"
+                        onTouchStart={handleTouchStart}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                    >
+                        <div
+                            className={`flex items-stretch ease-out ${transitionEnabled ? 'transition-transform duration-500' : ''}`}
+                            style={{ transform: `translateX(-${trackIndex * 100}%)` }}
+                            onTransitionEnd={handleTransitionEnd}
+                        >
+                            {visiblePens.map((pen, idx) => (
+                                <article
+                                    key={`${pen._id}-${idx}`}
+                                    className="w-full shrink-0"
+                                    aria-hidden={idx !== trackIndex}
                                 >
-                                    View Details
-                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                </Link>
-                            </div>
+                                    <div className="grid h-full grid-cols-1 md:grid-cols-2 md:min-h-[480px]">
+                                        <div className="relative h-56 overflow-hidden bg-gradient-to-br from-primary-light/20 to-pearl sm:h-64 md:h-full">
+                                            <img
+                                                src={pen.image}
+                                                alt={pen.name}
+                                                className="h-full w-full object-cover"
+                                                loading="lazy"
+                                            />
+                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent to-white/20 md:to-white/5" />
+
+                                            {pen.badge && (
+                                                <div className="absolute top-5 left-5">
+                                                    <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold font-body ${pen.badge === 'Bestseller'
+                                                            ? 'bg-amber-100 text-amber-800'
+                                                            : pen.badge === 'New'
+                                                                ? 'bg-emerald-100 text-emerald-800'
+                                                                : 'bg-primary/20 text-charcoal'
+                                                        }`}>
+                                                        <Sparkles className="w-3 h-3" />
+                                                        {pen.badge}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="flex h-full flex-col justify-between p-8 md:p-10">
+                                            <div className="flex items-center justify-between mb-6">
+                                                <span className="font-body text-xs uppercase tracking-widest text-charcoal/40">
+                                                    Silver Pens
+                                                </span>
+                                                <span className="font-body text-xs text-charcoal/40">
+                                                    {activeIndex + 1} / {pens.length}
+                                                </span>
+                                            </div>
+
+                                            <div className="flex-1">
+                                                <h3 className="font-heading text-2xl md:text-3xl font-bold text-charcoal mb-3">
+                                                    {pen.name}
+                                                </h3>
+                                                <p className="font-body text-sm md:text-base text-charcoal/60 leading-relaxed mb-6">
+                                                    {pen.description}
+                                                </p>
+
+                                                <div className="flex items-baseline gap-3 mb-8">
+                                                    <span className="font-heading text-2xl md:text-3xl font-bold text-charcoal">
+                                                        {formatPrice(pen.price)}
+                                                    </span>
+                                                    {pen.originalPrice && (
+                                                        <span className="font-body text-sm text-charcoal/40 line-through">
+                                                            {formatPrice(pen.originalPrice)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <Link
+                                                to={`/products/${pen.sku}`}
+                                                className="inline-flex items-center gap-2 self-start px-6 py-3 bg-charcoal text-pearl rounded-xl font-body text-sm font-semibold hover:bg-graphite transition-colors group"
+                                            >
+                                                View Details
+                                                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                            </Link>
+                                        </div>
+                                    </div>
+                                </article>
+                            ))}
                         </div>
                     </div>
 
-                    {/* Navigation Arrows */}
                     <button
-                        onClick={goPrev}
-                        aria-label="Previous pen"
-                        className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 md:-translate-x-6 w-11 h-11 bg-white rounded-full shadow-card border border-charcoal/10 flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-pearl transition-all duration-300 hover:scale-110 z-10"
-                    >
-                        <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <button
-                        onClick={goNext}
+                        onClick={() => goNext(true)}
                         aria-label="Next pen"
-                        className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 md:translate-x-6 w-11 h-11 bg-white rounded-full shadow-card border border-charcoal/10 flex items-center justify-center text-charcoal hover:bg-charcoal hover:text-pearl transition-all duration-300 hover:scale-110 z-10"
+                        className="absolute right-0 top-1/2 z-20 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-charcoal/10 bg-white/96 text-charcoal shadow-soft transition-all duration-300 hover:border-charcoal/20 hover:bg-white md:flex"
                     >
-                        <ChevronRight className="w-5 h-5" />
+                        <ChevronRight className="h-4 w-4" />
                     </button>
 
                     {/* Dot Indicators */}
@@ -277,7 +384,7 @@ export function CategorySection() {
                         {pens.map((_, idx) => (
                             <button
                                 key={idx}
-                                onClick={() => goTo(idx)}
+                                onClick={() => goTo(idx, true)}
                                 aria-label={`Go to slide ${idx + 1}`}
                                 className={`transition-all duration-300 rounded-full ${idx === activeIndex
                                         ? 'w-8 h-2.5 bg-charcoal'
@@ -286,18 +393,6 @@ export function CategorySection() {
                             />
                         ))}
                     </div>
-
-                    {/* Auto-slide progress bar */}
-                    {/* <div className="mt-3 max-w-xs mx-auto h-0.5 bg-charcoal/10 rounded-full overflow-hidden">
-                        <div
-                            key={`${activeIndex}-${isHovered}`}
-                            className={`h-full bg-charcoal/40 rounded-full ${isHovered ? 'w-0' : 'w-full'}`}
-                            style={{
-                                transition: isHovered ? 'none' : `width ${AUTO_SLIDE_INTERVAL}ms linear`,
-                                width: isHovered ? '0%' : '100%',
-                            }}
-                        />
-                    </div> */}
 
                     {/* View All CTA */}
                     <div className="text-center mt-8">

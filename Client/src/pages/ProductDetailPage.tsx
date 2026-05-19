@@ -9,10 +9,157 @@ import { CheckoutModal } from '../components/checkout/CheckoutModal';
 import { fetchProductBySku, fetchRelatedProducts, type Product } from '../api/products';
 import { fetchReviews, type ReviewItem } from '../api/reviews';
 import { fetchAvailableCoupons, type PublicCoupon } from '../api/coupons';
-import { ChevronRight, ChevronLeft, Check, ShoppingCart, ArrowLeft, Loader2, Star, X, RotateCcw, Award, ShieldCheck, Truck, Sparkles } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Check, ShoppingCart, ArrowLeft, Star, X, RotateCcw, Award, ShieldCheck, Truck, Sparkles } from 'lucide-react';
 import { Button } from '../components/common/Button';
 import { useStockStatus } from '../hooks/useStockStatus';
 import { useToast } from '../contexts/ToastContext';
+
+function SkeletonBlock({ className = '' }: { className?: string }) {
+    return <div className={`animate-pulse rounded-xl bg-charcoal/8 ${className}`.trim()} />;
+}
+
+function ProductDetailSkeleton() {
+    return (
+        <main className="min-h-screen bg-pearl pt-20">
+            <div className="bg-white border-b border-charcoal/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+                    <div className="flex items-center gap-2">
+                        <SkeletonBlock className="h-4 w-12 rounded-full" />
+                        <SkeletonBlock className="h-4 w-4 rounded-full" />
+                        <SkeletonBlock className="h-4 w-16 rounded-full" />
+                        <SkeletonBlock className="h-4 w-4 rounded-full" />
+                        <SkeletonBlock className="h-4 w-24 rounded-full" />
+                    </div>
+                </div>
+            </div>
+
+            <section className="py-8 md:py-12">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+                        <div className="space-y-4">
+                            <SkeletonBlock className="aspect-square rounded-2xl" />
+                            <div className="flex gap-3 overflow-hidden">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <SkeletonBlock key={index} className="h-20 w-20 flex-shrink-0 rounded-xl" />
+                                ))}
+                            </div>
+                        </div>
+
+                        <div className="space-y-6">
+                            <SkeletonBlock className="h-7 w-28 rounded-full" />
+                            <div className="flex items-center gap-2">
+                                <SkeletonBlock className="h-4 w-28" />
+                                <SkeletonBlock className="h-4 w-24" />
+                            </div>
+                            <div className="space-y-3">
+                                <SkeletonBlock className="h-10 w-4/5" />
+                                <SkeletonBlock className="h-10 w-3/5" />
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <SkeletonBlock className="h-10 w-32" />
+                                <SkeletonBlock className="h-7 w-24" />
+                            </div>
+                            <SkeletonBlock className="h-8 w-28 rounded-full" />
+
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-4 py-6 border-y border-charcoal/10">
+                                {Array.from({ length: 4 }).map((_, index) => (
+                                    <div key={index} className="flex items-center gap-3">
+                                        <SkeletonBlock className="h-10 w-10 rounded-full flex-shrink-0" />
+                                        <div className="space-y-2 flex-1">
+                                            <SkeletonBlock className="h-4 w-24" />
+                                            <SkeletonBlock className="h-3 w-20" />
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="rounded-2xl border border-charcoal/10 bg-white/90 p-4 space-y-3">
+                                <SkeletonBlock className="h-5 w-28" />
+                                <SkeletonBlock className="h-18 w-full rounded-xl" />
+                            </div>
+
+                            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                                <SkeletonBlock className="h-14 flex-1 rounded-xl" />
+                                <SkeletonBlock className="h-14 flex-1 rounded-xl" />
+                            </div>
+
+                            <div className="space-y-3">
+                                <SkeletonBlock className="h-6 w-28" />
+                                {Array.from({ length: 3 }).map((_, index) => (
+                                    <div key={index} className="flex items-start gap-3">
+                                        <SkeletonBlock className="h-5 w-5 rounded-full mt-0.5 flex-shrink-0" />
+                                        <SkeletonBlock className="h-4 w-full max-w-md" />
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-8 md:py-12 bg-white">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <SkeletonBlock className="h-8 w-44 mb-6" />
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Array.from({ length: 6 }).map((_, index) => (
+                            <div key={index} className="rounded-xl bg-pearl p-4">
+                                <div className="flex items-center justify-between gap-4">
+                                    <SkeletonBlock className="h-4 w-24" />
+                                    <SkeletonBlock className="h-4 w-28" />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-10 md:py-14 bg-white border-y border-charcoal/10">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="mb-6 space-y-3">
+                        <SkeletonBlock className="h-8 w-52" />
+                        <SkeletonBlock className="h-4 w-40" />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Array.from({ length: 2 }).map((_, index) => (
+                            <div key={index} className="rounded-xl bg-pearl p-5 border border-charcoal/10 space-y-4">
+                                <SkeletonBlock className="h-4 w-24" />
+                                <SkeletonBlock className="h-4 w-full" />
+                                <SkeletonBlock className="h-4 w-5/6" />
+                                <div className="grid grid-cols-3 gap-2">
+                                    {Array.from({ length: 3 }).map((__, imageIndex) => (
+                                        <SkeletonBlock key={imageIndex} className="h-20 w-full rounded-lg" />
+                                    ))}
+                                </div>
+                                <SkeletonBlock className="h-4 w-28" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <section className="py-12 md:py-16">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                    <div className="flex items-center justify-between mb-8">
+                        <SkeletonBlock className="h-8 w-44" />
+                        <SkeletonBlock className="h-4 w-20" />
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        {Array.from({ length: 4 }).map((_, index) => (
+                            <div key={index} className="rounded-2xl bg-white p-4 shadow-soft border border-charcoal/8 space-y-4">
+                                <SkeletonBlock className="aspect-[4/5] w-full rounded-xl" />
+                                <SkeletonBlock className="h-5 w-3/4" />
+                                <SkeletonBlock className="h-4 w-1/2" />
+                                <SkeletonBlock className="h-10 w-full rounded-xl" />
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </section>
+
+            <Footer />
+        </main>
+    );
+}
 
 export function ProductDetailPage() {
     const { id } = useParams<{ id: string }>();
@@ -216,12 +363,7 @@ export function ProductDetailPage() {
         return (
             <>
                 <Navbar />
-                <main className="min-h-screen bg-pearl pt-20">
-                    <div className="flex items-center justify-center py-32">
-                        <Loader2 className="w-8 h-8 animate-spin text-charcoal/40" />
-                    </div>
-                    <Footer />
-                </main>
+                <ProductDetailSkeleton />
             </>
         );
     }
