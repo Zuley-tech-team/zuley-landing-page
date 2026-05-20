@@ -669,6 +669,8 @@ export const getOrderInvoice = async (req: Request, res: Response) => {
                 invoiceDate: invoice.invoiceDate,
                 totalAmount: invoice.totalAmount,
                 status: invoice.status,
+                pdfPath: invoice.pdfPath, // Added for frontend Cloudinary check
+                url: invoice.pdfPath?.startsWith("http") ? invoice.pdfPath : undefined, // Added explicit url
                 downloadUrl: `/api/v1/admin/orders/${encodeURIComponent(order.order_id)}/invoice/download`,
             },
         });
@@ -698,8 +700,22 @@ export const downloadOrderInvoice = async (req: Request, res: Response) => {
             invoice = await InvoiceService.createInvoice(order, customer as any);
         }
 
-        if (!invoice.pdfPath || !fs.existsSync(invoice.pdfPath)) {
+        if (!invoice.pdfPath) {
             return res.status(404).json({ message: "Invoice PDF not found" });
+        }
+
+        // Cloudinary URL — return it as JSON so the client can open it directly without CORS issues
+        if (invoice.pdfPath.startsWith("http")) {
+            return res.json({
+                success: true,
+                url: invoice.pdfPath,
+                invoiceNumber: invoice.invoiceNumber,
+            });
+        }
+
+        // Legacy: local file path — stream from disk
+        if (!fs.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({ message: "Invoice PDF not found on disk" });
         }
 
         res.download(invoice.pdfPath, `Invoice-${invoice.invoiceNumber}.pdf`);

@@ -459,10 +459,13 @@ export class InvoiceService {
         const invoice = new Invoice(invoiceData);
 
         // 5. Generate PDF buffer and upload to Cloudinary
+        const { randomUUID } = require('crypto');
+        const secureRandomString = randomUUID();
+        
         const pdfBuffer = await this.generatePDF(invoice, order.payment_method, (order as any).order_id);
         const cloudinaryResult = await uploadPdfBuffer(pdfBuffer, {
             folder: 'zuley/invoices',
-            publicId: invoice.invoiceNumber,
+            publicId: `${invoice.invoiceNumber}-${secureRandomString}`,
         });
         invoice.pdfPath = cloudinaryResult.secure_url;
 

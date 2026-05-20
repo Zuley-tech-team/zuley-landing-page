@@ -2,9 +2,9 @@ import { useSearchParams, Link } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import { Footer } from '../components/home';
 import { Button } from '../components/common/Button';
-import { CheckCircle2, Package, ArrowRight, Copy, Check, Download } from 'lucide-react';
+import { CheckCircle2, Package, ArrowRight, Copy, Check, Download, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { getInvoiceDownloadUrl } from '../api/orders';
+import { fetchInvoiceUrl } from '../api/orders';
 
 export function OrderSuccessPage() {
     const [searchParams] = useSearchParams();
@@ -18,7 +18,7 @@ export function OrderSuccessPage() {
     const invoice = searchParams.get('invoice') || '';
     const [copied, setCopied] = useState(false);
     const [showContent, setShowContent] = useState(false);
-    const invoiceDownloadUrl = orderId ? getInvoiceDownloadUrl(orderId, invoice || null) : '';
+    const [invoiceLoading, setInvoiceLoading] = useState(false);
 
     // Animate in after mount
     useEffect(() => {
@@ -30,6 +30,19 @@ export function OrderSuccessPage() {
         navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
+    };
+
+    const handleDownloadInvoice = async () => {
+        if (!orderId || invoiceLoading) return;
+        setInvoiceLoading(true);
+        try {
+            const url = await fetchInvoiceUrl(orderId, invoice || null);
+            window.open(url, '_blank', 'noopener,noreferrer');
+        } catch (err: any) {
+            alert(err.message || 'Failed to download invoice. Please try from My Orders.');
+        } finally {
+            setInvoiceLoading(false);
+        }
     };
 
     const formatPrice = (price: string) => {
@@ -214,16 +227,17 @@ export function OrderSuccessPage() {
                                     </Button>
                                 </Link>
                             )}
-                            {invoiceDownloadUrl && (
+                            {invoice && orderId && (
                                 <Button
                                     variant="accent"
                                     size="lg"
-                                    icon={<Download className="w-5 h-5" />}
+                                    icon={invoiceLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Download className="w-5 h-5" />}
                                     iconPosition="left"
                                     className="w-full h-14 !py-0 !text-base !rounded-xl !font-semibold shadow-sm hover:shadow-md"
-                                    onClick={() => window.open(invoiceDownloadUrl, '_blank', 'noopener,noreferrer')}
+                                    onClick={handleDownloadInvoice}
+                                    disabled={invoiceLoading}
                                 >
-                                    Download Invoice
+                                    {invoiceLoading ? 'Loading...' : 'Download Invoice'}
                                 </Button>
                             )}
                             <Link to="/products" className="w-full">

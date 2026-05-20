@@ -633,7 +633,25 @@ function OrderDetailModal({
         }
         : null;
     const OriginalStatusIcon = originalConfig?.icon || Package;
-    const invoiceUrl = adminAPI.getOrderInvoiceDownloadUrl(primaryOrder.order_id);
+    const [invoiceLoading, setInvoiceLoading] = useState(false);
+
+    const handleAdminInvoiceDownload = async () => {
+        setInvoiceLoading(true);
+        try {
+            const data = await adminAPI.getOrderInvoice(primaryOrder.order_id);
+            if (data?.data?.url) {
+                window.open(data.data.url, '_blank', 'noopener,noreferrer');
+            } else if (data?.data?.pdfPath?.startsWith('http')) {
+                window.open(data.data.pdfPath, '_blank', 'noopener,noreferrer');
+            } else {
+                alert('Invoice not available yet for this order.');
+            }
+        } catch (err: any) {
+            alert(err.message || 'Failed to load invoice');
+        } finally {
+            setInvoiceLoading(false);
+        }
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
@@ -694,15 +712,14 @@ function OrderDetailModal({
 	                            >
 	                                {isUpdating ? 'Updating...' : 'Update'}
 	                            </button>
-	                            <a
-	                                href={invoiceUrl}
-	                                target="_blank"
-	                                rel="noreferrer"
-	                                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-sm rounded-lg hover:bg-gray-50"
+	                            <button
+	                                onClick={handleAdminInvoiceDownload}
+	                                disabled={invoiceLoading}
+	                                className="inline-flex items-center gap-2 px-4 py-2 border border-gray-300 text-sm rounded-lg hover:bg-gray-50 disabled:opacity-50"
 	                            >
 	                                <Download className="w-4 h-4" />
-	                                Invoice
-	                            </a>
+	                                {invoiceLoading ? 'Loading...' : 'Invoice'}
+	                            </button>
 	                        </div>
                     </div>
 
