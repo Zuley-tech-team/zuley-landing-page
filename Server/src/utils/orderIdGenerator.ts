@@ -1,41 +1,23 @@
-import { Order } from "../models/order.model";
+import { randomBytes } from "crypto";
 
 /**
- * Generates a human-readable Order ID in the format: ZUL-YYMMDD-XXXX
- * ZUL: Brand Prefix
- * YYMMDD: Date string (e.g. 250213 for Feb 13, 2025)
- * XXXX: Sequential number for that day (0001, 0002...)
+ * Generates a human-readable, non-sequential Order ID
+ * Format: ZUL-XXXXXX (where X is an uppercase alphanumeric character)
+ * Using 6 characters provides ~2.1 billion combinations, 
+ * which is plenty for order collision avoidance while keeping it short and readable.
  */
 export const generateOrderId = async (): Promise<string> => {
-    const today = new Date();
-
-    // Format date as YYMMDD
-    const yy = String(today.getFullYear()).slice(-2);
-    const mm = String(today.getMonth() + 1).padStart(2, "0");
-    const dd = String(today.getDate()).padStart(2, "0");
-    const dateStr = `${yy}${mm}${dd}`;
-
-    const prefix = `ZUL-${dateStr}-`;
-
-    // Find the last order created today (using regex to match prefix)
-    const lastOrder = await Order.findOne({
-        order_id: { $regex: `^${prefix}` }
-    })
-        .sort({ order_id: -1 }) // Get the latest one
-        .select("order_id");
-
-    let sequence = 1;
-
-    if (lastOrder && lastOrder.order_id) {
-        const parts = lastOrder.order_id.split("-");
-        const lastSeq = parseInt(parts[2], 10);
-        if (!isNaN(lastSeq)) {
-            sequence = lastSeq + 1;
+    // Generate 4 bytes of random data, which gives us 8 hex chars.
+    // We convert to uppercase and slice the first 6 characters to keep it short and punchy.
+    // We replace 0 and O, 1 and I to avoid customer reading confusion.
+    let randomString = "";
+    while (randomString.length < 6) {
+        const char = randomBytes(1).toString("hex").toUpperCase();
+        // Filter out confusing characters (0, O, 1, I)
+        if (!["0", "O", "1", "I"].includes(char[0])) {
+            randomString += char[0];
         }
     }
 
-    // Pad sequence to 4 digits
-    const sequenceStr = String(sequence).padStart(4, "0");
-
-    return `${prefix}${sequenceStr}`;
+    return `ZUL-${randomString}`;
 };
