@@ -1,7 +1,7 @@
 import { API_BASE_URL } from './config';
 
 export interface CreateOrderPayload {
-    amount: number; // in paise (e.g. 12999 rupees = 1299900 paise)
+    amount: number; // in paise
     currency?: string;
     receipt: string;
     notes: Record<string, string>;
@@ -9,16 +9,11 @@ export interface CreateOrderPayload {
 
 export interface CreateOrderResponse {
     success: boolean;
-    order_id: string;
+    merchant_order_id: string;
     amount: number;
-    currency: string;
-    key_id: string;
+    redirect_url: string;
 }
 
-/**
- * Calls the backend to create a Razorpay payment order.
- * Amount should be in paise (multiply ₹ price by 100).
- */
 export async function createPaymentOrder(
     payload: CreateOrderPayload
 ): Promise<CreateOrderResponse> {
@@ -39,9 +34,7 @@ export async function createPaymentOrder(
 }
 
 export interface VerifyPaymentPayload {
-    razorpay_order_id: string;
-    razorpay_payment_id: string;
-    razorpay_signature: string;
+    merchant_order_id: string;
 }
 
 export interface VerifyPaymentResponse {
@@ -51,10 +44,6 @@ export interface VerifyPaymentResponse {
     invoice?: string;
 }
 
-/**
- * Sends the Razorpay callback IDs to the backend for HMAC-SHA256 verification.
- * Must succeed before treating a payment as confirmed on the frontend.
- */
 export async function verifyPayment(
     payload: VerifyPaymentPayload
 ): Promise<VerifyPaymentResponse> {

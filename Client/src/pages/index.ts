@@ -2,6 +2,7 @@ export { HomePage } from './HomePage';
 export { ProductsPage } from './ProductsPage';
 export { ProductDetailPage } from './ProductDetailPage';
 export { OrderSuccessPage } from './OrderSuccessPage';
+export { OrderStatusPage } from './OrderStatusPage';
 export { TrackOrderPage } from './TrackOrderPage';
 export { CorporatePage } from './CorporatePage';
 export { AboutPage } from './AboutPage';

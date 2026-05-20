@@ -27,10 +27,9 @@ export const createOrder = async (req: Request, res: Response) => {
 
         res.status(200).json({
             success: true,
-            order_id: order.id,
+            merchant_order_id: order.merchantOrderId,
             amount: order.amount,
-            currency: order.currency,
-            key_id: env.RAZORPAY_KEY_ID, // Send key context to frontend
+            redirect_url: order.redirectUrl
         });
     } catch (error) {
         console.error("Create Order Error:", error);
@@ -38,50 +37,40 @@ export const createOrder = async (req: Request, res: Response) => {
     }
 };
 
-/**
- * POST /api/v1/payments/verify-payment
- * Verifies the Razorpay payment signature received from the client after checkout.
- * Must be called before marking any payment as confirmed on the frontend.
- */
 export const verifyPayment = async (req: Request, res: Response) => {
     try {
-        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = req.body;
+        const { merchant_order_id } = req.body;
 
-        if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+        if (!merchant_order_id) {
             return res.status(400).json({
                 success: false,
-                message: "Missing required fields: razorpay_order_id, razorpay_payment_id, razorpay_signature",
+                message: "Missing required field: merchant_order_id",
             });
         }
 
-        const isValid = paymentService.verifyPaymentSignature(
-            razorpay_order_id,
-            razorpay_payment_id,
-            razorpay_signature
-        );
-
-        if (!isValid) {
-            console.warn(`Signature mismatch for order ${razorpay_order_id} / payment ${razorpay_payment_id}`);
-            return res.status(400).json({
-                success: false,
-                message: "Payment verification failed. Signature mismatch.",
-            });
-        }
-
-        // Force sync with Razorpay to create order & invoice immediately since webhooks won't reach localhost
-        // Force sync with Razorpay to create order & invoice immediately since webhooks won't reach localhost
+        // Force sync with PhonePe to create order & invoice immediately
         let syncResult;
         try {
-            syncResult = await paymentService.syncPaymentAndCreateOrder(razorpay_order_id, razorpay_payment_id);
+            syncResult = await paymentService.syncPaymentAndCreateOrder(merchant_order_id);
         } catch (syncError) {
             console.error("Failed to sync payment and create order:", syncError);
-            // We don't fail the verification since payment was successful, it will be retried by webhook if in prod
+            return res.status(400).json({
+                success: false,
+                message: "Payment verification failed or payment is not completed.",
+            });
         }
 
-        console.log(`Payment verified and synced: order=${razorpay_order_id}, payment=${razorpay_payment_id}`);
+        if (!syncResult.orderId) {
+             return res.status(400).json({
+                success: false,
+                message: "Payment is pending or failed.",
+            });
+        }
+
+        console.log(`Payment verified and synced: merchant_order_id=${merchant_order_id}`);
         res.status(200).json({
             success: true,
-            message: "Payment signature verified and synced successfully",
+            message: "Payment verified and synced successfully",
             order_id: syncResult?.orderId,
             invoice: syncResult?.invoiceNumber
         });
@@ -96,10 +85,9 @@ export const verifyPayment = async (req: Request, res: Response) => {
 
 export const handleWebhook = async (req: Request, res: Response) => {
     try {
-        const signature = req.headers["x-razorpay-signature"] as string;
-
+        const signature = req.headers["x-verify"] as string || req.headers["authorization"] as string;
+        
         // Use rawBody captured by express.json verify option in index.ts
-        // We cast req to any because rawBody is not in standard Request type
         const body = (req as any).rawBody;
 
         if (!body) {
@@ -107,15 +95,12 @@ export const handleWebhook = async (req: Request, res: Response) => {
             return res.status(400).json({ message: "Missing raw body" });
         }
 
-        const isValid = paymentService.verifyWebhookSignature(body, signature);
+        const isValid = await paymentService.processWebhookEvent(signature, body);
 
         if (!isValid) {
             console.warn("Webhook signature verification failed.");
             return res.status(400).json({ message: "Invalid signature" });
         }
-
-        // Process the event using the parsed body
-        await paymentService.processWebhookEvent(req.body);
 
         res.json({ status: "ok" });
 

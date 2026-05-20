@@ -25,9 +25,12 @@ const envSchema = z.object({
     .string()
     .transform((value) => value === "true")
     .default("false" as any),
-  RAZORPAY_KEY_ID: z.string().optional().default(""),
-  RAZORPAY_KEY_SECRET: z.string().optional().default(""),
-  RAZORPAY_WEBHOOK_SECRET: z.string().optional().default(""),
+  PHONEPE_CLIENT_ID: z.string().optional().default(""),
+  PHONEPE_CLIENT_SECRET: z.string().optional().default(""),
+  PHONEPE_CLIENT_VERSION: z.string().transform(Number).optional().default("1" as any),
+  PHONEPE_ENV: z.enum(["UAT", "PRODUCTION"]).default("UAT"),
+  PHONEPE_WEBHOOK_USERNAME: z.string().optional(),
+  PHONEPE_WEBHOOK_PASSWORD: z.string().optional(),
 
   RESEND_API_KEY: z.string().optional(),
   EMAIL_FROM: z.string().default("no-reply@zuley.in"),
@@ -52,29 +55,20 @@ const envSchema = z.object({
     return;
   }
 
-  if (!value.RAZORPAY_KEY_ID) {
+  if (!value.PHONEPE_CLIENT_ID) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      path: ["RAZORPAY_KEY_ID"],
-      message: "RAZORPAY_KEY_ID is required when ENABLE_ONLINE_PAYMENTS=true",
+      path: ["PHONEPE_CLIENT_ID"],
+      message: "PHONEPE_CLIENT_ID is required when ENABLE_ONLINE_PAYMENTS=true",
     });
   }
 
-  if (!value.RAZORPAY_KEY_SECRET) {
+  if (!value.PHONEPE_CLIENT_SECRET) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      path: ["RAZORPAY_KEY_SECRET"],
-      message: "RAZORPAY_KEY_SECRET is required when ENABLE_ONLINE_PAYMENTS=true",
+      path: ["PHONEPE_CLIENT_SECRET"],
+      message: "PHONEPE_CLIENT_SECRET is required when ENABLE_ONLINE_PAYMENTS=true",
     });
-  }
-
-  // RAZORPAY_WEBHOOK_SECRET is optional — only needed if using webhook-based order creation.
-  // Add it via Razorpay Dashboard > Webhooks once your server is publicly reachable.
-  if (!value.RAZORPAY_WEBHOOK_SECRET) {
-    console.warn(
-      "⚠️  RAZORPAY_WEBHOOK_SECRET is not set. Webhook signature verification will be disabled. " +
-      "Client-side verify-payment endpoint will still work normally."
-    );
   }
 });
 

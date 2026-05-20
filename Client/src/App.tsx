@@ -10,6 +10,7 @@ const HomePage = lazy(() => import('./pages/HomePage'));
 const ProductsPage = lazy(() => import('./pages/ProductsPage'));
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage'));
 const OrderSuccessPage = lazy(() => import('./pages/OrderSuccessPage'));
+const OrderStatusPage = lazy(() => import('./pages/OrderStatusPage'));
 const TrackOrderPage = lazy(() => import('./pages/TrackOrderPage'));
 const CorporatePage = lazy(() => import('./pages/CorporatePage'));
 const AboutPage = lazy(() => import('./pages/AboutPage'));
@@ -148,6 +149,15 @@ function App() {
               'Order Success',
               'Your Zuley order has been placed successfully. Review your next steps and support options.',
               '/order-success'
+            )}
+          />
+          <Route
+            path="/order-status"
+            element={withMeta(
+              <OrderStatusPage />,
+              'Order Status',
+              'Verifying your payment status with PhonePe.',
+              '/order-status'
             )}
           />
           <Route

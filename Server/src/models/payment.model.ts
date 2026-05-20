@@ -35,9 +35,13 @@ const paymentSchema = new mongoose.Schema(
     },
     payment_method: {
       type: String,
-      enum: ["razorpay", "cod"],
-      default: "razorpay",
+      enum: ["razorpay", "phonepe", "cod"],
+      default: "phonepe",
       index: true,
+    },
+    metadata: {
+      type: mongoose.Schema.Types.Mixed,
+      description: "Temporary storage for order details before payment is captured",
     },
     collected_at: {
       type: Date,

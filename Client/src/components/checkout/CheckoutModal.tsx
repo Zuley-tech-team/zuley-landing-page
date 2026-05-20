@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { X, Truck, CreditCard, Loader2, AlertCircle, Minus, Plus, ArrowLeft, Tag } from 'lucide-react';
 import { Button } from '../common';
 import type { Product } from '../../api/products';
-import type { CustomerInfo, ShippingAddress } from '../../hooks/useRazorpay';
+import type { CustomerInfo, ShippingAddress } from '../../hooks/usePhonePe';
+import { usePhonePe } from '../../hooks/usePhonePe';
 import { useAuth } from '../../contexts/AuthContext';
 import { completeProfile } from '../../api/auth';
 import { placeCodOrder } from '../../api/orders';
@@ -91,6 +92,10 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
     const [formErrors, setFormErrors] = useState<Record<string, string>>({});
     const [codError, setCodError] = useState<string | null>(null);
     const [isPlacingCodOrder, setIsPlacingCodOrder] = useState(false);
+    
+    // Payment Method
+    const [paymentMethod, setPaymentMethod] = useState<'cod' | 'online'>('online');
+    const { initiatePayment, isLoading: isPhonePeLoading, error: phonePeError, clearError: clearPhonePeError } = usePhonePe();
 
     // Close on Escape key
     useEffect(() => {
@@ -127,6 +132,8 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             setCouponCode('');
             setCouponError(null);
             setAppliedCoupon(null);
+            setPaymentMethod('online');
+            clearPhonePeError();
             setVariantSelections(
                 items.reduce<Record<string, string>>((acc, item) => {
                     if (isPhoneCoverProduct(item.product)) {
@@ -352,6 +359,22 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
             pincode: pincode.trim(),
         };
 
+        if (paymentMethod === 'online') {
+            await initiatePayment({
+                items: checkoutItems.map(item => ({
+                    product: item.product,
+                    quantity: item.quantity,
+                    variant_info: isPhoneCoverProduct(item.product) ? variantSelections[item.product.sku] : undefined,
+                })) as any,
+                customerInfo,
+                shippingAddress,
+                onFailure: (msg) => {
+                    setCodError(msg);
+                }
+            });
+            return;
+        }
+
         setIsPlacingCodOrder(true);
         setCodError(null);
 
@@ -554,10 +577,10 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                     {/* Form Fields */}
                     <div className="px-6 py-5 space-y-5">
                         {/* Error Banner */}
-                        {codError && (
+                        {(codError || phonePeError) && (
                             <div className="flex items-start gap-3 p-3 bg-error/10 border border-error/20 rounded-xl">
                                 <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-                                <p className="font-body text-sm text-error">{codError}</p>
+                                <p className="font-body text-sm text-error">{codError || phonePeError}</p>
                             </div>
                         )}
 
@@ -805,13 +828,19 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                                 <div className="rounded-xl border border-charcoal/10 bg-white p-4">
                                     <h3 className="font-heading text-sm font-semibold text-charcoal mb-3">Payment Method</h3>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                                        <div className="checkout-payment-btn active">
-                                            <span className="font-bold text-sm">Cash on Delivery</span>
+                                        <div 
+                                            className={`checkout-payment-btn cursor-pointer ${paymentMethod === 'online' ? 'active' : ''}`}
+                                            onClick={() => setPaymentMethod('online')}
+                                        >
+                                            <span className="font-bold text-sm">Online Payment</span>
                                             <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">Recommended</span>
                                         </div>
-                                        <div className="checkout-payment-btn disabled">
-                                            <span className="font-bold text-sm">Online Payment</span>
-                                            <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">Coming Soon</span>
+                                        <div 
+                                            className={`checkout-payment-btn cursor-pointer ${paymentMethod === 'cod' ? 'active' : ''}`}
+                                            onClick={() => setPaymentMethod('cod')}
+                                        >
+                                            <span className="font-bold text-sm">Cash on Delivery</span>
+                                            <span className="text-[10px] uppercase tracking-wider opacity-80 font-bold">Pay at Doorstep</span>
                                         </div>
                                     </div>
                                 </div>
@@ -866,14 +895,14 @@ export function CheckoutModal({ items, isOpen, onClose, onSuccess }: CheckoutMod
                                     variant="primary"
                                     size="lg"
                                     fullWidth
-                                    disabled={isPlacingCodOrder}
-                                    icon={isPlacingCodOrder ? <Loader2 className="w-5 h-5 animate-spin" /> : <Truck className="w-5 h-5" />}
+                                    disabled={isPlacingCodOrder || isPhonePeLoading}
+                                    icon={(isPlacingCodOrder || isPhonePeLoading) ? <Loader2 className="w-5 h-5 animate-spin" /> : (paymentMethod === 'cod' ? <Truck className="w-5 h-5" /> : <CreditCard className="w-5 h-5" />)}
                                     iconPosition="left"
                                 >
-                                    {isPlacingCodOrder ? 'Processing...' : `Place COD Order ${formatPrice(totalAfterDiscount)}`}
+                                    {(isPlacingCodOrder || isPhonePeLoading) ? 'Processing...' : (paymentMethod === 'cod' ? `Place COD Order ${formatPrice(totalAfterDiscount)}` : `Pay Securely ${formatPrice(totalAfterDiscount)}`)}
                                 </Button>
                                 <p className="font-body text-xs text-charcoal/40 text-center mt-2">
-                                    Cash on delivery only for now.
+                                    {paymentMethod === 'cod' ? 'Payment will be collected at the time of delivery.' : 'Safe and secure online payments.'}
                                 </p>
                             </>
                         )}
