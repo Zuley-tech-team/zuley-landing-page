@@ -15,7 +15,7 @@ export function AdminProtectedRoute() {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/admin/login" replace state={{ from: location }} />;
+        return <Navigate to="/adminofz/login" replace state={{ from: location }} />;
     }
 
     return <Outlet />;

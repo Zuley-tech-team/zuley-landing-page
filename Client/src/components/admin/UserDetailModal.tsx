@@ -154,7 +154,7 @@ export function UserDetailModal({ isOpen, onClose, userId }: UserDetailModalProp
                                     {data.orders?.length > 0 && (
                                         <button 
                                             onClick={() => {
-                                                navigate(`/admin/orders?search=${data.user.email}`);
+                                                navigate(`/adminofz/orders?search=${data.user.email}`);
                                                 onClose();
                                             }}
                                             className="text-xs font-semibold text-charcoal/60 hover:text-charcoal flex items-center gap-1 transition-colors"

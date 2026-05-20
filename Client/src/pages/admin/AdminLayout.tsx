@@ -17,13 +17,13 @@ import { adminAPI } from '../../api/admin';
 import { useEffect, useState } from 'react';
 
 const navItems = [
-    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', category: 'dashboard', end: true },
-    { to: '/admin/products', icon: Package, label: 'Products', category: 'products' },
-    { to: '/admin/orders', icon: ShoppingCart, label: 'Orders', category: 'orders' },
-    { to: '/admin/reviews', icon: Star, label: 'Reviews', category: 'reviews' },
-    { to: '/admin/inventory', icon: Warehouse, label: 'Inventory', category: 'inventory' },
-    { to: '/admin/leads', icon: Inbox, label: 'Leads', category: 'leads' },
-    { to: '/admin/coupons', icon: TicketPercent, label: 'Coupons Manage', category: 'coupons' },
+    { to: '/adminofz', icon: LayoutDashboard, label: 'Dashboard', category: 'dashboard', end: true },
+    { to: '/adminofz/products', icon: Package, label: 'Products', category: 'products' },
+    { to: '/adminofz/orders', icon: ShoppingCart, label: 'Orders', category: 'orders' },
+    { to: '/adminofz/reviews', icon: Star, label: 'Reviews', category: 'reviews' },
+    { to: '/adminofz/inventory', icon: Warehouse, label: 'Inventory', category: 'inventory' },
+    { to: '/adminofz/leads', icon: Inbox, label: 'Leads', category: 'leads' },
+    { to: '/adminofz/coupons', icon: TicketPercent, label: 'Coupons Manage', category: 'coupons' },
 ];
 
 export function AdminLayout() {
@@ -85,7 +85,7 @@ export function AdminLayout() {
     useEffect(() => {
         const currentPath = location.pathname;
         const activeItem = navItems.find((item) =>
-            item.to === currentPath || (item.to !== '/admin' && currentPath.startsWith(item.to))
+            item.to === currentPath || (item.to !== '/adminofz' && currentPath.startsWith(item.to))
         );
         if (activeItem && notifications[activeItem.category] > 0) {
             handleNavClick(activeItem.category);
@@ -94,7 +94,7 @@ export function AdminLayout() {
 
     const handleLogout = async () => {
         await logout();
-        navigate('/admin/login');
+        navigate('/adminofz/login');
     };
 
     if (isLoading) {

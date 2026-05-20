@@ -36,7 +36,7 @@ export function AdminLoginPage() {
 
         try {
             await login(email, password);
-            navigate('/admin');
+            navigate('/adminofz');
         } catch (err: any) {
             setError(err.message || 'Invalid credentials');
         } finally {
@@ -79,7 +79,7 @@ export function AdminLoginPage() {
                                 onChange={(e) => setEmail(e.target.value)}
                                 required
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl font-body focus:ring-2 focus:ring-charcoal focus:border-transparent transition-all"
-                                placeholder="admin@zuley.in"
+                                placeholder=""
                             />
                         </div>
 
@@ -97,7 +97,7 @@ export function AdminLoginPage() {
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
                                 className="w-full px-4 py-3 border border-gray-300 rounded-xl font-body focus:ring-2 focus:ring-charcoal focus:border-transparent transition-all"
-                                placeholder="Enter your password"
+                                placeholder=""
                             />
                         </div>
 

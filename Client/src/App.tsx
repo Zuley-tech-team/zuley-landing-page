@@ -207,9 +207,9 @@ function App() {
             )}
           />
 
-          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/adminofz/login" element={<AdminLoginPage />} />
           <Route element={<AdminProtectedRoute />}>
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route path="/adminofz" element={<AdminLayout />}>
               <Route index element={<AdminDashboardPage />} />
               <Route path="products" element={<AdminProductsPage />} />
               <Route path="orders" element={<AdminOrdersPage />} />

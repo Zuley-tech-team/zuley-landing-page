@@ -84,7 +84,7 @@ export function AdminDashboardPage() {
             subtitle: 'Live catalog items',
             icon: Package,
             color: 'bg-blue-500',
-            link: '/admin/products',
+            link: '/adminofz/products',
         },
         {
             title: 'Total Orders',
@@ -92,7 +92,7 @@ export function AdminDashboardPage() {
             subtitle: `${stats?.orders.pending || 0} pending fulfillment`,
             icon: ShoppingCart,
             color: 'bg-green-500',
-            link: '/admin/orders',
+            link: '/adminofz/orders',
         },
         {
             title: 'Total Revenue',
@@ -100,7 +100,7 @@ export function AdminDashboardPage() {
             subtitle: 'All time',
             icon: IndianRupee,
             color: 'bg-purple-500',
-            link: '/admin/orders',
+            link: '/adminofz/orders',
         },
         {
             title: 'Inventory Alerts',
@@ -108,7 +108,7 @@ export function AdminDashboardPage() {
             subtitle: 'Low stock SKUs',
             icon: Warehouse,
             color: (stats?.lowStockAlerts.length || 0) > 0 ? 'bg-red-500' : 'bg-orange-500',
-            link: '/admin/inventory',
+            link: '/adminofz/inventory',
         },
     ];
 
@@ -153,28 +153,28 @@ export function AdminDashboardPage() {
                 </h2>
                 <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
                     <Link
-                        to="/admin/products"
+                        to="/adminofz/products"
                         className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                         <Package className="w-5 h-5 text-blue-500" />
                         <span className="font-body text-gray-700">Add New Product</span>
                     </Link>
                     <Link
-                        to="/admin/orders"
+                        to="/adminofz/orders"
                         className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                         <ShoppingCart className="w-5 h-5 text-green-500" />
                         <span className="font-body text-gray-700">View Orders</span>
                     </Link>
                     <Link
-                        to="/admin/inventory"
+                        to="/adminofz/inventory"
                         className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                         <Warehouse className="w-5 h-5 text-orange-500" />
                         <span className="font-body text-gray-700">Manage Stock</span>
                     </Link>
                     <Link
-                        to="/admin/leads"
+                        to="/adminofz/leads"
                         className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
                     >
                         <Inbox className="w-5 h-5 text-purple-500" />
@@ -201,7 +201,7 @@ export function AdminDashboardPage() {
                         ))}
                     </div>
                     <Link
-                        to="/admin/inventory?status=low_stock"
+                        to="/adminofz/inventory?status=low_stock"
                         className="inline-block mt-4 text-sm text-yellow-700 hover:text-yellow-800 font-medium"
                     >
                         View inventory alerts →
