@@ -8,6 +8,8 @@ import { generateOrderId } from "../utils/orderIdGenerator";
 import { InvoiceService } from "./invoice.service";
 import { Coupon } from "../models/coupon.model";
 import { findCouponByCode, validateCoupon } from "./coupon.service";
+import { EmailService } from "./email.service";
+import { EmailType } from "../models/email-queue.model";
 
 type CheckoutItemInput = {
   sku: string;
@@ -225,6 +227,21 @@ export const createCodOrder = async (input: CodOrderInput) => {
     try {
       invoice = await InvoiceService.createInvoice(order as any, customerDoc as any);
       await invoice.save();
+
+      // Queue invoice email with Cloudinary download link
+      await EmailService.addToQueue(
+        EmailType.INVOICE,
+        customerDoc.email,
+        order._id,
+        {
+          orderId: order.order_id,
+          invoiceNumber: invoice.invoiceNumber,
+          customerName: customerDoc.full_name,
+          paymentMethod: order.payment_method,
+          amount: order.total_amount / 100,
+          pdfPath: invoice.pdfPath, // Cloudinary URL
+        }
+      );
     } catch (invoiceError) {
       console.error("Invoice/email generation failed for COD order", order.order_id, invoiceError);
     }

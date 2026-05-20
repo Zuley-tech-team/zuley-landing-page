@@ -1,11 +1,10 @@
 import PDFDocument from 'pdfkit';
-import fs from 'fs';
-import path from 'path';
 import { Invoice, IInvoice, IInvoiceItem } from '../models/invoice.model';
 import { Counter } from '../models/counter.model';
 import { IOrder } from '../models/order.model';
 import { ICustomer } from '../models/customer.model';
 import { env } from '../config/env.config';
+import { uploadPdfBuffer } from './cloudinary.service';
 
 const SELLER_STATE_CODE = env.INVOICE_SELLER_STATE_CODE;
 const SELLER_DETAILS = {
@@ -181,23 +180,18 @@ export class InvoiceService {
     }
 
     /**
-     * Generates PDF and saves to disk
+     * Generates PDF in memory and returns a Buffer.
+     * No longer writes to disk — buffer is uploaded to Cloudinary by the caller.
      */
-    private static async generatePDF(invoice: IInvoice, paymentMethod: string = 'online', orderNumber?: string): Promise<string> {
+    private static async generatePDF(invoice: IInvoice, paymentMethod: string = 'online', orderNumber?: string): Promise<Buffer> {
         return new Promise((resolve, reject) => {
             const doc = new PDFDocument({ size: 'A4', margin: 50 });
             const isCod = paymentMethod === 'cod';
-            const fileName = `${invoice.invoiceNumber}.pdf`;
-            // Ensure directory exists
-            const dir = path.join(__dirname, '../../invoices');
-            if (!fs.existsSync(dir)) {
-                fs.mkdirSync(dir, { recursive: true });
-            }
 
-            const filePath = path.join(dir, fileName);
-            const stream = fs.createWriteStream(filePath);
-
-            doc.pipe(stream);
+            const chunks: Buffer[] = [];
+            doc.on('data', (chunk: Buffer) => chunks.push(chunk));
+            doc.on('end', () => resolve(Buffer.concat(chunks)));
+            doc.on('error', reject);
 
             doc.rect(0, 0, 595.28, 112).fillColor('#1C1C1E').fill();
             doc.font('Helvetica-Bold').fontSize(28).fillColor('#FFFFFF').text('ZULEY', 50, 34);
@@ -331,9 +325,6 @@ export class InvoiceService {
                 .text('This is a computer generated invoice and does not require a physical signature.', 50, signatureY, { width: 500, align: 'center' });
 
             doc.end();
-
-            stream.on('finish', () => resolve(filePath));
-            stream.on('error', (err) => reject(err));
         });
     }
 
@@ -467,9 +458,13 @@ export class InvoiceService {
         // 4. Save to DB (Status: generated)
         const invoice = new Invoice(invoiceData);
 
-        // 5. Generate PDF
-        const pdfPath = await this.generatePDF(invoice, order.payment_method, (order as any).order_id);
-        invoice.pdfPath = pdfPath;
+        // 5. Generate PDF buffer and upload to Cloudinary
+        const pdfBuffer = await this.generatePDF(invoice, order.payment_method, (order as any).order_id);
+        const cloudinaryResult = await uploadPdfBuffer(pdfBuffer, {
+            folder: 'zuley/invoices',
+            publicId: invoice.invoiceNumber,
+        });
+        invoice.pdfPath = cloudinaryResult.secure_url;
 
         await invoice.save();
 

@@ -331,7 +331,7 @@ export class EmailService {
           <tr>
             <td style="padding:36px 40px 30px;">
               <h2 style="margin:0 0 10px;color:#1C1C1E;font-size:24px;font-weight:650;">Invoice generated</h2>
-              <p style="margin:0 0 22px;color:#6B6B6B;font-size:15px;line-height:1.6;">Hi ${escapeHtml(payload.customerName)}, your order has been placed successfully. Your invoice PDF is attached to this email.</p>
+              <p style="margin:0 0 22px;color:#6B6B6B;font-size:15px;line-height:1.6;">Hi ${escapeHtml(payload.customerName)}, your order has been placed successfully. You can download your invoice using the button below.</p>
               <table width="100%" cellpadding="0" cellspacing="0" style="background:#FAF8F6;border:1px solid #E8E0D8;border-radius:12px;padding:0 18px;margin:0 0 22px;">
                 <tr>
                   <td style="padding:16px 0;">
@@ -355,7 +355,8 @@ export class EmailService {
                 </tr>
               </table>
               <div style="text-align:center;">
-                <a href="${escapeHtml(orderTrackingUrl)}" style="display:inline-block;background:#1C1C1E;color:#ffffff;text-decoration:none;border-radius:8px;padding:13px 22px;font-size:14px;font-weight:650;">Track your order</a>
+                ${payload.pdfPath ? `<a href="${escapeHtml(payload.pdfPath)}" style="display:inline-block;background:#1C1C1E;color:#ffffff;text-decoration:none;border-radius:8px;padding:13px 22px;font-size:14px;font-weight:650;margin-right:10px;">Download Invoice</a>` : ""}
+                <a href="${escapeHtml(orderTrackingUrl)}" style="display:inline-block;background:#F5F0EB;color:#1C1C1E;text-decoration:none;border-radius:8px;padding:13px 22px;font-size:14px;font-weight:650;border:1px solid #E8E0D8;">Track your order</a>
               </div>
             </td>
           </tr>
@@ -365,11 +366,7 @@ export class EmailService {
   </table>
 </body>
 </html>`,
-                    attachments: payload.pdfPath ? [{
-                        filename: `Invoice-${payload.invoiceNumber}.pdf`,
-                        path: payload.pdfPath,
-                        contentType: "application/pdf",
-                    }] : [],
+                    // No file attachment — invoice is linked via Cloudinary URL button above
                 };
 
             case EmailType.ORDER_CONFIRMATION:

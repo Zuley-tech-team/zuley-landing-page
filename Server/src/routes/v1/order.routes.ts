@@ -5,6 +5,7 @@ import { Shipping } from "../../models/shipping.model";
 import { Invoice } from "../../models/invoice.model";
 import { createCodOrder } from "../../services/order-placement.service";
 import { publicRateLimit } from "../../middlewares/publicRateLimit";
+import { authenticateUser } from "../../middlewares/user.middleware";
 
 const router = Router();
 
@@ -38,22 +39,31 @@ router.post("/cod", publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 5 }
 });
 
 /**
- * Public Invoice Download Endpoint
+ * Authenticated Invoice Download Endpoint
  * GET /api/v1/orders/:orderId/invoice
  *
- * Lets customers download the generated invoice from the order success
- * and tracking pages using their public order ID.
+ * Lets logged-in customers download their own invoice.
+ * Redirects to Cloudinary URL for new invoices; streams from disk for legacy ones.
  */
-router.get("/:orderId/invoice", publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 30 }), async (req, res) => {
+router.get("/:orderId/invoice", authenticateUser, publicRateLimit({ windowMs: 15 * 60 * 1000, maxRequests: 30 }), async (req, res) => {
     try {
         const { orderId } = req.params;
         const invoiceNumber = String(req.query.invoiceNumber || "");
+        const userEmail = req.user?.email;
 
         const order = await Order.findOne({ order_id: orderId });
         if (!order) {
             return res.status(404).json({
                 success: false,
                 message: "Order not found. Please check the order ID and try again.",
+            });
+        }
+
+        // Ownership check
+        if (order.customer_details?.email !== userEmail) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorised to access this invoice.",
             });
         }
 
@@ -67,13 +77,29 @@ router.get("/:orderId/invoice", publicRateLimit({ windowMs: 15 * 60 * 1000, maxR
         }
 
         const invoice = await Invoice.findOne(query).sort({ createdAt: -1 });
-        if (!invoice || !invoice.pdfPath || !fs.existsSync(invoice.pdfPath)) {
+        if (!invoice || !invoice.pdfPath) {
             return res.status(404).json({
                 success: false,
                 message: "Invoice is not available for this order yet.",
             });
         }
 
+        // Cloudinary URL — return as JSON so client can open it without CORS issues
+        if (invoice.pdfPath.startsWith("http")) {
+            return res.json({
+                success: true,
+                url: invoice.pdfPath,
+                invoiceNumber: invoice.invoiceNumber,
+            });
+        }
+
+        // Legacy: local file path — stream from disk
+        if (!fs.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice file is no longer available on disk.",
+            });
+        }
         res.download(invoice.pdfPath, `${invoice.invoiceNumber}.pdf`);
     } catch (error) {
         console.error("Invoice Download Error:", error);
@@ -85,15 +111,16 @@ router.get("/:orderId/invoice", publicRateLimit({ windowMs: 15 * 60 * 1000, maxR
 });
 
 /**
- * Public Order Tracking Endpoint
+ * Authenticated Order Tracking Endpoint
  * GET /api/v1/orders/:orderId/track
- * 
- * Returns order status, shipping details, and history
- * for customer-facing order tracking (no admin auth required).
+ *
+ * Requires login. Returns order tracking info only if the order belongs
+ * to the logged-in user's email.
  */
-router.get("/:orderId/track", async (req, res) => {
+router.get("/:orderId/track", authenticateUser, async (req, res) => {
     try {
         const { orderId } = req.params;
+        const userEmail = req.user?.email;
 
         const order = await Order.findOne({ order_id: orderId });
 
@@ -101,6 +128,14 @@ router.get("/:orderId/track", async (req, res) => {
             return res.status(404).json({
                 success: false,
                 message: "Order not found. Please check the order ID and try again.",
+            });
+        }
+
+        // Ownership check — ensure this order belongs to the logged-in user
+        if (order.customer_details?.email !== userEmail) {
+            return res.status(403).json({
+                success: false,
+                message: "You are not authorised to track this order.",
             });
         }
 

@@ -384,8 +384,23 @@ export const downloadMyInvoice = async (req: Request, res: Response) => {
         }
 
         const invoice = await Invoice.findOne({ orderId: order._id });
-        if (!invoice || !invoice.pdfPath || !fs.existsSync(invoice.pdfPath)) {
+        if (!invoice || !invoice.pdfPath) {
             return res.status(404).json({ message: "Invoice PDF not available for this order." });
+        }
+
+        // Cloudinary URL — return it as JSON so the client can open it directly
+        // (res.redirect causes CORS errors when the client uses fetch+blob)
+        if (invoice.pdfPath.startsWith("http")) {
+            return res.json({
+                success: true,
+                url: invoice.pdfPath,
+                invoiceNumber: invoice.invoiceNumber,
+            });
+        }
+
+        // Legacy: local file path — stream from disk
+        if (!fs.existsSync(invoice.pdfPath)) {
+            return res.status(404).json({ message: "Invoice file is no longer available on disk." });
         }
 
         res.download(invoice.pdfPath, `Invoice-${invoice.invoiceNumber}.pdf`);
@@ -394,6 +409,8 @@ export const downloadMyInvoice = async (req: Request, res: Response) => {
         return res.status(500).json({ message: "Failed to download invoice." });
     }
 };
+
+
 
 /**
  * POST /api/v1/user/orders/:id/return-request

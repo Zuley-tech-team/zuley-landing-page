@@ -1,4 +1,5 @@
 import { API_BASE_URL } from './config';
+import { getStoredToken } from './auth';
 
 export interface OrderTrackingItem {
     name: string;
@@ -85,8 +86,15 @@ export interface OrderTrackingResponse {
 export async function getOrderTracking(
     orderId: string
 ): Promise<OrderTrackingResponse> {
+    const token = getStoredToken();
+    const headers: HeadersInit = { 'Content-Type': 'application/json' };
+    if (token) {
+        (headers as Record<string, string>)['Authorization'] = `Bearer ${token}`;
+    }
+
     const response = await fetch(
-        `${API_BASE_URL}/api/v1/orders/${encodeURIComponent(orderId)}/track`
+        `${API_BASE_URL}/api/v1/orders/${encodeURIComponent(orderId)}/track`,
+        { headers, credentials: 'include' }
     );
 
     if (!response.ok) {

@@ -158,12 +158,25 @@ export async function downloadMyInvoice(orderId: string): Promise<void> {
         headers: { ...authHeaders() },
         credentials: 'include',
     });
-    
+
     if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.message || 'Failed to download invoice');
     }
-    
+
+    // Check Content-Type: if JSON, the server returned a Cloudinary URL
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+        const data = await res.json();
+        if (data.url) {
+            // Open Cloudinary URL directly in a new tab — no CORS issues
+            window.open(data.url, '_blank', 'noopener,noreferrer');
+            return;
+        }
+        throw new Error('Invoice URL not found');
+    }
+
+    // Legacy: binary blob from local disk
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -174,6 +187,7 @@ export async function downloadMyInvoice(orderId: string): Promise<void> {
     window.URL.revokeObjectURL(url);
     document.body.removeChild(a);
 }
+
 
 export async function submitReturnRequest(
     orderId: string,

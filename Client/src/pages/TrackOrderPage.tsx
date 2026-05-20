@@ -6,11 +6,13 @@ import { Button } from '../components/common/Button';
 import { OrderTimeline } from '../components/tracking';
 import { ShippingCard } from '../components/tracking';
 import { getOrderTracking, type OrderTrackingData } from '../api/orders';
-import { Search, Package, Loader2, AlertCircle } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext';
+import { Search, Package, Loader2, AlertCircle, Lock, LogIn } from 'lucide-react';
 
 export function TrackOrderPage() {
     const [searchParams] = useSearchParams();
     const initialOrderId = searchParams.get('orderId') || searchParams.get('id') || '';
+    const { isLoggedIn, isLoading: authLoading, openAuthModal } = useAuth();
 
     const [orderId, setOrderId] = useState(initialOrderId);
     const [orderData, setOrderData] = useState<OrderTrackingData | null>(null);
@@ -46,10 +48,10 @@ export function TrackOrderPage() {
     };
 
     useEffect(() => {
-        if (initialOrderId) {
+        if (initialOrderId && isLoggedIn) {
             handleSearch();
         }
-    }, []);
+    }, [isLoggedIn]);
 
     return (
         <>
@@ -69,163 +71,199 @@ export function TrackOrderPage() {
                         </p>
                     </div>
 
-                    {/* Search Bar */}
-                    <form onSubmit={handleSearch} className="mb-10">
-                        <div className="flex gap-3">
-                            <div className="flex-1 relative">
-                                <input
-                                    type="text"
-                                    value={orderId}
-                                    onChange={(e) => setOrderId(e.target.value.toUpperCase())}
-                                    placeholder="e.g. ZUL-250213-0001"
-                                    className="w-full px-4 py-3.5 pl-11 font-body text-sm text-charcoal border border-charcoal/15 rounded-xl bg-white outline-none focus:border-charcoal focus:ring-2 focus:ring-charcoal/5 transition-all font-mono"
-                                    id="track-order-input"
-                                />
-                                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-charcoal/30" />
+                    {/* Auth Loading Skeleton */}
+                    {authLoading && (
+                        <div className="flex justify-center py-16">
+                            <Loader2 className="w-6 h-6 animate-spin text-charcoal/30" />
+                        </div>
+                    )}
+
+                    {/* Login Wall — shown when auth is resolved and user is NOT logged in */}
+                    {!authLoading && !isLoggedIn && (
+                        <div className="flex flex-col items-center justify-center py-14 px-6 bg-white rounded-2xl shadow-soft text-center">
+                            <div className="w-14 h-14 rounded-full bg-charcoal/5 flex items-center justify-center mb-5">
+                                <Lock className="w-6 h-6 text-charcoal/40" />
                             </div>
+                            <h2 className="font-heading text-xl font-semibold text-charcoal mb-2">
+                                Sign in to track your order
+                            </h2>
+                            <p className="font-body text-sm text-charcoal/55 mb-6 max-w-sm">
+                                For your privacy and security, you need to be signed in with the email you used at checkout to track your order.
+                            </p>
                             <Button
-                                type="submit"
                                 variant="primary"
                                 size="lg"
-                                disabled={isLoading || !orderId.trim()}
-                                icon={
-                                    isLoading ? (
-                                        <Loader2 className="w-5 h-5 animate-spin" />
-                                    ) : (
-                                        <Search className="w-5 h-5" />
-                                    )
-                                }
+                                icon={<LogIn className="w-4 h-4" />}
                                 iconPosition="left"
+                                onClick={() => openAuthModal('signin')}
                             >
-                                {isLoading ? 'Searching...' : 'Track'}
+                                Sign in to continue
                             </Button>
                         </div>
-                    </form>
-
-                    {/* Error */}
-                    {error && searched && (
-                        <div className="flex items-start gap-3 p-4 bg-error/10 border border-error/20 rounded-xl mb-8">
-                            <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
-                            <div>
-                                <p className="font-body text-sm font-medium text-error">Order Not Found</p>
-                                <p className="font-body text-xs text-error/70 mt-1">{error}</p>
-                            </div>
-                        </div>
                     )}
 
-                    {/* Results */}
-                    {orderData && (
-                        <div className="space-y-6 animate-in">
-                            {/* Order Summary Card */}
-                            <div className="bg-white rounded-2xl shadow-soft p-5 md:p-6">
-                                <div className="flex items-center justify-between mb-5 pb-4 border-b border-charcoal/10">
-                                    <div>
-                                        <p className="font-body text-xs text-charcoal/50 uppercase tracking-wide">Order</p>
-                                        <p className="font-heading text-lg font-bold text-charcoal font-mono">
-                                            {orderData.order_id}
-                                        </p>
+                    {/* Tracking UI — shown only when logged in */}
+                    {!authLoading && isLoggedIn && (
+                        <>
+                            {/* Search Bar */}
+                            <form onSubmit={handleSearch} className="mb-10">
+                                <div className="flex gap-3">
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={orderId}
+                                            onChange={(e) => setOrderId(e.target.value.toUpperCase())}
+                                            placeholder="e.g. ZUL-250213-0001"
+                                            className="w-full px-4 py-3.5 pl-11 font-body text-sm text-charcoal border border-charcoal/15 rounded-xl bg-white outline-none focus:border-charcoal focus:ring-2 focus:ring-charcoal/5 transition-all font-mono"
+                                            id="track-order-input"
+                                        />
+                                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-charcoal/30" />
                                     </div>
-                                    <span
-                                        className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize ${orderData.status === 'delivered'
-                                                ? 'bg-success/10 text-success'
-                                                : orderData.status === 'shipped'
-                                                    ? 'bg-warning/10 text-warning'
-                                                    : orderData.status === 'paid'
-                                                        ? 'bg-accent/10 text-accent-dark'
-                                                        : ['return_requested', 'return_in_progress'].includes(orderData.status)
-                                                            ? 'bg-amber-100 text-amber-700'
-                                                            : orderData.status === 'replaced'
-                                                                ? 'bg-emerald-100 text-emerald-700'
-                                                                : ['return_rejected', 'cancelled', 'refunded'].includes(orderData.status)
-                                                                    ? 'bg-error/10 text-error'
-                                                                    : 'bg-charcoal/10 text-charcoal/60'
-                                            }`}
+                                    <Button
+                                        type="submit"
+                                        variant="primary"
+                                        size="lg"
+                                        disabled={isLoading || !orderId.trim()}
+                                        icon={
+                                            isLoading ? (
+                                                <Loader2 className="w-5 h-5 animate-spin" />
+                                            ) : (
+                                                <Search className="w-5 h-5" />
+                                            )
+                                        }
+                                        iconPosition="left"
                                     >
-                                        {orderData.status}
-                                    </span>
+                                        {isLoading ? 'Searching...' : 'Track'}
+                                    </Button>
                                 </div>
+                            </form>
 
-                                {/* Items */}
-                                <div className="space-y-3 mb-5">
-                                    {orderData.items.map((item, idx) => (
-                                        <div key={idx} className="flex items-center justify-between">
+                            {/* Error */}
+                            {error && searched && (
+                                <div className="flex items-start gap-3 p-4 bg-error/10 border border-error/20 rounded-xl mb-8">
+                                    <AlertCircle className="w-5 h-5 text-error flex-shrink-0 mt-0.5" />
+                                    <div>
+                                        <p className="font-body text-sm font-medium text-error">Order Not Found</p>
+                                        <p className="font-body text-xs text-error/70 mt-1">{error}</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Results */}
+                            {orderData && (
+                                <div className="space-y-6 animate-in">
+                                    {/* Order Summary Card */}
+                                    <div className="bg-white rounded-2xl shadow-soft p-5 md:p-6">
+                                        <div className="flex items-center justify-between mb-5 pb-4 border-b border-charcoal/10">
                                             <div>
-                                                <p className="font-body text-sm text-charcoal">{item.name}</p>
-                                                <p className="font-body text-xs text-charcoal/50">
-                                                    Qty: {item.quantity}
+                                                <p className="font-body text-xs text-charcoal/50 uppercase tracking-wide">Order</p>
+                                                <p className="font-heading text-lg font-bold text-charcoal font-mono">
+                                                    {orderData.order_id}
                                                 </p>
-                                                {item.variant_info && (
-                                                    <p className="font-body text-xs text-charcoal/60 mt-1">
-                                                        Phone model: {item.variant_info}
-                                                    </p>
-                                                )}
                                             </div>
-                                            <p className="font-body text-sm font-medium text-charcoal">
-                                                {formatPrice(item.price * item.quantity)}
+                                            <span
+                                                className={`px-3 py-1.5 rounded-full text-xs font-medium capitalize ${orderData.status === 'delivered'
+                                                        ? 'bg-success/10 text-success'
+                                                        : orderData.status === 'shipped'
+                                                            ? 'bg-warning/10 text-warning'
+                                                            : orderData.status === 'paid'
+                                                                ? 'bg-accent/10 text-accent-dark'
+                                                                : ['return_requested', 'return_in_progress'].includes(orderData.status)
+                                                                    ? 'bg-amber-100 text-amber-700'
+                                                                    : orderData.status === 'replaced'
+                                                                        ? 'bg-emerald-100 text-emerald-700'
+                                                                        : ['return_rejected', 'cancelled', 'refunded'].includes(orderData.status)
+                                                                            ? 'bg-error/10 text-error'
+                                                                            : 'bg-charcoal/10 text-charcoal/60'
+                                                    }`}
+                                            >
+                                                {orderData.status}
+                                            </span>
+                                        </div>
+
+                                        {/* Items */}
+                                        <div className="space-y-3 mb-5">
+                                            {orderData.items.map((item, idx) => (
+                                                <div key={idx} className="flex items-center justify-between">
+                                                    <div>
+                                                        <p className="font-body text-sm text-charcoal">{item.name}</p>
+                                                        <p className="font-body text-xs text-charcoal/50">
+                                                            Qty: {item.quantity}
+                                                        </p>
+                                                        {item.variant_info && (
+                                                            <p className="font-body text-xs text-charcoal/60 mt-1">
+                                                                Phone model: {item.variant_info}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                    <p className="font-body text-sm font-medium text-charcoal">
+                                                        {formatPrice(item.price * item.quantity)}
+                                                    </p>
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        {/* Total */}
+                                        <div className="flex items-center justify-between pt-4 border-t border-charcoal/10">
+                                            <span className="font-body text-sm text-charcoal/60">Total</span>
+                                            <span className="font-heading text-lg font-bold text-charcoal">
+                                                {formatPrice(orderData.total_amount)}
+                                            </span>
+                                        </div>
+
+                                        {orderData.payment_method && (
+                                            <div className="flex items-center justify-between mt-3 pt-3 border-t border-charcoal/10">
+                                                <span className="font-body text-sm text-charcoal/60">Payment</span>
+                                                <span className="font-body text-sm font-medium text-charcoal capitalize">
+                                                    {orderData.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        {/* Delivery address */}
+                                        <div className="mt-4 pt-4 border-t border-charcoal/10">
+                                            <p className="font-body text-xs text-charcoal/50 mb-1">Delivering to</p>
+                                            <p className="font-body text-sm text-charcoal">
+                                                {orderData.shipping_address.city}, {orderData.shipping_address.state} - {orderData.shipping_address.pincode}
                                             </p>
                                         </div>
-                                    ))}
-                                </div>
-
-                                {/* Total */}
-                                <div className="flex items-center justify-between pt-4 border-t border-charcoal/10">
-                                    <span className="font-body text-sm text-charcoal/60">Total</span>
-                                    <span className="font-heading text-lg font-bold text-charcoal">
-                                        {formatPrice(orderData.total_amount)}
-                                    </span>
-                                </div>
-
-                                {orderData.payment_method && (
-                                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-charcoal/10">
-                                        <span className="font-body text-sm text-charcoal/60">Payment</span>
-                                        <span className="font-body text-sm font-medium text-charcoal capitalize">
-                                            {orderData.payment_method === 'cod' ? 'Cash on Delivery' : 'Online Payment'}
-                                        </span>
                                     </div>
-                                )}
 
-                                {/* Delivery address */}
-                                <div className="mt-4 pt-4 border-t border-charcoal/10">
-                                    <p className="font-body text-xs text-charcoal/50 mb-1">Delivering to</p>
-                                    <p className="font-body text-sm text-charcoal">
-                                        {orderData.shipping_address.city}, {orderData.shipping_address.state} - {orderData.shipping_address.pincode}
+                                    {/* Timeline */}
+                                    <div className="bg-white rounded-2xl shadow-soft p-5 md:p-6">
+                                        <h2 className="font-heading text-lg font-semibold text-charcoal mb-5">
+                                            Order Status
+                                        </h2>
+                                        <OrderTimeline
+                                            currentStatus={orderData.status}
+                                            paymentMethod={orderData.payment_method}
+                                            history={orderData.history}
+                                        />
+                                    </div>
+
+                                    {/* Shipping Card */}
+                                    {orderData.shipping && (
+                                        <ShippingCard
+                                            courierName={orderData.shipping.courierName}
+                                            trackingNumber={orderData.shipping.trackingNumber}
+                                            trackingUrl={orderData.shipping.trackingUrl}
+                                            status={orderData.shipping.status}
+                                            shippedAt={orderData.shipping.shippedAt}
+                                            deliveredAt={orderData.shipping.deliveredAt}
+                                        />
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Empty state */}
+                            {!orderData && !error && !isLoading && searched && (
+                                <div className="text-center py-12">
+                                    <p className="font-body text-charcoal/40 text-sm">
+                                        No results found
                                     </p>
                                 </div>
-                            </div>
-
-                            {/* Timeline */}
-                            <div className="bg-white rounded-2xl shadow-soft p-5 md:p-6">
-                                <h2 className="font-heading text-lg font-semibold text-charcoal mb-5">
-                                    Order Status
-                                </h2>
-                                <OrderTimeline
-                                    currentStatus={orderData.status}
-                                    paymentMethod={orderData.payment_method}
-                                    history={orderData.history}
-                                />
-                            </div>
-
-                            {/* Shipping Card */}
-                            {orderData.shipping && (
-                                <ShippingCard
-                                    courierName={orderData.shipping.courierName}
-                                    trackingNumber={orderData.shipping.trackingNumber}
-                                    trackingUrl={orderData.shipping.trackingUrl}
-                                    status={orderData.shipping.status}
-                                    shippedAt={orderData.shipping.shippedAt}
-                                    deliveredAt={orderData.shipping.deliveredAt}
-                                />
                             )}
-                        </div>
-                    )}
-
-                    {/* Empty state */}
-                    {!orderData && !error && !isLoading && searched && (
-                        <div className="text-center py-12">
-                            <p className="font-body text-charcoal/40 text-sm">
-                                No results found
-                            </p>
-                        </div>
+                        </>
                     )}
                 </div>
                 <Footer />

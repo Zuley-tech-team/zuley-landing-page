@@ -73,3 +73,45 @@ export async function uploadDataUrlImage(dataUrl: string, options: UploadOptions
 }
 
 export const isDataUrlImage = (value: string) => DATA_URL_PATTERN.test(value);
+
+/**
+ * Uploads a PDF buffer to Cloudinary as a raw file.
+ * Returns the secure_url and public_id.
+ */
+export async function uploadPdfBuffer(buffer: Buffer, options: UploadOptions = {}) {
+  if (!isCloudinaryConfigured()) {
+    throw new Error("Cloudinary is not configured");
+  }
+
+  const uploadFolder = options.folder || "zuley/invoices";
+
+  return new Promise<{ secure_url: string; public_id: string }>((resolve, reject) => {
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: uploadFolder,
+        public_id: options.publicId,
+        resource_type: "image",
+        format: "pdf",
+      },
+      (error, result) => {
+        if (error || !result) {
+          const message =
+            typeof error === "object" && error !== null && "message" in error && typeof (error as { message?: unknown }).message === "string"
+              ? (error as { message: string }).message
+              : error instanceof Error
+                ? error.message
+                : "Cloudinary PDF upload failed";
+          reject(new Error(message));
+          return;
+        }
+
+        resolve({
+          secure_url: result.secure_url,
+          public_id: result.public_id,
+        });
+      }
+    );
+
+    Readable.from([buffer]).pipe(uploadStream);
+  });
+}

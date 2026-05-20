@@ -9,6 +9,8 @@ import { Product } from "../../models/product.model";
 import { reserveStock } from "../inventory/inventory.service";
 import { InvoiceService } from "../../services/invoice.service";
 import { generateOrderId } from "../../utils/orderIdGenerator";
+import { EmailService } from "../../services/email.service";
+import { EmailType } from "../../models/email-queue.model";
 
 const getPhonePeClient = () => {
     if (!env.ENABLE_ONLINE_PAYMENTS) {
@@ -308,11 +310,26 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
         console.log(`Generating invoice for Order ${newOrder.order_id}...`);
         generatedInvoice = await InvoiceService.createInvoice(newOrder, customerDoc);
         await generatedInvoice.save();
+
+        // Queue invoice email with Cloudinary download link
+        await EmailService.addToQueue(
+            EmailType.INVOICE,
+            customerDoc.email,
+            newOrder._id,
+            {
+                orderId: newOrder.order_id,
+                invoiceNumber: generatedInvoice.invoiceNumber,
+                customerName: customerDoc.full_name,
+                paymentMethod: newOrder.payment_method,
+                amount: newOrder.total_amount / 100,
+                pdfPath: generatedInvoice.pdfPath, // Cloudinary URL
+            }
+        );
     } catch (invoiceError) {
         console.error("CRITICAL: Invoice generation failed for Order", newOrder.order_id, invoiceError);
     }
 
-    return { orderId: newOrder.order_id, invoiceNumber: generatedInvoice?.invoice_number };
+    return { orderId: newOrder.order_id, invoiceNumber: generatedInvoice?.invoiceNumber };
 };
 
 const handlePaymentFailed = async (payment: any, entity: any) => {
