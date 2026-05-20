@@ -4,7 +4,7 @@ import { Footer } from '../components/home';
 import { Button } from '../components/common/Button';
 import { CheckCircle2, Package, ArrowRight, Copy, Check, Download, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
-import { fetchInvoiceUrl } from '../api/orders';
+import { fetchAndDownloadInvoice } from '../api/orders';
 
 export function OrderSuccessPage() {
     const [searchParams] = useSearchParams();
@@ -36,8 +36,7 @@ export function OrderSuccessPage() {
         if (!orderId || invoiceLoading) return;
         setInvoiceLoading(true);
         try {
-            const url = await fetchInvoiceUrl(orderId, invoice || null);
-            window.open(url, '_blank', 'noopener,noreferrer');
+            await fetchAndDownloadInvoice(orderId, invoice || null);
         } catch (err: any) {
             alert(err.message || 'Failed to download invoice. Please try from My Orders.');
         } finally {

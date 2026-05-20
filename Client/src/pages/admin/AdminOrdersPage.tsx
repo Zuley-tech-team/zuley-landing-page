@@ -638,14 +638,22 @@ function OrderDetailModal({
     const handleAdminInvoiceDownload = async () => {
         setInvoiceLoading(true);
         try {
-            const data = await adminAPI.getOrderInvoice(primaryOrder.order_id);
-            if (data?.data?.url) {
-                window.open(data.data.url, '_blank', 'noopener,noreferrer');
-            } else if (data?.data?.pdfPath?.startsWith('http')) {
-                window.open(data.data.pdfPath, '_blank', 'noopener,noreferrer');
-            } else {
-                alert('Invoice not available yet for this order.');
+            // Hit the download endpoint which now proxies the PDF server-side
+            const downloadUrl = adminAPI.getOrderInvoiceDownloadUrl(primaryOrder.order_id);
+            const res = await fetch(downloadUrl, { credentials: 'include' });
+            if (!res.ok) {
+                const err = await res.json().catch(() => ({}));
+                throw new Error(err.message || 'Invoice not available yet for this order.');
             }
+            const blob = await res.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Invoice-${primaryOrder.order_id}.pdf`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
         } catch (err: any) {
             alert(err.message || 'Failed to load invoice');
         } finally {

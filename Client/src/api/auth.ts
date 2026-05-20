@@ -164,19 +164,7 @@ export async function downloadMyInvoice(orderId: string): Promise<void> {
         throw new Error(data.message || 'Failed to download invoice');
     }
 
-    // Check Content-Type: if JSON, the server returned a Cloudinary URL
-    const contentType = res.headers.get('content-type') || '';
-    if (contentType.includes('application/json')) {
-        const data = await res.json();
-        if (data.url) {
-            // Open Cloudinary URL directly in a new tab — no CORS issues
-            window.open(data.url, '_blank', 'noopener,noreferrer');
-            return;
-        }
-        throw new Error('Invoice URL not found');
-    }
-
-    // Legacy: binary blob from local disk
+    // Server now always streams the PDF — just download it as a blob
     const blob = await res.blob();
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');

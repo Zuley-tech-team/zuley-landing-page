@@ -228,7 +228,6 @@ export const createCodOrder = async (input: CodOrderInput) => {
       invoice = await InvoiceService.createInvoice(order as any, customerDoc as any);
       await invoice.save();
 
-      // Queue invoice email with Cloudinary download link
       await EmailService.addToQueue(
         EmailType.INVOICE,
         customerDoc.email,
@@ -239,7 +238,6 @@ export const createCodOrder = async (input: CodOrderInput) => {
           customerName: customerDoc.full_name,
           paymentMethod: order.payment_method,
           amount: order.total_amount / 100,
-          pdfPath: invoice.pdfPath, // Cloudinary URL
         }
       );
     } catch (invoiceError) {

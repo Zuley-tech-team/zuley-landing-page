@@ -126,9 +126,42 @@ export async function placeCodOrder(
 }
 
 /**
- * Fetches the Cloudinary invoice URL for an order by calling the authenticated endpoint.
- * The endpoint now returns JSON { success, url, invoiceNumber } instead of redirecting.
+ * Downloads the invoice for an order via our authenticated proxy endpoint.
+ * The server fetches from Cloudinary internally and streams the PDF —
+ * the client only ever sees zuley.in URLs.
  */
+export async function fetchAndDownloadInvoice(orderId: string, invoiceNumber?: string | null): Promise<void> {
+    const params = new URLSearchParams();
+    if (invoiceNumber) {
+        params.set('invoiceNumber', invoiceNumber);
+    }
+    const query = params.toString();
+    const apiUrl = `${API_BASE_URL}/api/v1/orders/${encodeURIComponent(orderId)}/invoice${query ? `?${query}` : ''}`;
+
+    const { getStoredToken } = await import('./auth');
+    const token = getStoredToken();
+    const headers: Record<string, string> = {};
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
+    const res = await fetch(apiUrl, { headers, credentials: 'include' });
+    if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || 'Failed to fetch invoice');
+    }
+
+    // Server streams the PDF directly — download as blob
+    const blob = await res.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Invoice-${orderId}.pdf`;
+    document.body.appendChild(a);
+    a.click();
+    window.URL.revokeObjectURL(url);
+    document.body.removeChild(a);
+}
+
+/** @deprecated Use fetchAndDownloadInvoice instead */
 export async function fetchInvoiceUrl(orderId: string, invoiceNumber?: string | null): Promise<string> {
     const params = new URLSearchParams();
     if (invoiceNumber) {
@@ -147,7 +180,7 @@ export async function fetchInvoiceUrl(orderId: string, invoiceNumber?: string | 
         const err = await res.json().catch(() => ({}));
         throw new Error(err.message || 'Failed to fetch invoice');
     }
-    const data = await res.json();
-    if (!data.url) throw new Error('Invoice URL not found');
-    return data.url;
+    // The server now streams the PDF — we can't return a URL.
+    // Callers should migrate to fetchAndDownloadInvoice.
+    throw new Error('fetchInvoiceUrl is deprecated. Use fetchAndDownloadInvoice instead.');
 }

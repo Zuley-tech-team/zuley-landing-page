@@ -1,5 +1,6 @@
 import { Router } from "express";
 import fs from "fs";
+import axios from "axios";
 import { Order } from "../../models/order.model";
 import { Shipping } from "../../models/shipping.model";
 import { Invoice } from "../../models/invoice.model";
@@ -84,13 +85,17 @@ router.get("/:orderId/invoice", authenticateUser, publicRateLimit({ windowMs: 15
             });
         }
 
-        // Cloudinary URL — return as JSON so client can open it without CORS issues
+        // Cloudinary URL — proxy the PDF through our server so the client
+        // only ever sees zuley.in URLs, never res.cloudinary.com
         if (invoice.pdfPath.startsWith("http")) {
-            return res.json({
-                success: true,
-                url: invoice.pdfPath,
-                invoiceNumber: invoice.invoiceNumber,
-            });
+            const pdfResponse = await axios.get(invoice.pdfPath, { responseType: "stream" });
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+                "Content-Disposition",
+                `attachment; filename="${invoice.invoiceNumber}.pdf"`
+            );
+            pdfResponse.data.pipe(res);
+            return;
         }
 
         // Legacy: local file path — stream from disk

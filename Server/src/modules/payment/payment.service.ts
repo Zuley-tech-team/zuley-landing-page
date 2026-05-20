@@ -311,7 +311,7 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
         generatedInvoice = await InvoiceService.createInvoice(newOrder, customerDoc);
         await generatedInvoice.save();
 
-        // Queue invoice email with Cloudinary download link
+        // Queue invoice email — user can log in and download from the tracking page
         await EmailService.addToQueue(
             EmailType.INVOICE,
             customerDoc.email,
@@ -322,7 +322,6 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
                 customerName: customerDoc.full_name,
                 paymentMethod: newOrder.payment_method,
                 amount: newOrder.total_amount / 100,
-                pdfPath: generatedInvoice.pdfPath, // Cloudinary URL
             }
         );
     } catch (invoiceError) {

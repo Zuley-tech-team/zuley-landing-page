@@ -1,4 +1,5 @@
 import PDFDocument from 'pdfkit';
+import { randomBytes } from 'crypto';
 import { Invoice, IInvoice, IInvoiceItem } from '../models/invoice.model';
 import { Counter } from '../models/counter.model';
 import { IOrder } from '../models/order.model';
@@ -105,7 +106,10 @@ export class InvoiceService {
         );
 
         const sequence = counter.seq.toString().padStart(5, '0');
-        return `INV-${fyString}-${sequence}`;
+        // Append 4 random hex chars so the invoice number is unpredictable
+        // while still being sequential/readable for GST/accounting purposes.
+        const randomSuffix = randomBytes(2).toString('hex'); // e.g. "a3f7"
+        return `INV-${fyString}-${sequence}-${randomSuffix}`;
     }
 
     /**

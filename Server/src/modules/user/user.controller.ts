@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import crypto from "crypto";
+import axios from "axios";
 import { User } from "../../models/user.model";
 import { Otp } from "../../models/otp.model";
 import { Order } from "../../models/order.model";
@@ -388,14 +389,17 @@ export const downloadMyInvoice = async (req: Request, res: Response) => {
             return res.status(404).json({ message: "Invoice PDF not available for this order." });
         }
 
-        // Cloudinary URL — return it as JSON so the client can open it directly
-        // (res.redirect causes CORS errors when the client uses fetch+blob)
+        // Cloudinary URL — proxy the PDF through our server so the client
+        // only ever sees zuley.in URLs, never res.cloudinary.com
         if (invoice.pdfPath.startsWith("http")) {
-            return res.json({
-                success: true,
-                url: invoice.pdfPath,
-                invoiceNumber: invoice.invoiceNumber,
-            });
+            const pdfResponse = await axios.get(invoice.pdfPath, { responseType: "stream" });
+            res.setHeader("Content-Type", "application/pdf");
+            res.setHeader(
+                "Content-Disposition",
+                `attachment; filename="Invoice-${invoice.invoiceNumber}.pdf"`
+            );
+            pdfResponse.data.pipe(res);
+            return;
         }
 
         // Legacy: local file path — stream from disk
