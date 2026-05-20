@@ -105,13 +105,13 @@ export function HeroSection1() {
 
                             {/* Headline */}
                             <h1 className="font-heading text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-pearl leading-tight mb-3 md:mb-4">
-                                Everyday Silver.{' '}
-                                <span className="text-primary-light">Made Personal.</span>
+                                Premium Silver Pens.{' '}
+                                <span className="text-primary-light">Exceptional Gifts.</span>
                             </h1>
 
                             {/* Sub-headline */}
                             <p className="font-body text-sm sm:text-base md:text-lg text-pearl/75 leading-relaxed mb-5 md:mb-6 max-w-lg">
-                                Premium silver pens and accessories for meaningful gifting and modern professionals.
+                                Handcrafted personalized silver pens and premium gifts for corporate and milestone moments.
                             </p>
 
                             {/* CTA buttons */}

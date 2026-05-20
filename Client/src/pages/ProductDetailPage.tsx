@@ -250,6 +250,28 @@ export function ProductDetailPage() {
         ? (productReviews.reduce((acc, item) => acc + item.rating, 0) / productReviews.length).toFixed(1)
         : null;
 
+    const productSchema = product ? {
+        "@context": "https://schema.org/",
+        "@type": "Product",
+        "name": product.name,
+        "image": images,
+        "description": product.features?.join(', ') || product.name,
+        "sku": product.sku,
+        "offers": {
+            "@type": "Offer",
+            "url": `https://zuley.in/products/${product.sku}`,
+            "priceCurrency": "INR",
+            "price": product.price,
+            "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+            "itemCondition": "https://schema.org/NewCondition"
+        },
+        "aggregateRating": averageRating && productReviews.length > 0 ? {
+            "@type": "AggregateRating",
+            "ratingValue": averageRating,
+            "reviewCount": productReviews.length
+        } : undefined
+    } : null;
+
     const handleSelectImage = (index: number, isManual = false) => {
         setSelectedImage(index);
         if (isManual) {
@@ -403,6 +425,9 @@ export function ProductDetailPage() {
         <>
             <Navbar />
             <main className="min-h-screen bg-pearl pt-20">
+                {productSchema && (
+                    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(productSchema) }} />
+                )}
                 {/* Breadcrumb */}
                 <div className="bg-white border-b border-charcoal/10">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">

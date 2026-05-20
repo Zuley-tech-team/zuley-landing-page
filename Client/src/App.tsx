@@ -83,8 +83,8 @@ function App() {
             path="/"
             element={withMeta(
               <HomePage />,
-              'Zuley',
-              'Shop premium personalized silver pens and accessories for milestone gifting and everyday elegance.',
+              'Zuley | Premium Silver Pens & Personalized Gifts',
+              'Shop premium personalized silver pens and premium gifts. Custom handcrafted silver accessories for corporate and milestone gifting in India.',
               '/'
             )}
           />
