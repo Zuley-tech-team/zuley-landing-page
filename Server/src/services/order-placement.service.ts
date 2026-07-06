@@ -244,6 +244,9 @@ export const createCodOrder = async (input: CodOrderInput) => {
       console.error("Invoice/email generation failed for COD order", order.order_id, invoiceError);
     }
 
+    // Notify admin about the new order
+    EmailService.queueAdminNewOrderNotification(order);
+
     if (couponDoc?._id) {
       await Coupon.findByIdAndUpdate(couponDoc._id, { $inc: { usage_count: 1 } });
     }

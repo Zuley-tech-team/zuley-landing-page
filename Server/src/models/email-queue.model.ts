@@ -11,6 +11,7 @@ export enum EmailType {
     RETURN_REJECTED = "return_rejected",
     RETURN_REFUNDED = "return_refunded",
     RETURN_REPLACED = "return_replaced",
+    ADMIN_NEW_ORDER = "admin_new_order",
 }
 
 export enum EmailStatus {

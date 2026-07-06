@@ -328,6 +328,9 @@ const handlePaymentCaptured = async (payment: any, gatewayOrderId: string, entit
         console.error("CRITICAL: Invoice generation failed for Order", newOrder.order_id, invoiceError);
     }
 
+    // Notify admin about the new order
+    EmailService.queueAdminNewOrderNotification(newOrder);
+
     return { orderId: newOrder.order_id, invoiceNumber: generatedInvoice?.invoiceNumber };
 };
 

@@ -6,6 +6,9 @@ import { Order } from "../models/order.model";
 // Initialize Resend with API Key only if present
 const resend = env.RESEND_API_KEY ? new Resend(env.RESEND_API_KEY) : null;
 
+// Admin email for order notifications — change this if the recipient changes
+const ADMIN_NOTIFICATION_EMAIL = "vinay.ofz@gmail.com";
+
 const escapeHtml = (value: any) =>
     String(value ?? "")
         .replace(/&/g, "&amp;")
@@ -164,6 +167,7 @@ export class EmailService {
       EmailType.RETURN_REJECTED,
       EmailType.RETURN_REFUNDED,
       EmailType.RETURN_REPLACED,
+      EmailType.ADMIN_NEW_ORDER,
     ]);
 
     /**
@@ -198,6 +202,38 @@ export class EmailService {
             console.error("[EmailService] Failed to queue email:", error);
             // We don't throw here to avoid blocking the main flow (e.g. order creation)
             // but in a real system, we might want a fallback or alert.
+        }
+    }
+
+    /**
+     * Queue an admin notification email for a new order.
+     * Fire-and-forget — never throws or blocks the order flow.
+     */
+    static async queueAdminNewOrderNotification(order: any) {
+        try {
+            await this.addToQueue(
+                EmailType.ADMIN_NEW_ORDER,
+                ADMIN_NOTIFICATION_EMAIL,
+                order._id,
+                {
+                    orderId: order.order_id,
+                    customerName: order.customer_details?.name,
+                    customerPhone: order.customer_details?.phone,
+                    customerEmail: order.customer_details?.email,
+                    paymentMethod: order.payment_method,
+                    amount: order.total_amount / 100,
+                    items: order.items?.map((item: any) => ({
+                        name: item.name,
+                        quantity: item.quantity,
+                        total_price: item.total_price,
+                    })),
+                    shippingAddress: order.shipping_address,
+                    couponCode: order.coupon?.code || null,
+                    couponDiscount: order.coupon?.discount_amount ? order.coupon.discount_amount / 100 : 0,
+                }
+            );
+        } catch (error) {
+            console.error("[EmailService] Failed to queue admin new-order notification:", error);
         }
     }
 
@@ -521,6 +557,79 @@ export class EmailService {
                   ctaUrl: getTrackingUrl(payload.orderId),
                 }),
               };
+
+            case EmailType.ADMIN_NEW_ORDER: {
+                const itemsHtml = (payload.items || []).map((item: any) =>
+                    `<tr>
+                        <td style="padding:8px 12px;border-bottom:1px solid #E8E0D8;font-size:14px;color:#1C1C1E;">${escapeHtml(item.name)}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #E8E0D8;font-size:14px;color:#1C1C1E;text-align:center;">${item.quantity}</td>
+                        <td style="padding:8px 12px;border-bottom:1px solid #E8E0D8;font-size:14px;color:#1C1C1E;text-align:right;">${formatCurrency(item.total_price / 100)}</td>
+                    </tr>`
+                ).join("");
+
+                const addressParts = [
+                    payload.shippingAddress?.line1,
+                    payload.shippingAddress?.line2,
+                    payload.shippingAddress?.city,
+                    payload.shippingAddress?.state,
+                    payload.shippingAddress?.pincode,
+                ].filter(Boolean).map(escapeHtml).join(", ");
+
+                return {
+                    subject: `🛒 New Order Received | ${payload.orderId} - Zuley`,
+                    html: buildBrandedEmail({
+                        title: "New Order Received",
+                        subtitle: `A new order has been placed on Zuley.`,
+                        contentHtml: `
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+  <tr>
+    <td style="padding:8px 0;"><strong>Order ID:</strong></td>
+    <td style="padding:8px 0;text-align:right;">${escapeHtml(payload.orderId)}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;"><strong>Payment:</strong></td>
+    <td style="padding:8px 0;text-align:right;">${payload.paymentMethod === "cod" ? "Cash on Delivery" : "Online (PhonePe)"}</td>
+  </tr>
+  <tr>
+    <td style="padding:8px 0;"><strong>Total:</strong></td>
+    <td style="padding:8px 0;text-align:right;font-weight:700;">${formatCurrency(payload.amount)}</td>
+  </tr>
+</table>
+
+<h3 style="margin:0 0 10px;font-size:16px;color:#1C1C1E;">Customer</h3>
+<table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;">
+  <tr>
+    <td style="padding:6px 0;"><strong>Name:</strong></td>
+    <td style="padding:6px 0;text-align:right;">${escapeHtml(payload.customerName)}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0;"><strong>Phone:</strong></td>
+    <td style="padding:6px 0;text-align:right;">${escapeHtml(payload.customerPhone)}</td>
+  </tr>
+  <tr>
+    <td style="padding:6px 0;"><strong>Email:</strong></td>
+    <td style="padding:6px 0;text-align:right;">${escapeHtml(payload.customerEmail)}</td>
+  </tr>
+</table>
+
+<h3 style="margin:0 0 10px;font-size:16px;color:#1C1C1E;">Items</h3>
+<table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #E8E0D8;border-radius:8px;overflow:hidden;margin:0 0 18px;">
+  <thead>
+    <tr style="background:#FAF8F6;">
+      <th style="padding:10px 12px;text-align:left;font-size:13px;color:#6B6B6B;font-weight:600;">Item</th>
+      <th style="padding:10px 12px;text-align:center;font-size:13px;color:#6B6B6B;font-weight:600;">Qty</th>
+      <th style="padding:10px 12px;text-align:right;font-size:13px;color:#6B6B6B;font-weight:600;">Amount</th>
+    </tr>
+  </thead>
+  <tbody>${itemsHtml}</tbody>
+</table>
+
+<h3 style="margin:0 0 10px;font-size:16px;color:#1C1C1E;">Shipping Address</h3>
+<p style="margin:0;color:#6B6B6B;font-size:14px;line-height:1.6;">${addressParts}</p>
+${payload.couponCode ? `<p style="margin:12px 0 0;"><strong>Coupon Applied:</strong> ${escapeHtml(payload.couponCode)} (−${formatCurrency(payload.couponDiscount)})</p>` : ""}`,
+                    }),
+                };
+            }
 
             default:
                 return {
